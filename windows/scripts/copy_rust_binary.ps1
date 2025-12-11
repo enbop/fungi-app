@@ -5,17 +5,17 @@ param(
 
 Write-Host "========== Copying Rust Binary =========="
 
-$BuildType = if ($Configuration -eq "Release" -or $Configuration -eq "Profile") { "release" } else { "debug" }
-
-Write-Host "Build Type: $BuildType"
-
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..\..") | Select-Object -ExpandProperty Path
+# The fungi-artifacts directory is located at the root of the Flutter project (fungi-app)
+# Relative path from script: ..\..\fungi-artifacts\fungi.exe
+$RustBinaryPath = Join-Path $ScriptDir "..\..\fungi-artifacts\fungi.exe"
 
 if ([string]::IsNullOrEmpty($DestDir)) {
     if ($env:CMAKE_BINARY_DIR) {
         $CMakeBinaryDir = $env:CMAKE_BINARY_DIR
     } else {
+        # Fallback for when running script manually or outside CMake
+        $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..\..") | Select-Object -ExpandProperty Path
         $CMakeBinaryDir = Join-Path $ProjectRoot "flutter_app\build\windows\x64\runner"
     }
     $DestDir = Join-Path $CMakeBinaryDir $Configuration
@@ -23,34 +23,12 @@ if ([string]::IsNullOrEmpty($DestDir)) {
 
 $DestBinary = Join-Path $DestDir "fungi.exe"
 
-# Try to find Rust binary in multiple locations
-# 1. Standard location (dev environment): target/{debug,release}/fungi.exe
-# 2. CI environment with target triple: target/{triple}/{debug,release}/fungi.exe
-$RustBinaryPath = $null
-$PossiblePaths = @(
-    (Join-Path $ProjectRoot "target\$BuildType\fungi.exe"),
-    (Join-Path $ProjectRoot "target\x86_64-pc-windows-msvc\$BuildType\fungi.exe"),
-    (Join-Path $ProjectRoot "target\aarch64-pc-windows-msvc\$BuildType\fungi.exe")
-)
-
-foreach ($path in $PossiblePaths) {
-    if (Test-Path $path) {
-        $RustBinaryPath = $path
-        break
-    }
-}
-
 Write-Host "Source: $RustBinaryPath"
 Write-Host "Destination: $DestBinary"
 
-if (-not $RustBinaryPath -or -not (Test-Path $RustBinaryPath)) {
-    Write-Host "Error: Rust binary not found!" -ForegroundColor Red
-    Write-Host "Searched in:" -ForegroundColor Yellow
-    foreach ($path in $PossiblePaths) {
-        Write-Host "  - $path" -ForegroundColor Yellow
-    }
-    $BuildCmd = if ($BuildType -eq "release") { "cargo build --bin fungi --release" } else { "cargo build --bin fungi" }
-    Write-Host "Please run: $BuildCmd"
+if (-not (Test-Path $RustBinaryPath)) {
+    Write-Host "Error: Rust binary not found at $RustBinaryPath" -ForegroundColor Red
+    Write-Host "Please ensure 'fungi-artifacts\fungi.exe' exists in the project root." -ForegroundColor Yellow
     exit 1
 }
 
@@ -60,13 +38,14 @@ if (-not (Test-Path $DestDir)) {
 
 $NeedsCopy = $true
 
-if ($BuildType -eq "debug" -and (Test-Path $DestBinary)) {
-    $SourceLastWrite = (Get-Item $RustBinaryPath).LastWriteTime
-    $DestLastWrite = (Get-Item $DestBinary).LastWriteTime
+if (Test-Path $DestBinary) {
+    $SourceItem = Get-Item $RustBinaryPath
+    $DestItem = Get-Item $DestBinary
     
-    if ($SourceLastWrite -le $DestLastWrite) {
+    # Compare size and modification time
+    if ($SourceItem.Length -eq $DestItem.Length -and $SourceItem.LastWriteTime -eq $DestItem.LastWriteTime) {
         $NeedsCopy = $false
-        Write-Host "Binary is up to date, skipping copy"
+        Write-Host "Binary is identical (size and mtime match). Skipping copy."
     }
 }
 
@@ -77,11 +56,12 @@ if ($NeedsCopy) {
     
     Copy-Item $RustBinaryPath -Destination $DestBinary -Force
     
-    if ($BuildType -eq "debug") {
-        Write-Host "Copied binary (debug)"
-    } else {
-        Write-Host "Copied binary (release)"
-    }
+    # Manually sync LastWriteTime to ensure the check works next time
+    $SourceItem = Get-Item $RustBinaryPath
+    $DestItem = Get-Item $DestBinary
+    $DestItem.LastWriteTime = $SourceItem.LastWriteTime
+    
+    Write-Host "Copied binary."
 }
 
 Write-Host "========== Done =========="

@@ -29,5 +29,5 @@ export PATH="$PATH:$HOME/.pub-cache/bin"
 
 Regenerate gRPC code
 ```
-protoc --dart_out=grpc:lib/src/grpc/generated -I../crates/daemon-grpc/proto ../crates/daemon-grpc/proto/fungi_daemon.proto
+protoc --dart_out=grpc:lib/src/grpc/generated -Ifungi-artifacts fungi-artifacts/fungi_daemon.proto
 ```
