@@ -1,8 +1,5 @@
 import java.util.Properties
 import java.io.FileInputStream
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.security.MessageDigest
 
 plugins {
     id("com.android.application")
@@ -17,54 +14,19 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-tasks.register("copyRustBinary") {
-    val projectRoot = project.rootProject.projectDir.parentFile.parentFile
-    val sourceFile = File(projectRoot, "target/aarch64-linux-android/release/fungi")
-    val targetDir = File(projectDir, "src/main/jniLibs/arm64-v8a")
-    val targetFile = File(targetDir, "libfungi.so")
+tasks.register<Copy>("copyRustBinary") {
+    val flutterRoot = project.rootProject.projectDir.parentFile
+    val sourceFile = File(flutterRoot, "fungi-artifacts/android/arm64-v8a/libfungi.so")
+    
+    from(sourceFile)
+    into(File(projectDir, "src/main/jniLibs/arm64-v8a"))
     
     doFirst {
         if (!sourceFile.exists()) {
             throw GradleException(
                 "Rust binary not found at: ${sourceFile.absolutePath}\n" +
-                "Please build the Rust project first using:\n" +
-                "cargo ndk -P 24 -t arm64-v8a build --bin fungi --release"
+                "Please ensure 'fungi-artifacts/android/arm64-v8a/libfungi.so' exists in the project root."
             )
-        }
-        
-        targetDir.mkdirs()
-        
-        val needsCopy = if (!targetFile.exists()) {
-            println("Target file doesn't exist, copying...")
-            true
-        } else {
-            val sourceHash = sourceFile.inputStream().use { input ->
-                MessageDigest.getInstance("MD5").digest(input.readBytes()).joinToString("") { 
-                    "%02x".format(it) 
-                }
-            }
-            val targetHash = targetFile.inputStream().use { input ->
-                MessageDigest.getInstance("MD5").digest(input.readBytes()).joinToString("") { 
-                    "%02x".format(it) 
-                }
-            }
-            
-            if (sourceHash != targetHash) {
-                println("File changed (MD5 mismatch), copying...")
-                true
-            } else {
-                println("File unchanged, skipping copy")
-                false
-            }
-        }
-        
-        if (needsCopy) {
-            Files.copy(
-                sourceFile.toPath(),
-                targetFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-            )
-            println("Copied Rust binary: ${sourceFile.absolutePath} -> ${targetFile.absolutePath}")
         }
     }
 }
