@@ -1,0 +1,97 @@
+name: Tests
+
+on:
+  # pull_request:
+  #   branches: [ "master" ]
+  # push:
+  #   branches: [ "master" ]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-22.04
+            target: linux
+            fungi-artifact: fungi-linux-x86_64.tar.gz
+          - os: macos-latest
+            target: macos
+            fungi-artifact: fungi-macos-aarch64.tar.gz
+          - os: windows-latest
+            target: windows
+            fungi-artifact: fungi-windows-x86_64.tar.gz
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Fungi Version
+        id: fungi_version
+        shell: bash
+        run: |
+          VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Using Fungi Version: $VERSION"
+
+      - name: Download Fungi Artifacts
+        shell: bash
+        run: |
+          mkdir -p fungi-artifacts
+          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
+          
+          # Download binary artifact
+          curl -L -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
+          
+          # Download proto file
+          curl -L -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
+          
+          # Extract binary
+          cd fungi-artifacts
+          tar -xzf ${{ matrix.fungi-artifact }}
+          rm ${{ matrix.fungi-artifact }}
+
+      - name: Install Linux Dependencies
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libayatana-appindicator3-dev protobuf-compiler
+
+      - name: Install macOS Dependencies
+        if: matrix.target == 'macos'
+        run: |
+          brew install protobuf
+
+      - name: Install Windows Dependencies
+        if: matrix.target == 'windows'
+        run: |
+          choco install protoc
+        shell: powershell
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Pub Dependencies
+        run: flutter pub get
+
+      - name: Generate gRPC Code
+        shell: bash
+        run: |
+          # Install protoc_plugin
+          dart pub global activate protoc_plugin 21.1.2
+          export PATH="$PATH:$HOME/.pub-cache/bin"
+          
+          # Generate
+          protoc --dart_out=grpc:lib/src/grpc/generated -Ifungi-artifacts fungi-artifacts/fungi_daemon.proto
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test

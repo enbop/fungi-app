@@ -1,0 +1,97 @@
+name: "Android Release"
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+      - "nightly"
+
+jobs:
+  android_release_build_and_publish:
+    name: Android Release build and publish
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    env:
+      fungi-artifact: fungi-android-aarch64.tar.gz
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Fungi Version
+        id: fungi_version
+        shell: bash
+        run: |
+          VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Using Fungi Version: $VERSION"
+
+      - name: Download Fungi Artifacts
+        shell: bash
+        run: |
+          mkdir -p fungi-artifacts
+          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
+          
+          # Download binary artifact
+          curl -L -o fungi-artifacts/${{ env.fungi-artifact }} "$BASE_URL/${{ env.fungi-artifact }}"
+          
+          # Download proto file
+          curl -L -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
+          
+          # Extract binary
+          cd fungi-artifacts
+          tar -xzf ${{ env.fungi-artifact }}
+          rm ${{ env.fungi-artifact }}
+          
+          # Organize for Android
+          mkdir -p android/arm64-v8a
+          mv libfungi.so android/arm64-v8a/
+
+      - name: Install Android Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Pub Dependencies
+        run: flutter pub get
+
+      - name: Setup Android signing
+        run: |
+          echo "${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties  
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
+
+      - name: Build Android
+        run: |
+          flutter build apk --release --target-platform android-arm64
+          cp build/app/outputs/flutter-apk/app-release.apk fungi-app-android-aarch64.apk
+
+      - name: GH publish
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
+            RELEASE_TAG="nightly"
+          else
+            RELEASE_TAG="${{ github.ref_name }}"
+          fi
+          
+          if [ -f fungi-app-android-aarch64.apk ]; then
+            gh release upload -R ${{ github.repository }} --clobber $RELEASE_TAG fungi-app-android-aarch64.apk
+          fi

@@ -1,0 +1,135 @@
+name: "Release"
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+      - "nightly"
+
+jobs:
+  release_build_and_publish:
+    name: Release build and publish
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            target: linux
+            platform-name: linux-x86_64
+            fungi-artifact: fungi-linux-x86_64.tar.gz
+          - os: macos-13
+            target: macos
+            platform-name: macos-x86_64
+            fungi-artifact: fungi-macos-x86_64.tar.gz
+          - os: macos-latest
+            target: macos
+            platform-name: macos-aarch64
+            fungi-artifact: fungi-macos-aarch64.tar.gz
+          - os: windows-latest
+            target: windows
+            platform-name: windows-x86_64
+            fungi-artifact: fungi-windows-x86_64.tar.gz
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Fungi Version
+        id: fungi_version
+        shell: bash
+        run: |
+          VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Using Fungi Version: $VERSION"
+
+      - name: Download Fungi Artifacts
+        shell: bash
+        run: |
+          mkdir -p fungi-artifacts
+          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
+          
+          # Download binary artifact
+          curl -L -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
+          
+          # Download proto file
+          curl -L -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
+          
+          # Extract binary
+          cd fungi-artifacts
+          tar -xzf ${{ matrix.fungi-artifact }}
+          rm ${{ matrix.fungi-artifact }}
+
+      - name: Install Linux Dependencies
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libayatana-appindicator3-dev protobuf-compiler
+
+      - name: Install macOS Dependencies
+        if: matrix.target == 'macos'
+        run: |
+          brew install protobuf
+
+      - name: Install Windows Dependencies
+        if: matrix.target == 'windows'
+        run: |
+          choco install protoc
+        shell: powershell
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Pub Dependencies
+        run: flutter pub get
+
+      - name: Build Linux
+        if: matrix.target == 'linux'
+        run: |
+          flutter config --enable-linux-desktop
+          flutter build linux --release
+          tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/linux/x64/release/bundle .
+
+      - name: Build macOS
+        if: matrix.target == 'macos'
+        run: |
+          flutter config --enable-macos-desktop
+          flutter build macos --release
+          tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/macos/Build/Products/Release "Fungi App.app"
+
+      - name: Build Windows
+        if: matrix.target == 'windows'
+        shell: bash
+        run: |
+          flutter config --enable-windows-desktop
+          flutter build windows --release
+          cd build/windows/x64/runner/Release
+          tar -czf ../../../../../../fungi-app-${{ matrix.platform-name }}.tar.gz .
+
+      - name: Update nightly release notes
+        if: (github.event_name == 'workflow_dispatch' || github.ref_name == 'nightly') && matrix.platform-name == 'linux-x86_64'
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit nightly --title "Nightly Build" --notes "Latest development build from commit ${{ github.sha }} ($(date))" || true
+
+      - name: GH publish
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
+            RELEASE_TAG="nightly"
+          else
+            RELEASE_TAG="${{ github.ref_name }}"
+          fi
+          
+          if [ -f fungi-app-${{ matrix.platform-name }}.tar.gz ]; then
+            gh release upload -R ${{ github.repository }} --clobber $RELEASE_TAG fungi-app-${{ matrix.platform-name }}.tar.gz
+          fi
