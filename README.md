@@ -1,33 +1,44 @@
-# fungi_app
+# Fungi App
 
-A new Flutter project.
+The official graphical user interface for [Fungi](../fungi), built with Flutter.
 
-## Getting Started
+<div align="center">
+  <img src="https://raw.githubusercontent.com/enbop/fungi/e21ea16a6cc3eaa57da0c025550d717c6b32a1a6/assets/fungi-data-tunnel.png" alt="File Transfer Interface" width="250" style="margin: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+  <img src="https://raw.githubusercontent.com/enbop/fungi/e21ea16a6cc3eaa57da0c025550d717c6b32a1a6/assets/fungi-data-tunnel.png" alt="Data Tunnel Interface" width="250" style="margin: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+</div>
 
-This project is a starting point for a Flutter application.
+## Architecture
 
-A few resources to get you started if this is your first Flutter project:
+Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app manages the lifecycle of the daemon process.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Development
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Prerequisites
 
-## Protobuf
+1.  **Flutter SDK**: Ensure you have the latest Flutter SDK installed.
+2.  **Fungi Artifacts**: This project requires pre-built `fungi` binaries and proto files.
+    *   Create a `fungi-artifacts` directory in the project root.
+    *   Place the `fungi` (or `fungi.exe`) binary for your platform in `fungi-artifacts/`.
+    *   Place `fungi_daemon.proto` in `fungi-artifacts/`.
 
-Install protoc_plugin
-```
+### Code Generation
+
+If you modify the `.proto` definitions, regenerate the Dart gRPC code:
+
+```bash
+# Install protoc_plugin
 dart pub global activate protoc_plugin 21.1.2
-```
 
-Update path
-```
+# Update path
 export PATH="$PATH:$HOME/.pub-cache/bin"
+
+# Regenerate gRPC code
+protoc --dart_out=grpc:lib/src/grpc/generated -Ifungi-artifacts fungi-artifacts/fungi_daemon.proto
 ```
 
-Regenerate gRPC code
-```
-protoc --dart_out=grpc:lib/src/grpc/generated -Ifungi-artifacts fungi-artifacts/fungi_daemon.proto
+### Running the App
+
+```bash
+flutter pub get
+flutter run
 ```
