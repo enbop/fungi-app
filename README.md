@@ -1,6 +1,6 @@
 # Fungi App
 
-The official graphical user interface for [Fungi](../fungi), built with Flutter.
+The official graphical user interface for [Fungi](https://github.com/enbop/fungi), built with Flutter.
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/enbop/fungi/e21ea16a6cc3eaa57da0c025550d717c6b32a1a6/assets/fungi-data-tunnel.png" alt="File Transfer Interface" width="250" style="margin: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
