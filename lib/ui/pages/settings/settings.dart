@@ -67,27 +67,29 @@ class Settings extends GetView<FungiController> {
       builder: (context) {
         return AlertDialog(
           title: Text('Select Theme'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ThemeOption.values.map((option) {
-              return ListTile(
-                title: Text(option.name),
-                leading: Radio<ThemeOption>(
-                  value: option,
-                  groupValue: controller.currentTheme.value,
-                  onChanged: (ThemeOption? value) {
-                    if (value != null) {
-                      controller.changeTheme(value);
-                      SmartDialog.dismiss();
-                    }
-                  },
-                ),
-                onTap: () {
-                  controller.changeTheme(option);
+          content: Obx(
+            () => RadioGroup<ThemeOption>(
+              groupValue: controller.currentTheme.value,
+              onChanged: (ThemeOption? value) {
+                if (value != null) {
+                  controller.changeTheme(value);
                   SmartDialog.dismiss();
-                },
-              );
-            }).toList(),
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: ThemeOption.values.map((option) {
+                  return ListTile(
+                    title: Text(option.name),
+                    leading: Radio<ThemeOption>(value: option),
+                    onTap: () {
+                      controller.changeTheme(option);
+                      SmartDialog.dismiss();
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
           ),
           actions: [
             TextButton(
