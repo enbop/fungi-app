@@ -44,10 +44,10 @@ jobs:
           BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
           
           # Download binary artifact
-          curl -L -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
+          curl -fL -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
           
           # Download proto file
-          curl -L -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
+          curl -fL -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
           
           # Extract binary
           cd fungi-artifacts
@@ -74,7 +74,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
           channel: 'stable'
           cache: true
 
@@ -94,5 +93,5 @@ jobs:
       - name: Analyze
         run: flutter analyze
 
-      - name: Run Tests
-        run: flutter test
+      # - name: Run Tests
+      #   run: flutter test

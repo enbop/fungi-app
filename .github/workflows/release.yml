@@ -19,10 +19,6 @@ jobs:
             target: linux
             platform-name: linux-x86_64
             fungi-artifact: fungi-linux-x86_64.tar.gz
-          - os: macos-13
-            target: macos
-            platform-name: macos-x86_64
-            fungi-artifact: fungi-macos-x86_64.tar.gz
           - os: macos-latest
             target: macos
             platform-name: macos-aarch64
@@ -51,10 +47,10 @@ jobs:
           BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
           
           # Download binary artifact
-          curl -L -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
+          curl -fL -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
           
           # Download proto file
-          curl -L -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
+          curl -fL -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
           
           # Extract binary
           cd fungi-artifacts
@@ -81,7 +77,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
           channel: 'stable'
           cache: true
 
@@ -108,8 +103,7 @@ jobs:
         run: |
           flutter config --enable-windows-desktop
           flutter build windows --release
-          cd build/windows/x64/runner/Release
-          tar -czf ../../../../../../fungi-app-${{ matrix.platform-name }}.tar.gz .
+          tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/windows/x64/runner/Release .
 
       - name: Update nightly release notes
         if: (github.event_name == 'workflow_dispatch' || github.ref_name == 'nightly') && matrix.platform-name == 'linux-x86_64'
@@ -130,6 +124,11 @@ jobs:
             RELEASE_TAG="${{ github.ref_name }}"
           fi
           
-          if [ -f fungi-app-${{ matrix.platform-name }}.tar.gz ]; then
-            gh release upload -R ${{ github.repository }} --clobber $RELEASE_TAG fungi-app-${{ matrix.platform-name }}.tar.gz
+          FILE_NAME="fungi-app-${{ matrix.platform-name }}.tar.gz"
+
+          if [ ! -f "$FILE_NAME" ]; then
+             echo "::error::File $FILE_NAME does not exist. Build failed to produce artifact."
+             exit 1
           fi
+          
+          gh release upload -R ${{ github.repository }} --clobber $RELEASE_TAG "$FILE_NAME"

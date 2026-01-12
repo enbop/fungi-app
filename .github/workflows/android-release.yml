@@ -33,10 +33,10 @@ jobs:
           BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
           
           # Download binary artifact
-          curl -L -o fungi-artifacts/${{ env.fungi-artifact }} "$BASE_URL/${{ env.fungi-artifact }}"
+          curl -fL -o fungi-artifacts/${{ env.fungi-artifact }} "$BASE_URL/${{ env.fungi-artifact }}"
           
           # Download proto file
-          curl -L -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
+          curl -fL -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
           
           # Extract binary
           cd fungi-artifacts
@@ -55,7 +55,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
           channel: 'stable'
           cache: true
 
@@ -64,6 +63,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Accept Android Licenses
+        run: |
+          yes | "$ANDROID_HOME"/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Install Pub Dependencies
         run: flutter pub get

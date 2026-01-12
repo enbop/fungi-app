@@ -32,7 +32,7 @@ tasks.register<Copy>("copyRustBinary") {
 }
 
 tasks.whenTaskAdded {
-    if (name == "mergeDebugNativeLibs" || name == "mergeReleaseNativeLibs") {
+    if (name == "mergeDebugNativeLibs" || name == "mergeReleaseNativeLibs" || name == "mergeDebugJniLibFolders" || name == "mergeReleaseJniLibFolders") {
         dependsOn("copyRustBinary")
     }
 }
