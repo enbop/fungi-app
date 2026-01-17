@@ -20,6 +20,11 @@ Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app 
     *   Create a `fungi-artifacts` directory in the project root.
     *   Place the `fungi` (or `fungi.exe`) binary for your platform in `fungi-artifacts/`.
     *   Place `fungi_daemon.proto` in `fungi-artifacts/`.
+3.  **macOS**: If you're building on macOS, install CocoaPods (required for macOS Flutter plugins):
+    ```bash
+    brew install cocoapods
+    pod setup
+    ```
 
 ### Code Generation
 
