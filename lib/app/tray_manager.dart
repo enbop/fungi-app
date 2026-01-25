@@ -69,7 +69,25 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
 
   Future<void> showWindow() async {
     try {
-      await windowManager.show();
+      bool isMinimized = await windowManager.isMinimized();
+      bool isVisible = await windowManager.isVisible();
+
+      if (isMinimized) {
+        await windowManager.restore();
+      }
+
+      if (!isVisible) {
+        await windowManager.show();
+      }
+
+      // Bring window to front and focus it
+      await windowManager.focus();
+
+      // On macOS, ensure the app is brought to front
+      if (Platform.isMacOS) {
+        await windowManager.setAlwaysOnTop(true);
+        await windowManager.setAlwaysOnTop(false);
+      }
     } catch (e) {
       debugPrint('Failed to show window: $e');
     }
