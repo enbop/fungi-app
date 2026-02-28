@@ -137,6 +137,18 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/RemoveAddressBookPeer',
       ($0.RemoveAddressBookPeerRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$pingPeer = $grpc.ClientMethod<$0.PingPeerRequest, $0.PingPeerEvent>(
+      '/fungi_daemon.FungiDaemon/PingPeer',
+      ($0.PingPeerRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.PingPeerEvent.fromBuffer(value));
+  static final _$listConnections = $grpc.ClientMethod<$0.ListConnectionsRequest, $0.ListConnectionsResponse>(
+      '/fungi_daemon.FungiDaemon/ListConnections',
+      ($0.ListConnectionsRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListConnectionsResponse.fromBuffer(value));
+  static final _$listActiveStreams = $grpc.ClientMethod<$0.ListActiveStreamsRequest, $0.ListActiveStreamsResponse>(
+      '/fungi_daemon.FungiDaemon/ListActiveStreams',
+      ($0.ListActiveStreamsRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListActiveStreamsResponse.fromBuffer(value));
 
   FungiDaemonClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -258,6 +270,18 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.Empty> removeAddressBookPeer($0.RemoveAddressBookPeerRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$removeAddressBookPeer, request, options: options);
+  }
+
+  $grpc.ResponseStream<$0.PingPeerEvent> pingPeer($0.PingPeerRequest request, {$grpc.CallOptions? options}) {
+    return $createStreamingCall(_$pingPeer, $async.Stream.fromIterable([request]), options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListConnectionsResponse> listConnections($0.ListConnectionsRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listConnections, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListActiveStreamsResponse> listActiveStreams($0.ListActiveStreamsRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listActiveStreams, request, options: options);
   }
 }
 
@@ -469,6 +493,27 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.RemoveAddressBookPeerRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.PingPeerRequest, $0.PingPeerEvent>(
+        'PingPeer',
+        pingPeer_Pre,
+        false,
+        true,
+        ($core.List<$core.int> value) => $0.PingPeerRequest.fromBuffer(value),
+        ($0.PingPeerEvent value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListConnectionsRequest, $0.ListConnectionsResponse>(
+        'ListConnections',
+        listConnections_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ListConnectionsRequest.fromBuffer(value),
+        ($0.ListConnectionsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListActiveStreamsRequest, $0.ListActiveStreamsResponse>(
+        'ListActiveStreams',
+        listActiveStreams_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ListActiveStreamsRequest.fromBuffer(value),
+        ($0.ListActiveStreamsResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.VersionResponse> version_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
@@ -587,6 +632,18 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return removeAddressBookPeer(call, await request);
   }
 
+  $async.Stream<$0.PingPeerEvent> pingPeer_Pre($grpc.ServiceCall call, $async.Future<$0.PingPeerRequest> request) async* {
+    yield* pingPeer(call, await request);
+  }
+
+  $async.Future<$0.ListConnectionsResponse> listConnections_Pre($grpc.ServiceCall call, $async.Future<$0.ListConnectionsRequest> request) async {
+    return listConnections(call, await request);
+  }
+
+  $async.Future<$0.ListActiveStreamsResponse> listActiveStreams_Pre($grpc.ServiceCall call, $async.Future<$0.ListActiveStreamsRequest> request) async {
+    return listActiveStreams(call, await request);
+  }
+
   $async.Future<$0.VersionResponse> version($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.PeerIdResponse> peerId($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.ConfigFilePathResponse> configFilePath($grpc.ServiceCall call, $0.Empty request);
@@ -616,4 +673,7 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.Empty> updateAddressBookPeer($grpc.ServiceCall call, $0.UpdateAddressBookPeerRequest request);
   $async.Future<$0.PeerInfoResponse> getAddressBookPeer($grpc.ServiceCall call, $0.GetAddressBookPeerRequest request);
   $async.Future<$0.Empty> removeAddressBookPeer($grpc.ServiceCall call, $0.RemoveAddressBookPeerRequest request);
+  $async.Stream<$0.PingPeerEvent> pingPeer($grpc.ServiceCall call, $0.PingPeerRequest request);
+  $async.Future<$0.ListConnectionsResponse> listConnections($grpc.ServiceCall call, $0.ListConnectionsRequest request);
+  $async.Future<$0.ListActiveStreamsResponse> listActiveStreams($grpc.ServiceCall call, $0.ListActiveStreamsRequest request);
 }

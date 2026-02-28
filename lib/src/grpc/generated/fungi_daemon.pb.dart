@@ -2234,6 +2234,1062 @@ class RemoveAddressBookPeerRequest extends $pb.GeneratedMessage {
   void clearPeerId() => clearField(1);
 }
 
+class PingPeerRequest extends $pb.GeneratedMessage {
+  factory PingPeerRequest({
+    $core.String? peerId,
+    $core.int? intervalMs,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (intervalMs != null) {
+      $result.intervalMs = intervalMs;
+    }
+    return $result;
+  }
+  PingPeerRequest._() : super();
+  factory PingPeerRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PingPeerRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingPeerRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'intervalMs', $pb.PbFieldType.OU3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PingPeerRequest clone() => PingPeerRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PingPeerRequest copyWith(void Function(PingPeerRequest) updates) => super.copyWith((message) => updates(message as PingPeerRequest)) as PingPeerRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PingPeerRequest create() => PingPeerRequest._();
+  PingPeerRequest createEmptyInstance() => create();
+  static $pb.PbList<PingPeerRequest> createRepeated() => $pb.PbList<PingPeerRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PingPeerRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingPeerRequest>(create);
+  static PingPeerRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get intervalMs => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set intervalMs($core.int v) { $_setUnsignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasIntervalMs() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIntervalMs() => clearField(2);
+}
+
+enum PingPeerEvent_Event {
+  connecting, 
+  connected, 
+  idle, 
+  result, 
+  error, 
+  notSet
+}
+
+class PingPeerEvent extends $pb.GeneratedMessage {
+  factory PingPeerEvent({
+    $core.String? peerId,
+    $fixnum.Int64? tickSeq,
+    $fixnum.Int64? tsUnixMs,
+    PingPeerConnecting? connecting,
+    PingPeerConnected? connected,
+    PingPeerIdle? idle,
+    PingPeerResult? result,
+    PingPeerError? error,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (tickSeq != null) {
+      $result.tickSeq = tickSeq;
+    }
+    if (tsUnixMs != null) {
+      $result.tsUnixMs = tsUnixMs;
+    }
+    if (connecting != null) {
+      $result.connecting = connecting;
+    }
+    if (connected != null) {
+      $result.connected = connected;
+    }
+    if (idle != null) {
+      $result.idle = idle;
+    }
+    if (result != null) {
+      $result.result = result;
+    }
+    if (error != null) {
+      $result.error = error;
+    }
+    return $result;
+  }
+  PingPeerEvent._() : super();
+  factory PingPeerEvent.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PingPeerEvent.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static const $core.Map<$core.int, PingPeerEvent_Event> _PingPeerEvent_EventByTag = {
+    10 : PingPeerEvent_Event.connecting,
+    11 : PingPeerEvent_Event.connected,
+    12 : PingPeerEvent_Event.idle,
+    13 : PingPeerEvent_Event.result,
+    14 : PingPeerEvent_Event.error,
+    0 : PingPeerEvent_Event.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingPeerEvent', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..oo(0, [10, 11, 12, 13, 14])
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'tickSeq', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aInt64(3, _omitFieldNames ? '' : 'tsUnixMs')
+    ..aOM<PingPeerConnecting>(10, _omitFieldNames ? '' : 'connecting', subBuilder: PingPeerConnecting.create)
+    ..aOM<PingPeerConnected>(11, _omitFieldNames ? '' : 'connected', subBuilder: PingPeerConnected.create)
+    ..aOM<PingPeerIdle>(12, _omitFieldNames ? '' : 'idle', subBuilder: PingPeerIdle.create)
+    ..aOM<PingPeerResult>(13, _omitFieldNames ? '' : 'result', subBuilder: PingPeerResult.create)
+    ..aOM<PingPeerError>(14, _omitFieldNames ? '' : 'error', subBuilder: PingPeerError.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PingPeerEvent clone() => PingPeerEvent()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PingPeerEvent copyWith(void Function(PingPeerEvent) updates) => super.copyWith((message) => updates(message as PingPeerEvent)) as PingPeerEvent;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PingPeerEvent create() => PingPeerEvent._();
+  PingPeerEvent createEmptyInstance() => create();
+  static $pb.PbList<PingPeerEvent> createRepeated() => $pb.PbList<PingPeerEvent>();
+  @$core.pragma('dart2js:noInline')
+  static PingPeerEvent getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingPeerEvent>(create);
+  static PingPeerEvent? _defaultInstance;
+
+  PingPeerEvent_Event whichEvent() => _PingPeerEvent_EventByTag[$_whichOneof(0)]!;
+  void clearEvent() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get tickSeq => $_getI64(1);
+  @$pb.TagNumber(2)
+  set tickSeq($fixnum.Int64 v) { $_setInt64(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTickSeq() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTickSeq() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get tsUnixMs => $_getI64(2);
+  @$pb.TagNumber(3)
+  set tsUnixMs($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTsUnixMs() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTsUnixMs() => clearField(3);
+
+  @$pb.TagNumber(10)
+  PingPeerConnecting get connecting => $_getN(3);
+  @$pb.TagNumber(10)
+  set connecting(PingPeerConnecting v) { setField(10, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasConnecting() => $_has(3);
+  @$pb.TagNumber(10)
+  void clearConnecting() => clearField(10);
+  @$pb.TagNumber(10)
+  PingPeerConnecting ensureConnecting() => $_ensure(3);
+
+  @$pb.TagNumber(11)
+  PingPeerConnected get connected => $_getN(4);
+  @$pb.TagNumber(11)
+  set connected(PingPeerConnected v) { setField(11, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasConnected() => $_has(4);
+  @$pb.TagNumber(11)
+  void clearConnected() => clearField(11);
+  @$pb.TagNumber(11)
+  PingPeerConnected ensureConnected() => $_ensure(4);
+
+  @$pb.TagNumber(12)
+  PingPeerIdle get idle => $_getN(5);
+  @$pb.TagNumber(12)
+  set idle(PingPeerIdle v) { setField(12, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasIdle() => $_has(5);
+  @$pb.TagNumber(12)
+  void clearIdle() => clearField(12);
+  @$pb.TagNumber(12)
+  PingPeerIdle ensureIdle() => $_ensure(5);
+
+  @$pb.TagNumber(13)
+  PingPeerResult get result => $_getN(6);
+  @$pb.TagNumber(13)
+  set result(PingPeerResult v) { setField(13, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasResult() => $_has(6);
+  @$pb.TagNumber(13)
+  void clearResult() => clearField(13);
+  @$pb.TagNumber(13)
+  PingPeerResult ensureResult() => $_ensure(6);
+
+  @$pb.TagNumber(14)
+  PingPeerError get error => $_getN(7);
+  @$pb.TagNumber(14)
+  set error(PingPeerError v) { setField(14, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasError() => $_has(7);
+  @$pb.TagNumber(14)
+  void clearError() => clearField(14);
+  @$pb.TagNumber(14)
+  PingPeerError ensureError() => $_ensure(7);
+}
+
+class PingPeerConnecting extends $pb.GeneratedMessage {
+  factory PingPeerConnecting() => create();
+  PingPeerConnecting._() : super();
+  factory PingPeerConnecting.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PingPeerConnecting.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingPeerConnecting', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PingPeerConnecting clone() => PingPeerConnecting()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PingPeerConnecting copyWith(void Function(PingPeerConnecting) updates) => super.copyWith((message) => updates(message as PingPeerConnecting)) as PingPeerConnecting;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PingPeerConnecting create() => PingPeerConnecting._();
+  PingPeerConnecting createEmptyInstance() => create();
+  static $pb.PbList<PingPeerConnecting> createRepeated() => $pb.PbList<PingPeerConnecting>();
+  @$core.pragma('dart2js:noInline')
+  static PingPeerConnecting getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingPeerConnecting>(create);
+  static PingPeerConnecting? _defaultInstance;
+}
+
+class PingPeerConnected extends $pb.GeneratedMessage {
+  factory PingPeerConnected() => create();
+  PingPeerConnected._() : super();
+  factory PingPeerConnected.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PingPeerConnected.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingPeerConnected', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PingPeerConnected clone() => PingPeerConnected()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PingPeerConnected copyWith(void Function(PingPeerConnected) updates) => super.copyWith((message) => updates(message as PingPeerConnected)) as PingPeerConnected;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PingPeerConnected create() => PingPeerConnected._();
+  PingPeerConnected createEmptyInstance() => create();
+  static $pb.PbList<PingPeerConnected> createRepeated() => $pb.PbList<PingPeerConnected>();
+  @$core.pragma('dart2js:noInline')
+  static PingPeerConnected getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingPeerConnected>(create);
+  static PingPeerConnected? _defaultInstance;
+}
+
+class PingPeerIdle extends $pb.GeneratedMessage {
+  factory PingPeerIdle() => create();
+  PingPeerIdle._() : super();
+  factory PingPeerIdle.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PingPeerIdle.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingPeerIdle', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PingPeerIdle clone() => PingPeerIdle()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PingPeerIdle copyWith(void Function(PingPeerIdle) updates) => super.copyWith((message) => updates(message as PingPeerIdle)) as PingPeerIdle;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PingPeerIdle create() => PingPeerIdle._();
+  PingPeerIdle createEmptyInstance() => create();
+  static $pb.PbList<PingPeerIdle> createRepeated() => $pb.PbList<PingPeerIdle>();
+  @$core.pragma('dart2js:noInline')
+  static PingPeerIdle getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingPeerIdle>(create);
+  static PingPeerIdle? _defaultInstance;
+}
+
+class PingPeerResult extends $pb.GeneratedMessage {
+  factory PingPeerResult({
+    $core.String? connectionId,
+    $core.String? direction,
+    $core.String? remoteAddr,
+    $fixnum.Int64? rttMs,
+  }) {
+    final $result = create();
+    if (connectionId != null) {
+      $result.connectionId = connectionId;
+    }
+    if (direction != null) {
+      $result.direction = direction;
+    }
+    if (remoteAddr != null) {
+      $result.remoteAddr = remoteAddr;
+    }
+    if (rttMs != null) {
+      $result.rttMs = rttMs;
+    }
+    return $result;
+  }
+  PingPeerResult._() : super();
+  factory PingPeerResult.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PingPeerResult.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingPeerResult', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'connectionId')
+    ..aOS(2, _omitFieldNames ? '' : 'direction')
+    ..aOS(3, _omitFieldNames ? '' : 'remoteAddr')
+    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'rttMs', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PingPeerResult clone() => PingPeerResult()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PingPeerResult copyWith(void Function(PingPeerResult) updates) => super.copyWith((message) => updates(message as PingPeerResult)) as PingPeerResult;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PingPeerResult create() => PingPeerResult._();
+  PingPeerResult createEmptyInstance() => create();
+  static $pb.PbList<PingPeerResult> createRepeated() => $pb.PbList<PingPeerResult>();
+  @$core.pragma('dart2js:noInline')
+  static PingPeerResult getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingPeerResult>(create);
+  static PingPeerResult? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get connectionId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set connectionId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasConnectionId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearConnectionId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get direction => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set direction($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDirection() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDirection() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get remoteAddr => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set remoteAddr($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRemoteAddr() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRemoteAddr() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get rttMs => $_getI64(3);
+  @$pb.TagNumber(4)
+  set rttMs($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRttMs() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRttMs() => clearField(4);
+}
+
+class PingPeerError extends $pb.GeneratedMessage {
+  factory PingPeerError({
+    $core.String? connectionId,
+    $core.String? direction,
+    $core.String? remoteAddr,
+    $core.String? message,
+  }) {
+    final $result = create();
+    if (connectionId != null) {
+      $result.connectionId = connectionId;
+    }
+    if (direction != null) {
+      $result.direction = direction;
+    }
+    if (remoteAddr != null) {
+      $result.remoteAddr = remoteAddr;
+    }
+    if (message != null) {
+      $result.message = message;
+    }
+    return $result;
+  }
+  PingPeerError._() : super();
+  factory PingPeerError.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PingPeerError.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PingPeerError', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'connectionId')
+    ..aOS(2, _omitFieldNames ? '' : 'direction')
+    ..aOS(3, _omitFieldNames ? '' : 'remoteAddr')
+    ..aOS(4, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PingPeerError clone() => PingPeerError()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PingPeerError copyWith(void Function(PingPeerError) updates) => super.copyWith((message) => updates(message as PingPeerError)) as PingPeerError;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PingPeerError create() => PingPeerError._();
+  PingPeerError createEmptyInstance() => create();
+  static $pb.PbList<PingPeerError> createRepeated() => $pb.PbList<PingPeerError>();
+  @$core.pragma('dart2js:noInline')
+  static PingPeerError getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PingPeerError>(create);
+  static PingPeerError? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get connectionId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set connectionId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasConnectionId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearConnectionId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get direction => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set direction($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDirection() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDirection() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get remoteAddr => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set remoteAddr($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRemoteAddr() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRemoteAddr() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get message => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set message($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasMessage() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearMessage() => clearField(4);
+}
+
+class ListConnectionsRequest extends $pb.GeneratedMessage {
+  factory ListConnectionsRequest({
+    $core.String? peerId,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    return $result;
+  }
+  ListConnectionsRequest._() : super();
+  factory ListConnectionsRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListConnectionsRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListConnectionsRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListConnectionsRequest clone() => ListConnectionsRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListConnectionsRequest copyWith(void Function(ListConnectionsRequest) updates) => super.copyWith((message) => updates(message as ListConnectionsRequest)) as ListConnectionsRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListConnectionsRequest create() => ListConnectionsRequest._();
+  ListConnectionsRequest createEmptyInstance() => create();
+  static $pb.PbList<ListConnectionsRequest> createRepeated() => $pb.PbList<ListConnectionsRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ListConnectionsRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListConnectionsRequest>(create);
+  static ListConnectionsRequest? _defaultInstance;
+
+  /// Optional peer_id filter. Empty means all peers.
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+}
+
+class ConnectionSnapshot extends $pb.GeneratedMessage {
+  factory ConnectionSnapshot({
+    $core.String? peerId,
+    $core.String? connectionId,
+    $core.String? direction,
+    $core.String? remoteAddr,
+    $core.bool? isRelay,
+    $fixnum.Int64? lastRttMs,
+    $fixnum.Int64? lastPingUnixMs,
+    $fixnum.Int64? activeStreamsTotal,
+    $core.Iterable<ProtocolStreamCountSnapshot>? activeStreamsByProtocol,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (connectionId != null) {
+      $result.connectionId = connectionId;
+    }
+    if (direction != null) {
+      $result.direction = direction;
+    }
+    if (remoteAddr != null) {
+      $result.remoteAddr = remoteAddr;
+    }
+    if (isRelay != null) {
+      $result.isRelay = isRelay;
+    }
+    if (lastRttMs != null) {
+      $result.lastRttMs = lastRttMs;
+    }
+    if (lastPingUnixMs != null) {
+      $result.lastPingUnixMs = lastPingUnixMs;
+    }
+    if (activeStreamsTotal != null) {
+      $result.activeStreamsTotal = activeStreamsTotal;
+    }
+    if (activeStreamsByProtocol != null) {
+      $result.activeStreamsByProtocol.addAll(activeStreamsByProtocol);
+    }
+    return $result;
+  }
+  ConnectionSnapshot._() : super();
+  factory ConnectionSnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ConnectionSnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ConnectionSnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..aOS(2, _omitFieldNames ? '' : 'connectionId')
+    ..aOS(3, _omitFieldNames ? '' : 'direction')
+    ..aOS(4, _omitFieldNames ? '' : 'remoteAddr')
+    ..aOB(5, _omitFieldNames ? '' : 'isRelay')
+    ..a<$fixnum.Int64>(6, _omitFieldNames ? '' : 'lastRttMs', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aInt64(7, _omitFieldNames ? '' : 'lastPingUnixMs')
+    ..a<$fixnum.Int64>(8, _omitFieldNames ? '' : 'activeStreamsTotal', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..pc<ProtocolStreamCountSnapshot>(9, _omitFieldNames ? '' : 'activeStreamsByProtocol', $pb.PbFieldType.PM, subBuilder: ProtocolStreamCountSnapshot.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ConnectionSnapshot clone() => ConnectionSnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ConnectionSnapshot copyWith(void Function(ConnectionSnapshot) updates) => super.copyWith((message) => updates(message as ConnectionSnapshot)) as ConnectionSnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ConnectionSnapshot create() => ConnectionSnapshot._();
+  ConnectionSnapshot createEmptyInstance() => create();
+  static $pb.PbList<ConnectionSnapshot> createRepeated() => $pb.PbList<ConnectionSnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static ConnectionSnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ConnectionSnapshot>(create);
+  static ConnectionSnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get connectionId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set connectionId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasConnectionId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearConnectionId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get direction => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set direction($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDirection() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDirection() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get remoteAddr => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set remoteAddr($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRemoteAddr() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRemoteAddr() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.bool get isRelay => $_getBF(4);
+  @$pb.TagNumber(5)
+  set isRelay($core.bool v) { $_setBool(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasIsRelay() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearIsRelay() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $fixnum.Int64 get lastRttMs => $_getI64(5);
+  @$pb.TagNumber(6)
+  set lastRttMs($fixnum.Int64 v) { $_setInt64(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasLastRttMs() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearLastRttMs() => clearField(6);
+
+  /// 0 means no ping has been recorded yet.
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get lastPingUnixMs => $_getI64(6);
+  @$pb.TagNumber(7)
+  set lastPingUnixMs($fixnum.Int64 v) { $_setInt64(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasLastPingUnixMs() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearLastPingUnixMs() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get activeStreamsTotal => $_getI64(7);
+  @$pb.TagNumber(8)
+  set activeStreamsTotal($fixnum.Int64 v) { $_setInt64(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasActiveStreamsTotal() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearActiveStreamsTotal() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.List<ProtocolStreamCountSnapshot> get activeStreamsByProtocol => $_getList(8);
+}
+
+class ProtocolStreamCountSnapshot extends $pb.GeneratedMessage {
+  factory ProtocolStreamCountSnapshot({
+    $core.String? protocolName,
+    $fixnum.Int64? streamCount,
+  }) {
+    final $result = create();
+    if (protocolName != null) {
+      $result.protocolName = protocolName;
+    }
+    if (streamCount != null) {
+      $result.streamCount = streamCount;
+    }
+    return $result;
+  }
+  ProtocolStreamCountSnapshot._() : super();
+  factory ProtocolStreamCountSnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ProtocolStreamCountSnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ProtocolStreamCountSnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'protocolName')
+    ..a<$fixnum.Int64>(2, _omitFieldNames ? '' : 'streamCount', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ProtocolStreamCountSnapshot clone() => ProtocolStreamCountSnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ProtocolStreamCountSnapshot copyWith(void Function(ProtocolStreamCountSnapshot) updates) => super.copyWith((message) => updates(message as ProtocolStreamCountSnapshot)) as ProtocolStreamCountSnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ProtocolStreamCountSnapshot create() => ProtocolStreamCountSnapshot._();
+  ProtocolStreamCountSnapshot createEmptyInstance() => create();
+  static $pb.PbList<ProtocolStreamCountSnapshot> createRepeated() => $pb.PbList<ProtocolStreamCountSnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static ProtocolStreamCountSnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ProtocolStreamCountSnapshot>(create);
+  static ProtocolStreamCountSnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get protocolName => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set protocolName($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasProtocolName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearProtocolName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get streamCount => $_getI64(1);
+  @$pb.TagNumber(2)
+  set streamCount($fixnum.Int64 v) { $_setInt64(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasStreamCount() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStreamCount() => clearField(2);
+}
+
+class ListConnectionsResponse extends $pb.GeneratedMessage {
+  factory ListConnectionsResponse({
+    $core.Iterable<ConnectionSnapshot>? connections,
+  }) {
+    final $result = create();
+    if (connections != null) {
+      $result.connections.addAll(connections);
+    }
+    return $result;
+  }
+  ListConnectionsResponse._() : super();
+  factory ListConnectionsResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListConnectionsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListConnectionsResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..pc<ConnectionSnapshot>(1, _omitFieldNames ? '' : 'connections', $pb.PbFieldType.PM, subBuilder: ConnectionSnapshot.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListConnectionsResponse clone() => ListConnectionsResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListConnectionsResponse copyWith(void Function(ListConnectionsResponse) updates) => super.copyWith((message) => updates(message as ListConnectionsResponse)) as ListConnectionsResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListConnectionsResponse create() => ListConnectionsResponse._();
+  ListConnectionsResponse createEmptyInstance() => create();
+  static $pb.PbList<ListConnectionsResponse> createRepeated() => $pb.PbList<ListConnectionsResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListConnectionsResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListConnectionsResponse>(create);
+  static ListConnectionsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<ConnectionSnapshot> get connections => $_getList(0);
+}
+
+class ListActiveStreamsRequest extends $pb.GeneratedMessage {
+  factory ListActiveStreamsRequest({
+    $core.String? peerId,
+    $core.String? protocolName,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (protocolName != null) {
+      $result.protocolName = protocolName;
+    }
+    return $result;
+  }
+  ListActiveStreamsRequest._() : super();
+  factory ListActiveStreamsRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListActiveStreamsRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListActiveStreamsRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..aOS(2, _omitFieldNames ? '' : 'protocolName')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListActiveStreamsRequest clone() => ListActiveStreamsRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListActiveStreamsRequest copyWith(void Function(ListActiveStreamsRequest) updates) => super.copyWith((message) => updates(message as ListActiveStreamsRequest)) as ListActiveStreamsRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListActiveStreamsRequest create() => ListActiveStreamsRequest._();
+  ListActiveStreamsRequest createEmptyInstance() => create();
+  static $pb.PbList<ListActiveStreamsRequest> createRepeated() => $pb.PbList<ListActiveStreamsRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ListActiveStreamsRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListActiveStreamsRequest>(create);
+  static ListActiveStreamsRequest? _defaultInstance;
+
+  /// Optional peer_id filter. Empty means all peers.
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  /// Optional protocol filter. Empty means all protocols.
+  @$pb.TagNumber(2)
+  $core.String get protocolName => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set protocolName($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasProtocolName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearProtocolName() => clearField(2);
+}
+
+class ActiveStreamSnapshot extends $pb.GeneratedMessage {
+  factory ActiveStreamSnapshot({
+    $fixnum.Int64? streamId,
+    $core.String? peerId,
+    $core.String? connectionId,
+    $core.String? protocolName,
+    $fixnum.Int64? openedAtUnixMs,
+  }) {
+    final $result = create();
+    if (streamId != null) {
+      $result.streamId = streamId;
+    }
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (connectionId != null) {
+      $result.connectionId = connectionId;
+    }
+    if (protocolName != null) {
+      $result.protocolName = protocolName;
+    }
+    if (openedAtUnixMs != null) {
+      $result.openedAtUnixMs = openedAtUnixMs;
+    }
+    return $result;
+  }
+  ActiveStreamSnapshot._() : super();
+  factory ActiveStreamSnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ActiveStreamSnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ActiveStreamSnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..a<$fixnum.Int64>(1, _omitFieldNames ? '' : 'streamId', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aOS(2, _omitFieldNames ? '' : 'peerId')
+    ..aOS(3, _omitFieldNames ? '' : 'connectionId')
+    ..aOS(4, _omitFieldNames ? '' : 'protocolName')
+    ..aInt64(5, _omitFieldNames ? '' : 'openedAtUnixMs')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ActiveStreamSnapshot clone() => ActiveStreamSnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ActiveStreamSnapshot copyWith(void Function(ActiveStreamSnapshot) updates) => super.copyWith((message) => updates(message as ActiveStreamSnapshot)) as ActiveStreamSnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ActiveStreamSnapshot create() => ActiveStreamSnapshot._();
+  ActiveStreamSnapshot createEmptyInstance() => create();
+  static $pb.PbList<ActiveStreamSnapshot> createRepeated() => $pb.PbList<ActiveStreamSnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static ActiveStreamSnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ActiveStreamSnapshot>(create);
+  static ActiveStreamSnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $fixnum.Int64 get streamId => $_getI64(0);
+  @$pb.TagNumber(1)
+  set streamId($fixnum.Int64 v) { $_setInt64(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasStreamId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStreamId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get peerId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set peerId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasPeerId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPeerId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get connectionId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set connectionId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasConnectionId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearConnectionId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get protocolName => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set protocolName($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasProtocolName() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearProtocolName() => clearField(4);
+
+  /// 0 means unknown.
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get openedAtUnixMs => $_getI64(4);
+  @$pb.TagNumber(5)
+  set openedAtUnixMs($fixnum.Int64 v) { $_setInt64(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasOpenedAtUnixMs() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearOpenedAtUnixMs() => clearField(5);
+}
+
+class ListActiveStreamsResponse extends $pb.GeneratedMessage {
+  factory ListActiveStreamsResponse({
+    $core.Iterable<ActiveStreamSnapshot>? streams,
+  }) {
+    final $result = create();
+    if (streams != null) {
+      $result.streams.addAll(streams);
+    }
+    return $result;
+  }
+  ListActiveStreamsResponse._() : super();
+  factory ListActiveStreamsResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListActiveStreamsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListActiveStreamsResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..pc<ActiveStreamSnapshot>(1, _omitFieldNames ? '' : 'streams', $pb.PbFieldType.PM, subBuilder: ActiveStreamSnapshot.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListActiveStreamsResponse clone() => ListActiveStreamsResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListActiveStreamsResponse copyWith(void Function(ListActiveStreamsResponse) updates) => super.copyWith((message) => updates(message as ListActiveStreamsResponse)) as ListActiveStreamsResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListActiveStreamsResponse create() => ListActiveStreamsResponse._();
+  ListActiveStreamsResponse createEmptyInstance() => create();
+  static $pb.PbList<ListActiveStreamsResponse> createRepeated() => $pb.PbList<ListActiveStreamsResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListActiveStreamsResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListActiveStreamsResponse>(create);
+  static ListActiveStreamsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<ActiveStreamSnapshot> get streams => $_getList(0);
+}
+
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
 const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

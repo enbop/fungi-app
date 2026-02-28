@@ -506,3 +506,219 @@ final $typed_data.Uint8List removeAddressBookPeerRequestDescriptor = $convert.ba
     'ChxSZW1vdmVBZGRyZXNzQm9va1BlZXJSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZA'
     '==');
 
+@$core.Deprecated('Use pingPeerRequestDescriptor instead')
+const PingPeerRequest$json = {
+  '1': 'PingPeerRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'interval_ms', '3': 2, '4': 1, '5': 13, '10': 'intervalMs'},
+  ],
+};
+
+/// Descriptor for `PingPeerRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pingPeerRequestDescriptor = $convert.base64Decode(
+    'Cg9QaW5nUGVlclJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEh8KC2ludGVydmFsX2'
+    '1zGAIgASgNUgppbnRlcnZhbE1z');
+
+@$core.Deprecated('Use pingPeerEventDescriptor instead')
+const PingPeerEvent$json = {
+  '1': 'PingPeerEvent',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'tick_seq', '3': 2, '4': 1, '5': 4, '10': 'tickSeq'},
+    {'1': 'ts_unix_ms', '3': 3, '4': 1, '5': 3, '10': 'tsUnixMs'},
+    {'1': 'connecting', '3': 10, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerConnecting', '9': 0, '10': 'connecting'},
+    {'1': 'connected', '3': 11, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerConnected', '9': 0, '10': 'connected'},
+    {'1': 'idle', '3': 12, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerIdle', '9': 0, '10': 'idle'},
+    {'1': 'result', '3': 13, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerResult', '9': 0, '10': 'result'},
+    {'1': 'error', '3': 14, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerError', '9': 0, '10': 'error'},
+  ],
+  '8': [
+    {'1': 'event'},
+  ],
+};
+
+/// Descriptor for `PingPeerEvent`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pingPeerEventDescriptor = $convert.base64Decode(
+    'Cg1QaW5nUGVlckV2ZW50EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZBIZCgh0aWNrX3NlcRgCIA'
+    'EoBFIHdGlja1NlcRIcCgp0c191bml4X21zGAMgASgDUgh0c1VuaXhNcxJCCgpjb25uZWN0aW5n'
+    'GAogASgLMiAuZnVuZ2lfZGFlbW9uLlBpbmdQZWVyQ29ubmVjdGluZ0gAUgpjb25uZWN0aW5nEj'
+    '8KCWNvbm5lY3RlZBgLIAEoCzIfLmZ1bmdpX2RhZW1vbi5QaW5nUGVlckNvbm5lY3RlZEgAUglj'
+    'b25uZWN0ZWQSMAoEaWRsZRgMIAEoCzIaLmZ1bmdpX2RhZW1vbi5QaW5nUGVlcklkbGVIAFIEaW'
+    'RsZRI2CgZyZXN1bHQYDSABKAsyHC5mdW5naV9kYWVtb24uUGluZ1BlZXJSZXN1bHRIAFIGcmVz'
+    'dWx0EjMKBWVycm9yGA4gASgLMhsuZnVuZ2lfZGFlbW9uLlBpbmdQZWVyRXJyb3JIAFIFZXJyb3'
+    'JCBwoFZXZlbnQ=');
+
+@$core.Deprecated('Use pingPeerConnectingDescriptor instead')
+const PingPeerConnecting$json = {
+  '1': 'PingPeerConnecting',
+};
+
+/// Descriptor for `PingPeerConnecting`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pingPeerConnectingDescriptor = $convert.base64Decode(
+    'ChJQaW5nUGVlckNvbm5lY3Rpbmc=');
+
+@$core.Deprecated('Use pingPeerConnectedDescriptor instead')
+const PingPeerConnected$json = {
+  '1': 'PingPeerConnected',
+};
+
+/// Descriptor for `PingPeerConnected`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pingPeerConnectedDescriptor = $convert.base64Decode(
+    'ChFQaW5nUGVlckNvbm5lY3RlZA==');
+
+@$core.Deprecated('Use pingPeerIdleDescriptor instead')
+const PingPeerIdle$json = {
+  '1': 'PingPeerIdle',
+};
+
+/// Descriptor for `PingPeerIdle`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pingPeerIdleDescriptor = $convert.base64Decode(
+    'CgxQaW5nUGVlcklkbGU=');
+
+@$core.Deprecated('Use pingPeerResultDescriptor instead')
+const PingPeerResult$json = {
+  '1': 'PingPeerResult',
+  '2': [
+    {'1': 'connection_id', '3': 1, '4': 1, '5': 9, '10': 'connectionId'},
+    {'1': 'direction', '3': 2, '4': 1, '5': 9, '10': 'direction'},
+    {'1': 'remote_addr', '3': 3, '4': 1, '5': 9, '10': 'remoteAddr'},
+    {'1': 'rtt_ms', '3': 4, '4': 1, '5': 4, '10': 'rttMs'},
+  ],
+};
+
+/// Descriptor for `PingPeerResult`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pingPeerResultDescriptor = $convert.base64Decode(
+    'Cg5QaW5nUGVlclJlc3VsdBIjCg1jb25uZWN0aW9uX2lkGAEgASgJUgxjb25uZWN0aW9uSWQSHA'
+    'oJZGlyZWN0aW9uGAIgASgJUglkaXJlY3Rpb24SHwoLcmVtb3RlX2FkZHIYAyABKAlSCnJlbW90'
+    'ZUFkZHISFQoGcnR0X21zGAQgASgEUgVydHRNcw==');
+
+@$core.Deprecated('Use pingPeerErrorDescriptor instead')
+const PingPeerError$json = {
+  '1': 'PingPeerError',
+  '2': [
+    {'1': 'connection_id', '3': 1, '4': 1, '5': 9, '10': 'connectionId'},
+    {'1': 'direction', '3': 2, '4': 1, '5': 9, '10': 'direction'},
+    {'1': 'remote_addr', '3': 3, '4': 1, '5': 9, '10': 'remoteAddr'},
+    {'1': 'message', '3': 4, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `PingPeerError`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pingPeerErrorDescriptor = $convert.base64Decode(
+    'Cg1QaW5nUGVlckVycm9yEiMKDWNvbm5lY3Rpb25faWQYASABKAlSDGNvbm5lY3Rpb25JZBIcCg'
+    'lkaXJlY3Rpb24YAiABKAlSCWRpcmVjdGlvbhIfCgtyZW1vdGVfYWRkchgDIAEoCVIKcmVtb3Rl'
+    'QWRkchIYCgdtZXNzYWdlGAQgASgJUgdtZXNzYWdl');
+
+@$core.Deprecated('Use listConnectionsRequestDescriptor instead')
+const ListConnectionsRequest$json = {
+  '1': 'ListConnectionsRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+  ],
+};
+
+/// Descriptor for `ListConnectionsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listConnectionsRequestDescriptor = $convert.base64Decode(
+    'ChZMaXN0Q29ubmVjdGlvbnNSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZA==');
+
+@$core.Deprecated('Use connectionSnapshotDescriptor instead')
+const ConnectionSnapshot$json = {
+  '1': 'ConnectionSnapshot',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'connection_id', '3': 2, '4': 1, '5': 9, '10': 'connectionId'},
+    {'1': 'direction', '3': 3, '4': 1, '5': 9, '10': 'direction'},
+    {'1': 'remote_addr', '3': 4, '4': 1, '5': 9, '10': 'remoteAddr'},
+    {'1': 'is_relay', '3': 5, '4': 1, '5': 8, '10': 'isRelay'},
+    {'1': 'last_rtt_ms', '3': 6, '4': 1, '5': 4, '10': 'lastRttMs'},
+    {'1': 'last_ping_unix_ms', '3': 7, '4': 1, '5': 3, '10': 'lastPingUnixMs'},
+    {'1': 'active_streams_total', '3': 8, '4': 1, '5': 4, '10': 'activeStreamsTotal'},
+    {'1': 'active_streams_by_protocol', '3': 9, '4': 3, '5': 11, '6': '.fungi_daemon.ProtocolStreamCountSnapshot', '10': 'activeStreamsByProtocol'},
+  ],
+};
+
+/// Descriptor for `ConnectionSnapshot`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List connectionSnapshotDescriptor = $convert.base64Decode(
+    'ChJDb25uZWN0aW9uU25hcHNob3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEiMKDWNvbm5lY3'
+    'Rpb25faWQYAiABKAlSDGNvbm5lY3Rpb25JZBIcCglkaXJlY3Rpb24YAyABKAlSCWRpcmVjdGlv'
+    'bhIfCgtyZW1vdGVfYWRkchgEIAEoCVIKcmVtb3RlQWRkchIZCghpc19yZWxheRgFIAEoCFIHaX'
+    'NSZWxheRIeCgtsYXN0X3J0dF9tcxgGIAEoBFIJbGFzdFJ0dE1zEikKEWxhc3RfcGluZ191bml4'
+    'X21zGAcgASgDUg5sYXN0UGluZ1VuaXhNcxIwChRhY3RpdmVfc3RyZWFtc190b3RhbBgIIAEoBF'
+    'ISYWN0aXZlU3RyZWFtc1RvdGFsEmYKGmFjdGl2ZV9zdHJlYW1zX2J5X3Byb3RvY29sGAkgAygL'
+    'MikuZnVuZ2lfZGFlbW9uLlByb3RvY29sU3RyZWFtQ291bnRTbmFwc2hvdFIXYWN0aXZlU3RyZW'
+    'Ftc0J5UHJvdG9jb2w=');
+
+@$core.Deprecated('Use protocolStreamCountSnapshotDescriptor instead')
+const ProtocolStreamCountSnapshot$json = {
+  '1': 'ProtocolStreamCountSnapshot',
+  '2': [
+    {'1': 'protocol_name', '3': 1, '4': 1, '5': 9, '10': 'protocolName'},
+    {'1': 'stream_count', '3': 2, '4': 1, '5': 4, '10': 'streamCount'},
+  ],
+};
+
+/// Descriptor for `ProtocolStreamCountSnapshot`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List protocolStreamCountSnapshotDescriptor = $convert.base64Decode(
+    'ChtQcm90b2NvbFN0cmVhbUNvdW50U25hcHNob3QSIwoNcHJvdG9jb2xfbmFtZRgBIAEoCVIMcH'
+    'JvdG9jb2xOYW1lEiEKDHN0cmVhbV9jb3VudBgCIAEoBFILc3RyZWFtQ291bnQ=');
+
+@$core.Deprecated('Use listConnectionsResponseDescriptor instead')
+const ListConnectionsResponse$json = {
+  '1': 'ListConnectionsResponse',
+  '2': [
+    {'1': 'connections', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.ConnectionSnapshot', '10': 'connections'},
+  ],
+};
+
+/// Descriptor for `ListConnectionsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listConnectionsResponseDescriptor = $convert.base64Decode(
+    'ChdMaXN0Q29ubmVjdGlvbnNSZXNwb25zZRJCCgtjb25uZWN0aW9ucxgBIAMoCzIgLmZ1bmdpX2'
+    'RhZW1vbi5Db25uZWN0aW9uU25hcHNob3RSC2Nvbm5lY3Rpb25z');
+
+@$core.Deprecated('Use listActiveStreamsRequestDescriptor instead')
+const ListActiveStreamsRequest$json = {
+  '1': 'ListActiveStreamsRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'protocol_name', '3': 2, '4': 1, '5': 9, '10': 'protocolName'},
+  ],
+};
+
+/// Descriptor for `ListActiveStreamsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listActiveStreamsRequestDescriptor = $convert.base64Decode(
+    'ChhMaXN0QWN0aXZlU3RyZWFtc1JlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEiMKDX'
+    'Byb3RvY29sX25hbWUYAiABKAlSDHByb3RvY29sTmFtZQ==');
+
+@$core.Deprecated('Use activeStreamSnapshotDescriptor instead')
+const ActiveStreamSnapshot$json = {
+  '1': 'ActiveStreamSnapshot',
+  '2': [
+    {'1': 'stream_id', '3': 1, '4': 1, '5': 4, '10': 'streamId'},
+    {'1': 'peer_id', '3': 2, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'connection_id', '3': 3, '4': 1, '5': 9, '10': 'connectionId'},
+    {'1': 'protocol_name', '3': 4, '4': 1, '5': 9, '10': 'protocolName'},
+    {'1': 'opened_at_unix_ms', '3': 5, '4': 1, '5': 3, '10': 'openedAtUnixMs'},
+  ],
+};
+
+/// Descriptor for `ActiveStreamSnapshot`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List activeStreamSnapshotDescriptor = $convert.base64Decode(
+    'ChRBY3RpdmVTdHJlYW1TbmFwc2hvdBIbCglzdHJlYW1faWQYASABKARSCHN0cmVhbUlkEhcKB3'
+    'BlZXJfaWQYAiABKAlSBnBlZXJJZBIjCg1jb25uZWN0aW9uX2lkGAMgASgJUgxjb25uZWN0aW9u'
+    'SWQSIwoNcHJvdG9jb2xfbmFtZRgEIAEoCVIMcHJvdG9jb2xOYW1lEikKEW9wZW5lZF9hdF91bm'
+    'l4X21zGAUgASgDUg5vcGVuZWRBdFVuaXhNcw==');
+
+@$core.Deprecated('Use listActiveStreamsResponseDescriptor instead')
+const ListActiveStreamsResponse$json = {
+  '1': 'ListActiveStreamsResponse',
+  '2': [
+    {'1': 'streams', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.ActiveStreamSnapshot', '10': 'streams'},
+  ],
+};
+
+/// Descriptor for `ListActiveStreamsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listActiveStreamsResponseDescriptor = $convert.base64Decode(
+    'ChlMaXN0QWN0aXZlU3RyZWFtc1Jlc3BvbnNlEjwKB3N0cmVhbXMYASADKAsyIi5mdW5naV9kYW'
+    'Vtb24uQWN0aXZlU3RyZWFtU25hcHNob3RSB3N0cmVhbXM=');
+
