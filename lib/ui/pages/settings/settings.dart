@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
+import 'package:fungi_app/app/controllers/log_viewer_controller.dart';
+import 'package:fungi_app/ui/pages/settings/log_viewer_dialog.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -40,6 +42,52 @@ class Settings extends GetView<FungiController> {
                     ClipboardData(text: controller.configFilePath.value),
                   );
                   SmartDialog.showToast('Path copied to clipboard');
+                },
+              ),
+              SettingsTile.navigation(
+                leading: Icon(Icons.folder_open),
+                title: Text('Log file path'),
+                value: Text(controller.logDirPath.value),
+                onPressed: (context) {
+                  if (controller.logDirPath.value.isEmpty) {
+                    SmartDialog.showToast('Log path is not available yet');
+                    return;
+                  }
+
+                  Clipboard.setData(
+                    ClipboardData(text: controller.logDirPath.value),
+                  );
+                  SmartDialog.showToast('Path copied to clipboard');
+                },
+              ),
+              SettingsTile.navigation(
+                leading: Icon(Icons.article),
+                title: Text('Open daemon log viewer'),
+                onPressed: (context) {
+                  final logViewerTag = UniqueKey().toString();
+                  Get.put(
+                    LogViewerController(
+                      logsDirPath: controller.logDirPath.value,
+                    ),
+                    tag: logViewerTag,
+                  );
+
+                  showDialog(
+                    context: context,
+                    builder: (_) => LogViewerDialog(
+                      logsDirPath: controller.logDirPath.value,
+                      controllerTag: logViewerTag,
+                    ),
+                  ).whenComplete(() {
+                    if (Get.isRegistered<LogViewerController>(
+                      tag: logViewerTag,
+                    )) {
+                      Get.delete<LogViewerController>(
+                        tag: logViewerTag,
+                        force: true,
+                      );
+                    }
+                  });
                 },
               ),
             ],

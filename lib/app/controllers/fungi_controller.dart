@@ -9,6 +9,7 @@ import 'package:fungi_app/ui/utils/daemon_client.dart';
 import 'package:fungi_app/ui/utils/daemon_service_manager.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 
 enum ThemeOption { light, dark, system }
@@ -64,6 +65,7 @@ class FungiController extends GetxController {
   final peerId = ''.obs;
   final hostname = ''.obs;
   final configFilePath = ''.obs;
+  final logDirPath = ''.obs;
   final isDaemonEnabled = false.obs;
 
   final _storage = GetStorage();
@@ -220,6 +222,15 @@ class FungiController extends GetxController {
     peerId.value = '';
     hostname.value = '';
     configFilePath.value = '';
+    logDirPath.value = '';
+  }
+
+  String _deriveLogDirPath(String configPath) {
+    if (configPath.isEmpty) {
+      return '';
+    }
+
+    return p.join(File(configPath).parent.path, 'logs');
   }
 
   void saveDaemonEnabledState(bool enabled) {
@@ -449,6 +460,7 @@ class FungiController extends GetxController {
       configFilePath.value = (await fungiClient.configFilePath(
         Empty(),
       )).configFilePath;
+      logDirPath.value = _deriveLogDirPath(configFilePath.value);
 
       try {
         fileTransferServerState.value.enabled =
