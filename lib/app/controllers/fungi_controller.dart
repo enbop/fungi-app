@@ -443,6 +443,7 @@ class FungiController extends GetxController {
         debugPrint('Failed to connect to daemon after 5 attempts: $e');
         daemonConnectionState.value = DaemonConnectionState.failed;
         daemonError.value = e.toString();
+        await _handleStartupFailureAndStopService(e.toString());
         return;
       }
     }
@@ -504,6 +505,22 @@ class FungiController extends GetxController {
       daemonError.value = e.toString();
       peerId.value = 'error';
       debugPrint('Failed to init, error: $e');
+    }
+  }
+
+  Future<void> _handleStartupFailureAndStopService(String error) async {
+    if (!Platform.isAndroid) return;
+
+    try {
+      await stopDaemon();
+      Get.snackbar(
+        'Daemon startup failed',
+        'Foreground service has been stopped automatically.\n$error',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 5),
+      );
+    } catch (e) {
+      debugPrint('Failed to stop foreground service after startup failure: $e');
     }
   }
 

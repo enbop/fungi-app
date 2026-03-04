@@ -54,14 +54,20 @@ class MyTaskHandler extends TaskHandler {
 
       await Directory(fungiDir).create(recursive: true);
 
-      _daemonProcess = await Process.start(fungiBinaryPath, [
+      final daemonArgs = [
         '--default-device-name',
         deviceName,
-        'daemon',
         '--fungi-dir',
         fungiDir,
+        'daemon',
         '--exit-on-stdin-close',
-      ], mode: ProcessStartMode.normal);
+      ];
+
+      _daemonProcess = await Process.start(
+        fungiBinaryPath,
+        daemonArgs,
+        mode: ProcessStartMode.normal,
+      );
 
       _daemonProcess!.stdout
           .transform(SystemEncoding().decoder)
@@ -82,7 +88,6 @@ class MyTaskHandler extends TaskHandler {
     }
   }
 
-  @override
   @override
   void onRepeatEvent(DateTime timestamp) {
     // Send data to main isolate.
