@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -96,6 +97,9 @@ class FungiController extends GetxController {
 
     if (Platform.isAndroid) {
       FlutterForegroundTask.addTaskDataCallback(onReceiveTaskData);
+      setDaemonProcessExitCallback(_onDaemonProcessExit);
+    } else {
+      setDesktopDaemonProcessExitCallback(_onDaemonProcessExit);
     }
 
     _initializeAndStartDaemon();
@@ -112,9 +116,37 @@ class FungiController extends GetxController {
   }
 
   @override
-  void dispose() {
-    FlutterForegroundTask.removeTaskDataCallback(onReceiveTaskData);
-    super.dispose();
+  void onClose() {
+    if (Platform.isAndroid) {
+      FlutterForegroundTask.removeTaskDataCallback(onReceiveTaskData);
+      setDaemonProcessExitCallback(null);
+    } else {
+      setDesktopDaemonProcessExitCallback(null);
+    }
+    super.onClose();
+  }
+
+  void _onDaemonProcessExit(int exitCode) {
+    if (!isDaemonEnabled.value) {
+      return;
+    }
+
+    unawaited(_handleDaemonProcessCrash(exitCode));
+  }
+
+  Future<void> _handleDaemonProcessCrash(int exitCode) async {
+    await daemonManager.stop();
+    isDaemonEnabled.value = false;
+    saveDaemonEnabledState(false);
+    daemonConnectionState.value = DaemonConnectionState.failed;
+    daemonError.value = 'Daemon process crashed (exit code: $exitCode)';
+
+    Get.snackbar(
+      'Daemon crashed',
+      'Daemon process exited with code $exitCode',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 5),
+    );
   }
 
   Future<void> toggleDaemon() async {

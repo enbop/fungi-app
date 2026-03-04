@@ -7,6 +7,16 @@ import 'package:fungi_app/ui/utils/android_binary_path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
+const _daemonExitCodeKey = 'daemonExitCode';
+
+typedef DaemonProcessExitCallback = void Function(int exitCode);
+
+DaemonProcessExitCallback? _daemonProcessExitCallback;
+
+void setDaemonProcessExitCallback(DaemonProcessExitCallback? callback) {
+  _daemonProcessExitCallback = callback;
+}
+
 @pragma('vm:entry-point')
 void startCallback() {
   FlutterForegroundTask.setTaskHandler(MyTaskHandler());
@@ -14,6 +24,12 @@ void startCallback() {
 
 void onReceiveTaskData(Object data) {
   if (data is Map<String, dynamic>) {
+    final daemonExitCode = data[_daemonExitCodeKey];
+    if (daemonExitCode is int) {
+      _daemonProcessExitCallback?.call(daemonExitCode);
+      return;
+    }
+
     final dynamic timestampMillis = data["timestampMillis"];
     if (timestampMillis != null) {
       final DateTime timestamp = DateTime.fromMillisecondsSinceEpoch(
@@ -27,10 +43,12 @@ void onReceiveTaskData(Object data) {
 
 class MyTaskHandler extends TaskHandler {
   Process? _daemonProcess;
+  bool _isStoppingDaemon = false;
 
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     debugPrint('onStart(starter: ${starter.name})');
+    _isStoppingDaemon = false;
 
     if (Platform.isAndroid) {
       await _startDaemonProcess();
@@ -79,6 +97,9 @@ class MyTaskHandler extends TaskHandler {
 
       _daemonProcess!.exitCode.then((exitCode) {
         debugPrint('Daemon exited with code: $exitCode');
+        if (!_isStoppingDaemon) {
+          FlutterForegroundTask.sendDataToMain({_daemonExitCodeKey: exitCode});
+        }
         _daemonProcess = null;
       });
 
@@ -102,6 +123,7 @@ class MyTaskHandler extends TaskHandler {
     debugPrint('onDestroy(isTimeout: $isTimeout)');
 
     if (_daemonProcess != null) {
+      _isStoppingDaemon = true;
       _daemonProcess!.kill(ProcessSignal.sigterm);
       _daemonProcess = null;
     }

@@ -15,6 +15,54 @@ class LogViewerDialog extends StatelessWidget {
   LogViewerController get _controller =>
       Get.find<LogViewerController>(tag: controllerTag);
 
+  TextStyle _lineStyleFor(BuildContext context, String line) {
+    final baseStyle = Theme.of(context).textTheme.bodySmall;
+    final lower = line.toLowerCase();
+
+    if (lower.contains('panic') ||
+        lower.contains(' error ') ||
+        lower.startsWith('error')) {
+      return (baseStyle ?? const TextStyle()).copyWith(
+        color: Theme.of(context).colorScheme.error,
+      );
+    }
+
+    if (lower.contains(' warn ') || lower.startsWith('warn')) {
+      return (baseStyle ?? const TextStyle()).copyWith(
+        color: Colors.orange.shade700,
+      );
+    }
+
+    if (lower.contains(' info ') || lower.startsWith('info')) {
+      return (baseStyle ?? const TextStyle()).copyWith(
+        color: Theme.of(context).colorScheme.primary,
+      );
+    }
+
+    if (lower.contains(' debug ') || lower.startsWith('debug')) {
+      return (baseStyle ?? const TextStyle()).copyWith(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      );
+    }
+
+    return baseStyle ?? const TextStyle();
+  }
+
+  TextSpan _buildLogSpan(BuildContext context, String content) {
+    final lines = content.split('\n');
+    final spans = <TextSpan>[];
+
+    for (var index = 0; index < lines.length; index++) {
+      final line = lines[index];
+      spans.add(TextSpan(text: line, style: _lineStyleFor(context, line)));
+      if (index < lines.length - 1) {
+        spans.add(const TextSpan(text: '\n'));
+      }
+    }
+
+    return TextSpan(children: spans);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -48,9 +96,8 @@ class LogViewerDialog extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   controller: _controller.scrollController,
-                  child: SelectableText(
-                    _controller.content.value,
-                    style: Theme.of(context).textTheme.bodySmall,
+                  child: SelectableText.rich(
+                    _buildLogSpan(context, _controller.content.value),
                   ),
                 ),
               ),

@@ -7,6 +7,16 @@ import 'package:logging/logging.dart';
 
 final _logger = Logger('DaemonServiceManager');
 
+typedef DesktopDaemonProcessExitCallback = void Function(int exitCode);
+
+DesktopDaemonProcessExitCallback? _desktopDaemonProcessExitCallback;
+
+void setDesktopDaemonProcessExitCallback(
+  DesktopDaemonProcessExitCallback? callback,
+) {
+  _desktopDaemonProcessExitCallback = callback;
+}
+
 abstract class DaemonServiceManager {
   bool get isRunning;
 
@@ -25,6 +35,7 @@ abstract class DaemonServiceManager {
 class DesktopDaemonServiceManager implements DaemonServiceManager {
   Process? _process;
   bool _isRunning = false;
+  bool _isStoppingDaemon = false;
 
   @override
   bool get isRunning => _isRunning;
@@ -52,6 +63,7 @@ class DesktopDaemonServiceManager implements DaemonServiceManager {
       ], mode: ProcessStartMode.normal);
 
       _isRunning = true;
+      _isStoppingDaemon = false;
 
       _process!.stdout
           .transform(SystemEncoding().decoder)
@@ -69,8 +81,12 @@ class DesktopDaemonServiceManager implements DaemonServiceManager {
 
       _process!.exitCode.then((exitCode) {
         _logger.info('Daemon exited with code: $exitCode');
+        if (!_isStoppingDaemon) {
+          _desktopDaemonProcessExitCallback?.call(exitCode);
+        }
         _isRunning = false;
         _process = null;
+        _isStoppingDaemon = false;
       });
 
       return _isRunning;
@@ -88,6 +104,7 @@ class DesktopDaemonServiceManager implements DaemonServiceManager {
     }
 
     _logger.info('Stopping daemon...');
+    _isStoppingDaemon = true;
 
     final killed = _process!.kill(ProcessSignal.sigterm);
 
@@ -103,6 +120,7 @@ class DesktopDaemonServiceManager implements DaemonServiceManager {
 
     _isRunning = false;
     _process = null;
+    _isStoppingDaemon = false;
   }
 
   String _getFungiExecutablePath() {
