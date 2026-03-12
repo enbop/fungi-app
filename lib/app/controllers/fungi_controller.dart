@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/foreground_task.dart';
+import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:fungi_app/ui/utils/daemon_client.dart';
@@ -82,6 +84,19 @@ class FungiController extends GetxController {
 
   // TCP Tunneling state
   final tcpTunnelingConfig = TcpTunnelingConfigResponse().obs;
+  final runtimeConfig = RuntimeConfigResponse().obs;
+  final localServices = <LocalServiceView>[].obs;
+  final availableRemoteServices =
+      <String, List<RemoteServiceListEntryView>>{}.obs;
+  final peerConnections = <String, List<ConnectionSnapshot>>{}.obs;
+
+  final localServicesLoading = false.obs;
+  final availableServicesLoading = false.obs;
+  final nodeManagementLoading = false.obs;
+  final localServicePendingActions = <String, String>{}.obs;
+
+  final localServicesError = ''.obs;
+  final availableServicesError = ''.obs;
 
   final ftpProxy = FtpProxyResponse(enabled: false, host: "", port: 0).obs;
   final webdavProxy = WebdavProxyResponse().obs;
@@ -532,6 +547,12 @@ class FungiController extends GetxController {
       await updateAddressBook();
       // Load TCP tunneling config
       await refreshTcpTunnelingConfig();
+      await Future.wait([
+        refreshLocalServicesData(),
+        refreshAvailableServicesData(),
+        refreshNodeManagementData(),
+        refreshRuntimeConfig(),
+      ]);
     } catch (e) {
       daemonConnectionState.value = DaemonConnectionState.failed;
       daemonError.value = e.toString();
@@ -696,6 +717,314 @@ class FungiController extends GetxController {
         backgroundColor: Colors.red.withValues(alpha: 0.1),
         colorText: Colors.red,
       );
+    }
+  }
+
+  Future<void> refreshRuntimeConfig() async {
+    try {
+      runtimeConfig.value = await fungiClient.getRuntimeConfig(Empty());
+    } catch (e) {
+      debugPrint('Failed to get runtime config: $e');
+    }
+  }
+
+  Future<void> refreshLocalServicesPageData() async {
+    await Future.wait([
+      refreshLocalServicesData(),
+      refreshRuntimeConfig(),
+      updateIncomingAllowedPeers(),
+    ]);
+  }
+
+  Future<void> refreshLocalServicesData() async {
+    localServicesLoading.value = true;
+    localServicesError.value = '';
+
+    try {
+      final response = await fungiClient.listServices(Empty());
+      localServices.value = decodeJsonStringList(
+        response.servicesJson,
+        LocalServiceView.fromJson,
+      );
+    } catch (e) {
+      localServicesError.value = 'Failed to load local services: $e';
+      debugPrint(localServicesError.value);
+    } finally {
+      localServicesLoading.value = false;
+    }
+  }
+
+  Future<void> refreshAvailableServicesData() async {
+    availableServicesLoading.value = true;
+    availableServicesError.value = '';
+
+    try {
+      final enabledResponse = await fungiClient.listEnabledRemoteServices(
+        ListEnabledRemoteServicesRequest(),
+      );
+      final enabledServices = decodeJsonStringList(
+        enabledResponse.enabledServicesJson,
+        (json) =>
+            decodeJsonStringObject(jsonEncode(json), (decoded) => decoded) ??
+            json,
+      );
+      final enabledByService = <String, List<Map<String, dynamic>>>{};
+      for (final service in enabledServices) {
+        final peerId = service['peer_id'] as String? ?? '';
+        final serviceName = service['service_name'] as String? ?? '';
+        enabledByService
+            .putIfAbsent('$peerId::$serviceName', () => [])
+            .add(service);
+      }
+
+      final next = <String, List<RemoteServiceListEntryView>>{};
+      for (final peer in addressBook) {
+        try {
+          final remoteServices = await fungiClient.remoteListServices(
+            RemotePeerRequest()..peerId = peer.peerId,
+          );
+          final discoveredResponse = await fungiClient.discoverPeerServices(
+            DiscoverPeerServicesRequest()..peerId = peer.peerId,
+          );
+
+          final services = decodeJsonStringList(remoteServices.servicesJson, (
+            serviceJson,
+          ) {
+            final serviceName = serviceJson['name'] as String? ?? '';
+            final key = '${peer.peerId}::$serviceName';
+            final discovered = decodeJsonStringList(
+              discoveredResponse.servicesJson,
+              (decoded) => decoded,
+            );
+            final discoveredMatch = discovered.firstWhere(
+              (entry) =>
+                  (entry['service_name'] as String? ?? '') == serviceName,
+              orElse: () => <String, dynamic>{},
+            );
+            final enabledMatch = enabledByService[key] ?? const [];
+
+            return RemoteServiceListEntryView.fromJson({
+              'service_name': serviceName,
+              'runtime': serviceJson['runtime'],
+              'state':
+                  (serviceJson['status'] as Map<String, dynamic>?)?['state'],
+              'running':
+                  (serviceJson['status'] as Map<String, dynamic>?)?['running'],
+              'discoverable': discoveredMatch.isNotEmpty,
+              'service_id': discoveredMatch['service_id'],
+              'local_forwarded': enabledMatch.isNotEmpty,
+              'available_endpoints': discoveredMatch['endpoints'] ?? const [],
+              'local_forwarded_endpoints': enabledMatch.isNotEmpty
+                  ? (enabledMatch.first['endpoints'] ?? const [])
+                  : const [],
+            });
+          });
+          next[peer.peerId] = services;
+        } catch (e) {
+          debugPrint('Failed to load remote services for ${peer.peerId}: $e');
+          next[peer.peerId] = const [];
+        }
+      }
+      availableRemoteServices.value = next;
+    } catch (e) {
+      availableServicesError.value = 'Failed to load available services: $e';
+      debugPrint(availableServicesError.value);
+    } finally {
+      availableServicesLoading.value = false;
+    }
+  }
+
+  Future<void> refreshNodeManagementData() async {
+    nodeManagementLoading.value = true;
+
+    try {
+      await updateAddressBook();
+      final response = await fungiClient.listConnections(
+        ListConnectionsRequest(),
+      );
+      final grouped = <String, List<ConnectionSnapshot>>{};
+      for (final connection in response.connections) {
+        grouped.putIfAbsent(connection.peerId, () => []).add(connection);
+      }
+      peerConnections.value = grouped;
+      await refreshAvailableServicesData();
+    } catch (e) {
+      debugPrint('Failed to refresh node management data: $e');
+    } finally {
+      nodeManagementLoading.value = false;
+    }
+  }
+
+  List<PeerServicesSectionView> get availableServiceSections {
+    return addressBook
+        .map(
+          (peer) => PeerServicesSectionView(
+            peerId: peer.peerId,
+            alias: peer.alias,
+            hostname: peer.hostname,
+            services: availableRemoteServices[peer.peerId] ?? const [],
+          ),
+        )
+        .where((section) => section.services.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  List<RemoteServiceListEntryView> servicesForPeer(String peerId) {
+    return availableRemoteServices[peerId] ?? const [];
+  }
+
+  List<ConnectionSnapshot> connectionsForPeer(String peerId) {
+    return peerConnections[peerId] ?? const [];
+  }
+
+  int? bestLatencyForPeer(String peerId) {
+    final values = connectionsForPeer(peerId)
+        .where((connection) => connection.hasLastRttMs())
+        .map((connection) => connection.lastRttMs.toInt())
+        .toList();
+    if (values.isEmpty) {
+      return null;
+    }
+    values.sort();
+    return values.first;
+  }
+
+  Future<void> deployLocalServiceFromPath(String manifestPath) async {
+    try {
+      final file = File(manifestPath);
+      if (!await file.exists()) {
+        throw Exception('Manifest file not found: $manifestPath');
+      }
+
+      final manifestYaml = await file.readAsString();
+      await fungiClient.deployService(
+        DeployServiceRequest()
+          ..manifestYaml = manifestYaml
+          ..manifestBaseDir = file.parent.path,
+      );
+      await refreshLocalServicesPageData();
+      await refreshNodeManagementData();
+      Get.snackbar('Success', 'Service deployed successfully');
+    } catch (e) {
+      Get.snackbar('Deploy failed', '$e');
+    }
+  }
+
+  Future<void> addRuntimeAllowedHostPath(String path) async {
+    try {
+      await fungiClient.addRuntimeAllowedHostPath(
+        RuntimeAllowedHostPathRequest()..path = path,
+      );
+      await refreshRuntimeConfig();
+      Get.snackbar('Success', 'Allowed path added');
+    } catch (e) {
+      Get.snackbar('Update failed', '$e');
+    }
+  }
+
+  Future<void> removeRuntimeAllowedHostPath(String path) async {
+    try {
+      await fungiClient.removeRuntimeAllowedHostPath(
+        RuntimeAllowedHostPathRequest()..path = path,
+      );
+      await refreshRuntimeConfig();
+      Get.snackbar('Success', 'Allowed path removed');
+    } catch (e) {
+      Get.snackbar('Update failed', '$e');
+    }
+  }
+
+  Future<void> addRuntimeAllowedPort(int port) async {
+    try {
+      await fungiClient.addRuntimeAllowedPort(
+        RuntimeAllowedPortRequest()..port = port,
+      );
+      await refreshRuntimeConfig();
+      Get.snackbar('Success', 'Allowed port added');
+    } catch (e) {
+      Get.snackbar('Update failed', '$e');
+    }
+  }
+
+  Future<void> removeRuntimeAllowedPort(int port) async {
+    try {
+      await fungiClient.removeRuntimeAllowedPort(
+        RuntimeAllowedPortRequest()..port = port,
+      );
+      await refreshRuntimeConfig();
+      Get.snackbar('Success', 'Allowed port removed');
+    } catch (e) {
+      Get.snackbar('Update failed', '$e');
+    }
+  }
+
+  Future<void> addRuntimeAllowedPortRange(int start, int end) async {
+    try {
+      await fungiClient.addRuntimeAllowedPortRange(
+        RuntimeAllowedPortRangeRequest()
+          ..start = start
+          ..end = end,
+      );
+      await refreshRuntimeConfig();
+      Get.snackbar('Success', 'Allowed port range added');
+    } catch (e) {
+      Get.snackbar('Update failed', '$e');
+    }
+  }
+
+  Future<void> removeRuntimeAllowedPortRange(int start, int end) async {
+    try {
+      await fungiClient.removeRuntimeAllowedPortRange(
+        RuntimeAllowedPortRangeRequest()
+          ..start = start
+          ..end = end,
+      );
+      await refreshRuntimeConfig();
+      Get.snackbar('Success', 'Allowed port range removed');
+    } catch (e) {
+      Get.snackbar('Update failed', '$e');
+    }
+  }
+
+  Future<void> startLocalService(String name) async {
+    localServicePendingActions[name] = 'start';
+    try {
+      await fungiClient.startService(ServiceNameRequest()..name = name);
+      await refreshLocalServicesPageData();
+      await refreshTcpTunnelingConfig();
+      Get.snackbar('Success', 'Service started');
+    } catch (e) {
+      Get.snackbar('Start failed', '$e');
+    } finally {
+      localServicePendingActions.remove(name);
+    }
+  }
+
+  Future<void> stopLocalService(String name) async {
+    localServicePendingActions[name] = 'stop';
+    try {
+      await fungiClient.stopService(ServiceNameRequest()..name = name);
+      await refreshLocalServicesPageData();
+      await refreshTcpTunnelingConfig();
+      Get.snackbar('Success', 'Service stopped');
+    } catch (e) {
+      Get.snackbar('Stop failed', '$e');
+    } finally {
+      localServicePendingActions.remove(name);
+    }
+  }
+
+  Future<void> removeLocalService(String name) async {
+    localServicePendingActions[name] = 'remove';
+    try {
+      await fungiClient.removeService(ServiceNameRequest()..name = name);
+      await refreshLocalServicesPageData();
+      await refreshTcpTunnelingConfig();
+      Get.snackbar('Success', 'Service removed');
+    } catch (e) {
+      Get.snackbar('Remove failed', '$e');
+    } finally {
+      localServicePendingActions.remove(name);
     }
   }
 }

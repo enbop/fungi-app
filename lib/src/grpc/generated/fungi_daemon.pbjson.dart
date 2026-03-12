@@ -13,6 +13,22 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use serviceRuntimeKindDescriptor instead')
+const ServiceRuntimeKind$json = {
+  '1': 'ServiceRuntimeKind',
+  '2': [
+    {'1': 'SERVICE_RUNTIME_KIND_UNSPECIFIED', '2': 0},
+    {'1': 'SERVICE_RUNTIME_KIND_DOCKER', '2': 1},
+    {'1': 'SERVICE_RUNTIME_KIND_WASMTIME', '2': 2},
+  ],
+};
+
+/// Descriptor for `ServiceRuntimeKind`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List serviceRuntimeKindDescriptor = $convert.base64Decode(
+    'ChJTZXJ2aWNlUnVudGltZUtpbmQSJAogU0VSVklDRV9SVU5USU1FX0tJTkRfVU5TUEVDSUZJRU'
+    'QQABIfChtTRVJWSUNFX1JVTlRJTUVfS0lORF9ET0NLRVIQARIhCh1TRVJWSUNFX1JVTlRJTUVf'
+    'S0lORF9XQVNNVElNRRAC');
+
 @$core.Deprecated('Use emptyDescriptor instead')
 const Empty$json = {
   '1': 'Empty',
@@ -109,6 +125,78 @@ const RemoveIncomingAllowedPeerRequest$json = {
 final $typed_data.Uint8List removeIncomingAllowedPeerRequestDescriptor = $convert.base64Decode(
     'CiBSZW1vdmVJbmNvbWluZ0FsbG93ZWRQZWVyUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZW'
     'VySWQ=');
+
+@$core.Deprecated('Use runtimeAllowedHostPathRequestDescriptor instead')
+const RuntimeAllowedHostPathRequest$json = {
+  '1': 'RuntimeAllowedHostPathRequest',
+  '2': [
+    {'1': 'path', '3': 1, '4': 1, '5': 9, '10': 'path'},
+  ],
+};
+
+/// Descriptor for `RuntimeAllowedHostPathRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List runtimeAllowedHostPathRequestDescriptor = $convert.base64Decode(
+    'Ch1SdW50aW1lQWxsb3dlZEhvc3RQYXRoUmVxdWVzdBISCgRwYXRoGAEgASgJUgRwYXRo');
+
+@$core.Deprecated('Use runtimeAllowedPortRequestDescriptor instead')
+const RuntimeAllowedPortRequest$json = {
+  '1': 'RuntimeAllowedPortRequest',
+  '2': [
+    {'1': 'port', '3': 1, '4': 1, '5': 5, '10': 'port'},
+  ],
+};
+
+/// Descriptor for `RuntimeAllowedPortRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List runtimeAllowedPortRequestDescriptor = $convert.base64Decode(
+    'ChlSdW50aW1lQWxsb3dlZFBvcnRSZXF1ZXN0EhIKBHBvcnQYASABKAVSBHBvcnQ=');
+
+@$core.Deprecated('Use runtimeAllowedPortRangeRequestDescriptor instead')
+const RuntimeAllowedPortRangeRequest$json = {
+  '1': 'RuntimeAllowedPortRangeRequest',
+  '2': [
+    {'1': 'start', '3': 1, '4': 1, '5': 5, '10': 'start'},
+    {'1': 'end', '3': 2, '4': 1, '5': 5, '10': 'end'},
+  ],
+};
+
+/// Descriptor for `RuntimeAllowedPortRangeRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List runtimeAllowedPortRangeRequestDescriptor = $convert.base64Decode(
+    'Ch5SdW50aW1lQWxsb3dlZFBvcnRSYW5nZVJlcXVlc3QSFAoFc3RhcnQYASABKAVSBXN0YXJ0Eh'
+    'AKA2VuZBgCIAEoBVIDZW5k');
+
+@$core.Deprecated('Use runtimeAllowedPortRangeDescriptor instead')
+const RuntimeAllowedPortRange$json = {
+  '1': 'RuntimeAllowedPortRange',
+  '2': [
+    {'1': 'start', '3': 1, '4': 1, '5': 5, '10': 'start'},
+    {'1': 'end', '3': 2, '4': 1, '5': 5, '10': 'end'},
+  ],
+};
+
+/// Descriptor for `RuntimeAllowedPortRange`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List runtimeAllowedPortRangeDescriptor = $convert.base64Decode(
+    'ChdSdW50aW1lQWxsb3dlZFBvcnRSYW5nZRIUCgVzdGFydBgBIAEoBVIFc3RhcnQSEAoDZW5kGA'
+    'IgASgFUgNlbmQ=');
+
+@$core.Deprecated('Use runtimeConfigResponseDescriptor instead')
+const RuntimeConfigResponse$json = {
+  '1': 'RuntimeConfigResponse',
+  '2': [
+    {'1': 'disable_docker', '3': 1, '4': 1, '5': 8, '10': 'disableDocker'},
+    {'1': 'disable_wasmtime', '3': 2, '4': 1, '5': 8, '10': 'disableWasmtime'},
+    {'1': 'allowed_host_paths', '3': 3, '4': 3, '5': 9, '10': 'allowedHostPaths'},
+    {'1': 'allowed_ports', '3': 4, '4': 3, '5': 5, '10': 'allowedPorts'},
+    {'1': 'allowed_port_ranges', '3': 5, '4': 3, '5': 11, '6': '.fungi_daemon.RuntimeAllowedPortRange', '10': 'allowedPortRanges'},
+  ],
+};
+
+/// Descriptor for `RuntimeConfigResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List runtimeConfigResponseDescriptor = $convert.base64Decode(
+    'ChVSdW50aW1lQ29uZmlnUmVzcG9uc2USJQoOZGlzYWJsZV9kb2NrZXIYASABKAhSDWRpc2FibG'
+    'VEb2NrZXISKQoQZGlzYWJsZV93YXNtdGltZRgCIAEoCFIPZGlzYWJsZVdhc210aW1lEiwKEmFs'
+    'bG93ZWRfaG9zdF9wYXRocxgDIAMoCVIQYWxsb3dlZEhvc3RQYXRocxIjCg1hbGxvd2VkX3Bvcn'
+    'RzGAQgAygFUgxhbGxvd2VkUG9ydHMSVQoTYWxsb3dlZF9wb3J0X3JhbmdlcxgFIAMoCzIlLmZ1'
+    'bmdpX2RhZW1vbi5SdW50aW1lQWxsb3dlZFBvcnRSYW5nZVIRYWxsb3dlZFBvcnRSYW5nZXM=');
 
 @$core.Deprecated('Use fileTransferServiceEnabledResponseDescriptor instead')
 const FileTransferServiceEnabledResponse$json = {
@@ -287,6 +375,10 @@ const ForwardingRule$json = {
     {'1': 'local_port', '3': 2, '4': 1, '5': 5, '10': 'localPort'},
     {'1': 'remote_peer_id', '3': 3, '4': 1, '5': 9, '10': 'remotePeerId'},
     {'1': 'remote_port', '3': 4, '4': 1, '5': 5, '10': 'remotePort'},
+    {'1': 'remote_protocol', '3': 5, '4': 1, '5': 9, '10': 'remoteProtocol'},
+    {'1': 'remote_service_id', '3': 6, '4': 1, '5': 9, '10': 'remoteServiceId'},
+    {'1': 'remote_service_name', '3': 7, '4': 1, '5': 9, '10': 'remoteServiceName'},
+    {'1': 'remote_service_port_name', '3': 8, '4': 1, '5': 9, '10': 'remoteServicePortName'},
   ],
 };
 
@@ -294,7 +386,11 @@ const ForwardingRule$json = {
 final $typed_data.Uint8List forwardingRuleDescriptor = $convert.base64Decode(
     'Cg5Gb3J3YXJkaW5nUnVsZRIdCgpsb2NhbF9ob3N0GAEgASgJUglsb2NhbEhvc3QSHQoKbG9jYW'
     'xfcG9ydBgCIAEoBVIJbG9jYWxQb3J0EiQKDnJlbW90ZV9wZWVyX2lkGAMgASgJUgxyZW1vdGVQ'
-    'ZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQ=');
+    'ZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQSJwoPcmVtb3RlX3Byb3RvY2'
+    '9sGAUgASgJUg5yZW1vdGVQcm90b2NvbBIqChFyZW1vdGVfc2VydmljZV9pZBgGIAEoCVIPcmVt'
+    'b3RlU2VydmljZUlkEi4KE3JlbW90ZV9zZXJ2aWNlX25hbWUYByABKAlSEXJlbW90ZVNlcnZpY2'
+    'VOYW1lEjcKGHJlbW90ZV9zZXJ2aWNlX3BvcnRfbmFtZRgIIAEoCVIVcmVtb3RlU2VydmljZVBv'
+    'cnROYW1l');
 
 @$core.Deprecated('Use listeningRuleDescriptor instead')
 const ListeningRule$json = {
@@ -303,13 +399,15 @@ const ListeningRule$json = {
     {'1': 'host', '3': 1, '4': 1, '5': 9, '10': 'host'},
     {'1': 'port', '3': 2, '4': 1, '5': 5, '10': 'port'},
     {'1': 'allowed_peers', '3': 3, '4': 3, '5': 9, '10': 'allowedPeers'},
+    {'1': 'protocol', '3': 4, '4': 1, '5': 9, '10': 'protocol'},
   ],
 };
 
 /// Descriptor for `ListeningRule`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List listeningRuleDescriptor = $convert.base64Decode(
     'Cg1MaXN0ZW5pbmdSdWxlEhIKBGhvc3QYASABKAlSBGhvc3QSEgoEcG9ydBgCIAEoBVIEcG9ydB'
-    'IjCg1hbGxvd2VkX3BlZXJzGAMgAygJUgxhbGxvd2VkUGVlcnM=');
+    'IjCg1hbGxvd2VkX3BlZXJzGAMgAygJUgxhbGxvd2VkUGVlcnMSGgoIcHJvdG9jb2wYBCABKAlS'
+    'CHByb3RvY29s');
 
 @$core.Deprecated('Use tcpTunnelingConfigResponseDescriptor instead')
 const TcpTunnelingConfigResponse$json = {
@@ -338,6 +436,10 @@ const AddTcpForwardingRuleRequest$json = {
     {'1': 'local_port', '3': 2, '4': 1, '5': 5, '10': 'localPort'},
     {'1': 'peer_id', '3': 3, '4': 1, '5': 9, '10': 'peerId'},
     {'1': 'remote_port', '3': 4, '4': 1, '5': 5, '10': 'remotePort'},
+    {'1': 'remote_protocol', '3': 5, '4': 1, '5': 9, '10': 'remoteProtocol'},
+    {'1': 'remote_service_id', '3': 6, '4': 1, '5': 9, '10': 'remoteServiceId'},
+    {'1': 'remote_service_name', '3': 7, '4': 1, '5': 9, '10': 'remoteServiceName'},
+    {'1': 'remote_service_port_name', '3': 8, '4': 1, '5': 9, '10': 'remoteServicePortName'},
   ],
 };
 
@@ -345,7 +447,11 @@ const AddTcpForwardingRuleRequest$json = {
 final $typed_data.Uint8List addTcpForwardingRuleRequestDescriptor = $convert.base64Decode(
     'ChtBZGRUY3BGb3J3YXJkaW5nUnVsZVJlcXVlc3QSHQoKbG9jYWxfaG9zdBgBIAEoCVIJbG9jYW'
     'xIb3N0Eh0KCmxvY2FsX3BvcnQYAiABKAVSCWxvY2FsUG9ydBIXCgdwZWVyX2lkGAMgASgJUgZw'
-    'ZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQ=');
+    'ZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQSJwoPcmVtb3RlX3Byb3RvY2'
+    '9sGAUgASgJUg5yZW1vdGVQcm90b2NvbBIqChFyZW1vdGVfc2VydmljZV9pZBgGIAEoCVIPcmVt'
+    'b3RlU2VydmljZUlkEi4KE3JlbW90ZV9zZXJ2aWNlX25hbWUYByABKAlSEXJlbW90ZVNlcnZpY2'
+    'VOYW1lEjcKGHJlbW90ZV9zZXJ2aWNlX3BvcnRfbmFtZRgIIAEoCVIVcmVtb3RlU2VydmljZVBv'
+    'cnROYW1l');
 
 @$core.Deprecated('Use tcpForwardingRuleResponseDescriptor instead')
 const TcpForwardingRuleResponse$json = {
@@ -367,6 +473,7 @@ const RemoveTcpForwardingRuleRequest$json = {
     {'1': 'local_port', '3': 2, '4': 1, '5': 5, '10': 'localPort'},
     {'1': 'peer_id', '3': 3, '4': 1, '5': 9, '10': 'peerId'},
     {'1': 'remote_port', '3': 4, '4': 1, '5': 5, '10': 'remotePort'},
+    {'1': 'remote_protocol', '3': 5, '4': 1, '5': 9, '10': 'remoteProtocol'},
   ],
 };
 
@@ -374,7 +481,8 @@ const RemoveTcpForwardingRuleRequest$json = {
 final $typed_data.Uint8List removeTcpForwardingRuleRequestDescriptor = $convert.base64Decode(
     'Ch5SZW1vdmVUY3BGb3J3YXJkaW5nUnVsZVJlcXVlc3QSHQoKbG9jYWxfaG9zdBgBIAEoCVIJbG'
     '9jYWxIb3N0Eh0KCmxvY2FsX3BvcnQYAiABKAVSCWxvY2FsUG9ydBIXCgdwZWVyX2lkGAMgASgJ'
-    'UgZwZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQ=');
+    'UgZwZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQSJwoPcmVtb3RlX3Byb3'
+    'RvY29sGAUgASgJUg5yZW1vdGVQcm90b2NvbA==');
 
 @$core.Deprecated('Use addTcpListeningRuleRequestDescriptor instead')
 const AddTcpListeningRuleRequest$json = {
@@ -383,6 +491,7 @@ const AddTcpListeningRuleRequest$json = {
     {'1': 'local_host', '3': 1, '4': 1, '5': 9, '10': 'localHost'},
     {'1': 'local_port', '3': 2, '4': 1, '5': 5, '10': 'localPort'},
     {'1': 'allowed_peers', '3': 3, '4': 3, '5': 9, '10': 'allowedPeers'},
+    {'1': 'protocol', '3': 4, '4': 1, '5': 9, '10': 'protocol'},
   ],
 };
 
@@ -390,7 +499,7 @@ const AddTcpListeningRuleRequest$json = {
 final $typed_data.Uint8List addTcpListeningRuleRequestDescriptor = $convert.base64Decode(
     'ChpBZGRUY3BMaXN0ZW5pbmdSdWxlUmVxdWVzdBIdCgpsb2NhbF9ob3N0GAEgASgJUglsb2NhbE'
     'hvc3QSHQoKbG9jYWxfcG9ydBgCIAEoBVIJbG9jYWxQb3J0EiMKDWFsbG93ZWRfcGVlcnMYAyAD'
-    'KAlSDGFsbG93ZWRQZWVycw==');
+    'KAlSDGFsbG93ZWRQZWVycxIaCghwcm90b2NvbBgEIAEoCVIIcHJvdG9jb2w=');
 
 @$core.Deprecated('Use tcpListeningRuleResponseDescriptor instead')
 const TcpListeningRuleResponse$json = {
@@ -410,13 +519,15 @@ const RemoveTcpListeningRuleRequest$json = {
   '2': [
     {'1': 'local_host', '3': 1, '4': 1, '5': 9, '10': 'localHost'},
     {'1': 'local_port', '3': 2, '4': 1, '5': 5, '10': 'localPort'},
+    {'1': 'protocol', '3': 3, '4': 1, '5': 9, '10': 'protocol'},
   ],
 };
 
 /// Descriptor for `RemoveTcpListeningRuleRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List removeTcpListeningRuleRequestDescriptor = $convert.base64Decode(
     'Ch1SZW1vdmVUY3BMaXN0ZW5pbmdSdWxlUmVxdWVzdBIdCgpsb2NhbF9ob3N0GAEgASgJUglsb2'
-    'NhbEhvc3QSHQoKbG9jYWxfcG9ydBgCIAEoBVIJbG9jYWxQb3J0');
+    'NhbEhvc3QSHQoKbG9jYWxfcG9ydBgCIAEoBVIJbG9jYWxQb3J0EhoKCHByb3RvY29sGAMgASgJ'
+    'Ughwcm90b2NvbA==');
 
 @$core.Deprecated('Use peerInfoDescriptor instead')
 const PeerInfo$json = {
@@ -721,4 +832,259 @@ const ListActiveStreamsResponse$json = {
 final $typed_data.Uint8List listActiveStreamsResponseDescriptor = $convert.base64Decode(
     'ChlMaXN0QWN0aXZlU3RyZWFtc1Jlc3BvbnNlEjwKB3N0cmVhbXMYASADKAsyIi5mdW5naV9kYW'
     'Vtb24uQWN0aXZlU3RyZWFtU25hcHNob3RSB3N0cmVhbXM=');
+
+@$core.Deprecated('Use deployServiceRequestDescriptor instead')
+const DeployServiceRequest$json = {
+  '1': 'DeployServiceRequest',
+  '2': [
+    {'1': 'manifest_yaml', '3': 1, '4': 1, '5': 9, '10': 'manifestYaml'},
+    {'1': 'manifest_base_dir', '3': 2, '4': 1, '5': 9, '10': 'manifestBaseDir'},
+  ],
+};
+
+/// Descriptor for `DeployServiceRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deployServiceRequestDescriptor = $convert.base64Decode(
+    'ChREZXBsb3lTZXJ2aWNlUmVxdWVzdBIjCg1tYW5pZmVzdF95YW1sGAEgASgJUgxtYW5pZmVzdF'
+    'lhbWwSKgoRbWFuaWZlc3RfYmFzZV9kaXIYAiABKAlSD21hbmlmZXN0QmFzZURpcg==');
+
+@$core.Deprecated('Use serviceNameRequestDescriptor instead')
+const ServiceNameRequest$json = {
+  '1': 'ServiceNameRequest',
+  '2': [
+    {'1': 'runtime', '3': 1, '4': 1, '5': 14, '6': '.fungi_daemon.ServiceRuntimeKind', '10': 'runtime'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+  ],
+};
+
+/// Descriptor for `ServiceNameRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List serviceNameRequestDescriptor = $convert.base64Decode(
+    'ChJTZXJ2aWNlTmFtZVJlcXVlc3QSOgoHcnVudGltZRgBIAEoDjIgLmZ1bmdpX2RhZW1vbi5TZX'
+    'J2aWNlUnVudGltZUtpbmRSB3J1bnRpbWUSEgoEbmFtZRgCIAEoCVIEbmFtZQ==');
+
+@$core.Deprecated('Use getServiceLogsRequestDescriptor instead')
+const GetServiceLogsRequest$json = {
+  '1': 'GetServiceLogsRequest',
+  '2': [
+    {'1': 'runtime', '3': 1, '4': 1, '5': 14, '6': '.fungi_daemon.ServiceRuntimeKind', '10': 'runtime'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    {'1': 'tail', '3': 3, '4': 1, '5': 9, '10': 'tail'},
+  ],
+};
+
+/// Descriptor for `GetServiceLogsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getServiceLogsRequestDescriptor = $convert.base64Decode(
+    'ChVHZXRTZXJ2aWNlTG9nc1JlcXVlc3QSOgoHcnVudGltZRgBIAEoDjIgLmZ1bmdpX2RhZW1vbi'
+    '5TZXJ2aWNlUnVudGltZUtpbmRSB3J1bnRpbWUSEgoEbmFtZRgCIAEoCVIEbmFtZRISCgR0YWls'
+    'GAMgASgJUgR0YWls');
+
+@$core.Deprecated('Use serviceInstanceResponseDescriptor instead')
+const ServiceInstanceResponse$json = {
+  '1': 'ServiceInstanceResponse',
+  '2': [
+    {'1': 'instance_json', '3': 1, '4': 1, '5': 9, '10': 'instanceJson'},
+  ],
+};
+
+/// Descriptor for `ServiceInstanceResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List serviceInstanceResponseDescriptor = $convert.base64Decode(
+    'ChdTZXJ2aWNlSW5zdGFuY2VSZXNwb25zZRIjCg1pbnN0YW5jZV9qc29uGAEgASgJUgxpbnN0YW'
+    '5jZUpzb24=');
+
+@$core.Deprecated('Use serviceLogsResponseDescriptor instead')
+const ServiceLogsResponse$json = {
+  '1': 'ServiceLogsResponse',
+  '2': [
+    {'1': 'raw', '3': 1, '4': 1, '5': 12, '10': 'raw'},
+    {'1': 'text', '3': 2, '4': 1, '5': 9, '10': 'text'},
+  ],
+};
+
+/// Descriptor for `ServiceLogsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List serviceLogsResponseDescriptor = $convert.base64Decode(
+    'ChNTZXJ2aWNlTG9nc1Jlc3BvbnNlEhAKA3JhdxgBIAEoDFIDcmF3EhIKBHRleHQYAiABKAlSBH'
+    'RleHQ=');
+
+@$core.Deprecated('Use listServicesResponseDescriptor instead')
+const ListServicesResponse$json = {
+  '1': 'ListServicesResponse',
+  '2': [
+    {'1': 'services_json', '3': 1, '4': 1, '5': 9, '10': 'servicesJson'},
+  ],
+};
+
+/// Descriptor for `ListServicesResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listServicesResponseDescriptor = $convert.base64Decode(
+    'ChRMaXN0U2VydmljZXNSZXNwb25zZRIjCg1zZXJ2aWNlc19qc29uGAEgASgJUgxzZXJ2aWNlc0'
+    'pzb24=');
+
+@$core.Deprecated('Use discoverPeerServicesRequestDescriptor instead')
+const DiscoverPeerServicesRequest$json = {
+  '1': 'DiscoverPeerServicesRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+  ],
+};
+
+/// Descriptor for `DiscoverPeerServicesRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List discoverPeerServicesRequestDescriptor = $convert.base64Decode(
+    'ChtEaXNjb3ZlclBlZXJTZXJ2aWNlc1JlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklk');
+
+@$core.Deprecated('Use discoverPeerServicesResponseDescriptor instead')
+const DiscoverPeerServicesResponse$json = {
+  '1': 'DiscoverPeerServicesResponse',
+  '2': [
+    {'1': 'services_json', '3': 1, '4': 1, '5': 9, '10': 'servicesJson'},
+  ],
+};
+
+/// Descriptor for `DiscoverPeerServicesResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List discoverPeerServicesResponseDescriptor = $convert.base64Decode(
+    'ChxEaXNjb3ZlclBlZXJTZXJ2aWNlc1Jlc3BvbnNlEiMKDXNlcnZpY2VzX2pzb24YASABKAlSDH'
+    'NlcnZpY2VzSnNvbg==');
+
+@$core.Deprecated('Use discoverPeerCapabilitiesRequestDescriptor instead')
+const DiscoverPeerCapabilitiesRequest$json = {
+  '1': 'DiscoverPeerCapabilitiesRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+  ],
+};
+
+/// Descriptor for `DiscoverPeerCapabilitiesRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List discoverPeerCapabilitiesRequestDescriptor = $convert.base64Decode(
+    'Ch9EaXNjb3ZlclBlZXJDYXBhYmlsaXRpZXNSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZX'
+    'JJZA==');
+
+@$core.Deprecated('Use discoverPeerCapabilitiesResponseDescriptor instead')
+const DiscoverPeerCapabilitiesResponse$json = {
+  '1': 'DiscoverPeerCapabilitiesResponse',
+  '2': [
+    {'1': 'capabilities_json', '3': 1, '4': 1, '5': 9, '10': 'capabilitiesJson'},
+  ],
+};
+
+/// Descriptor for `DiscoverPeerCapabilitiesResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List discoverPeerCapabilitiesResponseDescriptor = $convert.base64Decode(
+    'CiBEaXNjb3ZlclBlZXJDYXBhYmlsaXRpZXNSZXNwb25zZRIrChFjYXBhYmlsaXRpZXNfanNvbh'
+    'gBIAEoCVIQY2FwYWJpbGl0aWVzSnNvbg==');
+
+@$core.Deprecated('Use remoteDeployServiceRequestDescriptor instead')
+const RemoteDeployServiceRequest$json = {
+  '1': 'RemoteDeployServiceRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'manifest_yaml', '3': 2, '4': 1, '5': 9, '10': 'manifestYaml'},
+  ],
+};
+
+/// Descriptor for `RemoteDeployServiceRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List remoteDeployServiceRequestDescriptor = $convert.base64Decode(
+    'ChpSZW1vdGVEZXBsb3lTZXJ2aWNlUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQSIw'
+    'oNbWFuaWZlc3RfeWFtbBgCIAEoCVIMbWFuaWZlc3RZYW1s');
+
+@$core.Deprecated('Use remoteServiceNameRequestDescriptor instead')
+const RemoteServiceNameRequest$json = {
+  '1': 'RemoteServiceNameRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+  ],
+};
+
+/// Descriptor for `RemoteServiceNameRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List remoteServiceNameRequestDescriptor = $convert.base64Decode(
+    'ChhSZW1vdGVTZXJ2aWNlTmFtZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEhIKBG'
+    '5hbWUYAiABKAlSBG5hbWU=');
+
+@$core.Deprecated('Use remotePeerRequestDescriptor instead')
+const RemotePeerRequest$json = {
+  '1': 'RemotePeerRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+  ],
+};
+
+/// Descriptor for `RemotePeerRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List remotePeerRequestDescriptor = $convert.base64Decode(
+    'ChFSZW1vdGVQZWVyUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
+
+@$core.Deprecated('Use remoteServiceControlResponseDescriptor instead')
+const RemoteServiceControlResponse$json = {
+  '1': 'RemoteServiceControlResponse',
+  '2': [
+    {'1': 'service_name', '3': 1, '4': 1, '5': 9, '10': 'serviceName'},
+  ],
+};
+
+/// Descriptor for `RemoteServiceControlResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List remoteServiceControlResponseDescriptor = $convert.base64Decode(
+    'ChxSZW1vdGVTZXJ2aWNlQ29udHJvbFJlc3BvbnNlEiEKDHNlcnZpY2VfbmFtZRgBIAEoCVILc2'
+    'VydmljZU5hbWU=');
+
+@$core.Deprecated('Use enableRemoteServiceRequestDescriptor instead')
+const EnableRemoteServiceRequest$json = {
+  '1': 'EnableRemoteServiceRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'service_id', '3': 2, '4': 1, '5': 9, '10': 'serviceId'},
+  ],
+};
+
+/// Descriptor for `EnableRemoteServiceRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List enableRemoteServiceRequestDescriptor = $convert.base64Decode(
+    'ChpFbmFibGVSZW1vdGVTZXJ2aWNlUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQSHQ'
+    'oKc2VydmljZV9pZBgCIAEoCVIJc2VydmljZUlk');
+
+@$core.Deprecated('Use disableRemoteServiceRequestDescriptor instead')
+const DisableRemoteServiceRequest$json = {
+  '1': 'DisableRemoteServiceRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'service_id', '3': 2, '4': 1, '5': 9, '10': 'serviceId'},
+  ],
+};
+
+/// Descriptor for `DisableRemoteServiceRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List disableRemoteServiceRequestDescriptor = $convert.base64Decode(
+    'ChtEaXNhYmxlUmVtb3RlU2VydmljZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEh'
+    '0KCnNlcnZpY2VfaWQYAiABKAlSCXNlcnZpY2VJZA==');
+
+@$core.Deprecated('Use listEnabledRemoteServicesRequestDescriptor instead')
+const ListEnabledRemoteServicesRequest$json = {
+  '1': 'ListEnabledRemoteServicesRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+  ],
+};
+
+/// Descriptor for `ListEnabledRemoteServicesRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listEnabledRemoteServicesRequestDescriptor = $convert.base64Decode(
+    'CiBMaXN0RW5hYmxlZFJlbW90ZVNlcnZpY2VzUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZW'
+    'VySWQ=');
+
+@$core.Deprecated('Use enabledRemoteServiceResponseDescriptor instead')
+const EnabledRemoteServiceResponse$json = {
+  '1': 'EnabledRemoteServiceResponse',
+  '2': [
+    {'1': 'enabled_service_json', '3': 1, '4': 1, '5': 9, '10': 'enabledServiceJson'},
+  ],
+};
+
+/// Descriptor for `EnabledRemoteServiceResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List enabledRemoteServiceResponseDescriptor = $convert.base64Decode(
+    'ChxFbmFibGVkUmVtb3RlU2VydmljZVJlc3BvbnNlEjAKFGVuYWJsZWRfc2VydmljZV9qc29uGA'
+    'EgASgJUhJlbmFibGVkU2VydmljZUpzb24=');
+
+@$core.Deprecated('Use enabledRemoteServicesResponseDescriptor instead')
+const EnabledRemoteServicesResponse$json = {
+  '1': 'EnabledRemoteServicesResponse',
+  '2': [
+    {'1': 'enabled_services_json', '3': 1, '4': 1, '5': 9, '10': 'enabledServicesJson'},
+  ],
+};
+
+/// Descriptor for `EnabledRemoteServicesResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List enabledRemoteServicesResponseDescriptor = $convert.base64Decode(
+    'Ch1FbmFibGVkUmVtb3RlU2VydmljZXNSZXNwb25zZRIyChVlbmFibGVkX3NlcnZpY2VzX2pzb2'
+    '4YASABKAlSE2VuYWJsZWRTZXJ2aWNlc0pzb24=');
 

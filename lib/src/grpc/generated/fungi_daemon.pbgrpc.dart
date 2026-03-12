@@ -49,6 +49,34 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/RemoveIncomingAllowedPeer',
       ($0.RemoveIncomingAllowedPeerRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$getRuntimeConfig = $grpc.ClientMethod<$0.Empty, $0.RuntimeConfigResponse>(
+      '/fungi_daemon.FungiDaemon/GetRuntimeConfig',
+      ($0.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.RuntimeConfigResponse.fromBuffer(value));
+  static final _$addRuntimeAllowedHostPath = $grpc.ClientMethod<$0.RuntimeAllowedHostPathRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/AddRuntimeAllowedHostPath',
+      ($0.RuntimeAllowedHostPathRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$removeRuntimeAllowedHostPath = $grpc.ClientMethod<$0.RuntimeAllowedHostPathRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/RemoveRuntimeAllowedHostPath',
+      ($0.RuntimeAllowedHostPathRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$addRuntimeAllowedPort = $grpc.ClientMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/AddRuntimeAllowedPort',
+      ($0.RuntimeAllowedPortRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$removeRuntimeAllowedPort = $grpc.ClientMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/RemoveRuntimeAllowedPort',
+      ($0.RuntimeAllowedPortRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$addRuntimeAllowedPortRange = $grpc.ClientMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/AddRuntimeAllowedPortRange',
+      ($0.RuntimeAllowedPortRangeRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$removeRuntimeAllowedPortRange = $grpc.ClientMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/RemoveRuntimeAllowedPortRange',
+      ($0.RuntimeAllowedPortRangeRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
   static final _$getFileTransferServiceEnabled = $grpc.ClientMethod<$0.Empty, $0.FileTransferServiceEnabledResponse>(
       '/fungi_daemon.FungiDaemon/GetFileTransferServiceEnabled',
       ($0.Empty value) => value.writeToBuffer(),
@@ -149,6 +177,74 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/ListActiveStreams',
       ($0.ListActiveStreamsRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.ListActiveStreamsResponse.fromBuffer(value));
+  static final _$deployService = $grpc.ClientMethod<$0.DeployServiceRequest, $0.ServiceInstanceResponse>(
+      '/fungi_daemon.FungiDaemon/DeployService',
+      ($0.DeployServiceRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ServiceInstanceResponse.fromBuffer(value));
+  static final _$startService = $grpc.ClientMethod<$0.ServiceNameRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/StartService',
+      ($0.ServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$stopService = $grpc.ClientMethod<$0.ServiceNameRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/StopService',
+      ($0.ServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$removeService = $grpc.ClientMethod<$0.ServiceNameRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/RemoveService',
+      ($0.ServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$inspectService = $grpc.ClientMethod<$0.ServiceNameRequest, $0.ServiceInstanceResponse>(
+      '/fungi_daemon.FungiDaemon/InspectService',
+      ($0.ServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ServiceInstanceResponse.fromBuffer(value));
+  static final _$getServiceLogs = $grpc.ClientMethod<$0.GetServiceLogsRequest, $0.ServiceLogsResponse>(
+      '/fungi_daemon.FungiDaemon/GetServiceLogs',
+      ($0.GetServiceLogsRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ServiceLogsResponse.fromBuffer(value));
+  static final _$listServices = $grpc.ClientMethod<$0.Empty, $0.ListServicesResponse>(
+      '/fungi_daemon.FungiDaemon/ListServices',
+      ($0.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
+  static final _$discoverPeerServices = $grpc.ClientMethod<$0.DiscoverPeerServicesRequest, $0.DiscoverPeerServicesResponse>(
+      '/fungi_daemon.FungiDaemon/DiscoverPeerServices',
+      ($0.DiscoverPeerServicesRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DiscoverPeerServicesResponse.fromBuffer(value));
+  static final _$discoverPeerCapabilities = $grpc.ClientMethod<$0.DiscoverPeerCapabilitiesRequest, $0.DiscoverPeerCapabilitiesResponse>(
+      '/fungi_daemon.FungiDaemon/DiscoverPeerCapabilities',
+      ($0.DiscoverPeerCapabilitiesRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DiscoverPeerCapabilitiesResponse.fromBuffer(value));
+  static final _$remoteDeployService = $grpc.ClientMethod<$0.RemoteDeployServiceRequest, $0.RemoteServiceControlResponse>(
+      '/fungi_daemon.FungiDaemon/RemoteDeployService',
+      ($0.RemoteDeployServiceRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.RemoteServiceControlResponse.fromBuffer(value));
+  static final _$remoteStartService = $grpc.ClientMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+      '/fungi_daemon.FungiDaemon/RemoteStartService',
+      ($0.RemoteServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.RemoteServiceControlResponse.fromBuffer(value));
+  static final _$remoteStopService = $grpc.ClientMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+      '/fungi_daemon.FungiDaemon/RemoteStopService',
+      ($0.RemoteServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.RemoteServiceControlResponse.fromBuffer(value));
+  static final _$remoteRemoveService = $grpc.ClientMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+      '/fungi_daemon.FungiDaemon/RemoteRemoveService',
+      ($0.RemoteServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.RemoteServiceControlResponse.fromBuffer(value));
+  static final _$remoteListServices = $grpc.ClientMethod<$0.RemotePeerRequest, $0.ListServicesResponse>(
+      '/fungi_daemon.FungiDaemon/RemoteListServices',
+      ($0.RemotePeerRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
+  static final _$enableRemoteService = $grpc.ClientMethod<$0.EnableRemoteServiceRequest, $0.EnabledRemoteServiceResponse>(
+      '/fungi_daemon.FungiDaemon/EnableRemoteService',
+      ($0.EnableRemoteServiceRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.EnabledRemoteServiceResponse.fromBuffer(value));
+  static final _$disableRemoteService = $grpc.ClientMethod<$0.DisableRemoteServiceRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/DisableRemoteService',
+      ($0.DisableRemoteServiceRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$listEnabledRemoteServices = $grpc.ClientMethod<$0.ListEnabledRemoteServicesRequest, $0.EnabledRemoteServicesResponse>(
+      '/fungi_daemon.FungiDaemon/ListEnabledRemoteServices',
+      ($0.ListEnabledRemoteServicesRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.EnabledRemoteServicesResponse.fromBuffer(value));
 
   FungiDaemonClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -182,6 +278,34 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.Empty> removeIncomingAllowedPeer($0.RemoveIncomingAllowedPeerRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$removeIncomingAllowedPeer, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.RuntimeConfigResponse> getRuntimeConfig($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getRuntimeConfig, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> addRuntimeAllowedHostPath($0.RuntimeAllowedHostPathRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$addRuntimeAllowedHostPath, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> removeRuntimeAllowedHostPath($0.RuntimeAllowedHostPathRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$removeRuntimeAllowedHostPath, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> addRuntimeAllowedPort($0.RuntimeAllowedPortRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$addRuntimeAllowedPort, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> removeRuntimeAllowedPort($0.RuntimeAllowedPortRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$removeRuntimeAllowedPort, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> addRuntimeAllowedPortRange($0.RuntimeAllowedPortRangeRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$addRuntimeAllowedPortRange, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> removeRuntimeAllowedPortRange($0.RuntimeAllowedPortRangeRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$removeRuntimeAllowedPortRange, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled($0.Empty request, {$grpc.CallOptions? options}) {
@@ -283,6 +407,74 @@ class FungiDaemonClient extends $grpc.Client {
   $grpc.ResponseFuture<$0.ListActiveStreamsResponse> listActiveStreams($0.ListActiveStreamsRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$listActiveStreams, request, options: options);
   }
+
+  $grpc.ResponseFuture<$0.ServiceInstanceResponse> deployService($0.DeployServiceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deployService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> startService($0.ServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$startService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> stopService($0.ServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$stopService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> removeService($0.ServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$removeService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ServiceInstanceResponse> inspectService($0.ServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$inspectService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ServiceLogsResponse> getServiceLogs($0.GetServiceLogsRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getServiceLogs, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListServicesResponse> listServices($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listServices, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DiscoverPeerServicesResponse> discoverPeerServices($0.DiscoverPeerServicesRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$discoverPeerServices, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DiscoverPeerCapabilitiesResponse> discoverPeerCapabilities($0.DiscoverPeerCapabilitiesRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$discoverPeerCapabilities, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.RemoteServiceControlResponse> remoteDeployService($0.RemoteDeployServiceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$remoteDeployService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.RemoteServiceControlResponse> remoteStartService($0.RemoteServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$remoteStartService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.RemoteServiceControlResponse> remoteStopService($0.RemoteServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$remoteStopService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.RemoteServiceControlResponse> remoteRemoveService($0.RemoteServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$remoteRemoveService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListServicesResponse> remoteListServices($0.RemotePeerRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$remoteListServices, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.EnabledRemoteServiceResponse> enableRemoteService($0.EnableRemoteServiceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$enableRemoteService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> disableRemoteService($0.DisableRemoteServiceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$disableRemoteService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.EnabledRemoteServicesResponse> listEnabledRemoteServices($0.ListEnabledRemoteServicesRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listEnabledRemoteServices, request, options: options);
+  }
 }
 
 @$pb.GrpcServiceName('fungi_daemon.FungiDaemon')
@@ -338,6 +530,55 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         false,
         ($core.List<$core.int> value) => $0.RemoveIncomingAllowedPeerRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.RuntimeConfigResponse>(
+        'GetRuntimeConfig',
+        getRuntimeConfig_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
+        ($0.RuntimeConfigResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedHostPathRequest, $0.Empty>(
+        'AddRuntimeAllowedHostPath',
+        addRuntimeAllowedHostPath_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RuntimeAllowedHostPathRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedHostPathRequest, $0.Empty>(
+        'RemoveRuntimeAllowedHostPath',
+        removeRuntimeAllowedHostPath_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RuntimeAllowedHostPathRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
+        'AddRuntimeAllowedPort',
+        addRuntimeAllowedPort_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
+        'RemoveRuntimeAllowedPort',
+        removeRuntimeAllowedPort_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
+        'AddRuntimeAllowedPortRange',
+        addRuntimeAllowedPortRange_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRangeRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
+        'RemoveRuntimeAllowedPortRange',
+        removeRuntimeAllowedPortRange_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRangeRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Empty, $0.FileTransferServiceEnabledResponse>(
         'GetFileTransferServiceEnabled',
@@ -514,6 +755,125 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.ListActiveStreamsRequest.fromBuffer(value),
         ($0.ListActiveStreamsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DeployServiceRequest, $0.ServiceInstanceResponse>(
+        'DeployService',
+        deployService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DeployServiceRequest.fromBuffer(value),
+        ($0.ServiceInstanceResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ServiceNameRequest, $0.Empty>(
+        'StartService',
+        startService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ServiceNameRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ServiceNameRequest, $0.Empty>(
+        'StopService',
+        stopService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ServiceNameRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ServiceNameRequest, $0.Empty>(
+        'RemoveService',
+        removeService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ServiceNameRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ServiceNameRequest, $0.ServiceInstanceResponse>(
+        'InspectService',
+        inspectService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ServiceNameRequest.fromBuffer(value),
+        ($0.ServiceInstanceResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetServiceLogsRequest, $0.ServiceLogsResponse>(
+        'GetServiceLogs',
+        getServiceLogs_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.GetServiceLogsRequest.fromBuffer(value),
+        ($0.ServiceLogsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.ListServicesResponse>(
+        'ListServices',
+        listServices_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
+        ($0.ListServicesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DiscoverPeerServicesRequest, $0.DiscoverPeerServicesResponse>(
+        'DiscoverPeerServices',
+        discoverPeerServices_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DiscoverPeerServicesRequest.fromBuffer(value),
+        ($0.DiscoverPeerServicesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DiscoverPeerCapabilitiesRequest, $0.DiscoverPeerCapabilitiesResponse>(
+        'DiscoverPeerCapabilities',
+        discoverPeerCapabilities_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DiscoverPeerCapabilitiesRequest.fromBuffer(value),
+        ($0.DiscoverPeerCapabilitiesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RemoteDeployServiceRequest, $0.RemoteServiceControlResponse>(
+        'RemoteDeployService',
+        remoteDeployService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RemoteDeployServiceRequest.fromBuffer(value),
+        ($0.RemoteServiceControlResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+        'RemoteStartService',
+        remoteStartService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RemoteServiceNameRequest.fromBuffer(value),
+        ($0.RemoteServiceControlResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+        'RemoteStopService',
+        remoteStopService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RemoteServiceNameRequest.fromBuffer(value),
+        ($0.RemoteServiceControlResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+        'RemoteRemoveService',
+        remoteRemoveService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RemoteServiceNameRequest.fromBuffer(value),
+        ($0.RemoteServiceControlResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RemotePeerRequest, $0.ListServicesResponse>(
+        'RemoteListServices',
+        remoteListServices_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RemotePeerRequest.fromBuffer(value),
+        ($0.ListServicesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.EnableRemoteServiceRequest, $0.EnabledRemoteServiceResponse>(
+        'EnableRemoteService',
+        enableRemoteService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.EnableRemoteServiceRequest.fromBuffer(value),
+        ($0.EnabledRemoteServiceResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DisableRemoteServiceRequest, $0.Empty>(
+        'DisableRemoteService',
+        disableRemoteService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.DisableRemoteServiceRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListEnabledRemoteServicesRequest, $0.EnabledRemoteServicesResponse>(
+        'ListEnabledRemoteServices',
+        listEnabledRemoteServices_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ListEnabledRemoteServicesRequest.fromBuffer(value),
+        ($0.EnabledRemoteServicesResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.VersionResponse> version_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
@@ -542,6 +902,34 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
 
   $async.Future<$0.Empty> removeIncomingAllowedPeer_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveIncomingAllowedPeerRequest> request) async {
     return removeIncomingAllowedPeer(call, await request);
+  }
+
+  $async.Future<$0.RuntimeConfigResponse> getRuntimeConfig_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return getRuntimeConfig(call, await request);
+  }
+
+  $async.Future<$0.Empty> addRuntimeAllowedHostPath_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedHostPathRequest> request) async {
+    return addRuntimeAllowedHostPath(call, await request);
+  }
+
+  $async.Future<$0.Empty> removeRuntimeAllowedHostPath_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedHostPathRequest> request) async {
+    return removeRuntimeAllowedHostPath(call, await request);
+  }
+
+  $async.Future<$0.Empty> addRuntimeAllowedPort_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRequest> request) async {
+    return addRuntimeAllowedPort(call, await request);
+  }
+
+  $async.Future<$0.Empty> removeRuntimeAllowedPort_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRequest> request) async {
+    return removeRuntimeAllowedPort(call, await request);
+  }
+
+  $async.Future<$0.Empty> addRuntimeAllowedPortRange_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRangeRequest> request) async {
+    return addRuntimeAllowedPortRange(call, await request);
+  }
+
+  $async.Future<$0.Empty> removeRuntimeAllowedPortRange_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRangeRequest> request) async {
+    return removeRuntimeAllowedPortRange(call, await request);
   }
 
   $async.Future<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
@@ -644,6 +1032,74 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return listActiveStreams(call, await request);
   }
 
+  $async.Future<$0.ServiceInstanceResponse> deployService_Pre($grpc.ServiceCall call, $async.Future<$0.DeployServiceRequest> request) async {
+    return deployService(call, await request);
+  }
+
+  $async.Future<$0.Empty> startService_Pre($grpc.ServiceCall call, $async.Future<$0.ServiceNameRequest> request) async {
+    return startService(call, await request);
+  }
+
+  $async.Future<$0.Empty> stopService_Pre($grpc.ServiceCall call, $async.Future<$0.ServiceNameRequest> request) async {
+    return stopService(call, await request);
+  }
+
+  $async.Future<$0.Empty> removeService_Pre($grpc.ServiceCall call, $async.Future<$0.ServiceNameRequest> request) async {
+    return removeService(call, await request);
+  }
+
+  $async.Future<$0.ServiceInstanceResponse> inspectService_Pre($grpc.ServiceCall call, $async.Future<$0.ServiceNameRequest> request) async {
+    return inspectService(call, await request);
+  }
+
+  $async.Future<$0.ServiceLogsResponse> getServiceLogs_Pre($grpc.ServiceCall call, $async.Future<$0.GetServiceLogsRequest> request) async {
+    return getServiceLogs(call, await request);
+  }
+
+  $async.Future<$0.ListServicesResponse> listServices_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return listServices(call, await request);
+  }
+
+  $async.Future<$0.DiscoverPeerServicesResponse> discoverPeerServices_Pre($grpc.ServiceCall call, $async.Future<$0.DiscoverPeerServicesRequest> request) async {
+    return discoverPeerServices(call, await request);
+  }
+
+  $async.Future<$0.DiscoverPeerCapabilitiesResponse> discoverPeerCapabilities_Pre($grpc.ServiceCall call, $async.Future<$0.DiscoverPeerCapabilitiesRequest> request) async {
+    return discoverPeerCapabilities(call, await request);
+  }
+
+  $async.Future<$0.RemoteServiceControlResponse> remoteDeployService_Pre($grpc.ServiceCall call, $async.Future<$0.RemoteDeployServiceRequest> request) async {
+    return remoteDeployService(call, await request);
+  }
+
+  $async.Future<$0.RemoteServiceControlResponse> remoteStartService_Pre($grpc.ServiceCall call, $async.Future<$0.RemoteServiceNameRequest> request) async {
+    return remoteStartService(call, await request);
+  }
+
+  $async.Future<$0.RemoteServiceControlResponse> remoteStopService_Pre($grpc.ServiceCall call, $async.Future<$0.RemoteServiceNameRequest> request) async {
+    return remoteStopService(call, await request);
+  }
+
+  $async.Future<$0.RemoteServiceControlResponse> remoteRemoveService_Pre($grpc.ServiceCall call, $async.Future<$0.RemoteServiceNameRequest> request) async {
+    return remoteRemoveService(call, await request);
+  }
+
+  $async.Future<$0.ListServicesResponse> remoteListServices_Pre($grpc.ServiceCall call, $async.Future<$0.RemotePeerRequest> request) async {
+    return remoteListServices(call, await request);
+  }
+
+  $async.Future<$0.EnabledRemoteServiceResponse> enableRemoteService_Pre($grpc.ServiceCall call, $async.Future<$0.EnableRemoteServiceRequest> request) async {
+    return enableRemoteService(call, await request);
+  }
+
+  $async.Future<$0.Empty> disableRemoteService_Pre($grpc.ServiceCall call, $async.Future<$0.DisableRemoteServiceRequest> request) async {
+    return disableRemoteService(call, await request);
+  }
+
+  $async.Future<$0.EnabledRemoteServicesResponse> listEnabledRemoteServices_Pre($grpc.ServiceCall call, $async.Future<$0.ListEnabledRemoteServicesRequest> request) async {
+    return listEnabledRemoteServices(call, await request);
+  }
+
   $async.Future<$0.VersionResponse> version($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.PeerIdResponse> peerId($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.ConfigFilePathResponse> configFilePath($grpc.ServiceCall call, $0.Empty request);
@@ -651,6 +1107,13 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.IncomingAllowedPeersListResponse> getIncomingAllowedPeers($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> addIncomingAllowedPeer($grpc.ServiceCall call, $0.AddIncomingAllowedPeerRequest request);
   $async.Future<$0.Empty> removeIncomingAllowedPeer($grpc.ServiceCall call, $0.RemoveIncomingAllowedPeerRequest request);
+  $async.Future<$0.RuntimeConfigResponse> getRuntimeConfig($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.Empty> addRuntimeAllowedHostPath($grpc.ServiceCall call, $0.RuntimeAllowedHostPathRequest request);
+  $async.Future<$0.Empty> removeRuntimeAllowedHostPath($grpc.ServiceCall call, $0.RuntimeAllowedHostPathRequest request);
+  $async.Future<$0.Empty> addRuntimeAllowedPort($grpc.ServiceCall call, $0.RuntimeAllowedPortRequest request);
+  $async.Future<$0.Empty> removeRuntimeAllowedPort($grpc.ServiceCall call, $0.RuntimeAllowedPortRequest request);
+  $async.Future<$0.Empty> addRuntimeAllowedPortRange($grpc.ServiceCall call, $0.RuntimeAllowedPortRangeRequest request);
+  $async.Future<$0.Empty> removeRuntimeAllowedPortRange($grpc.ServiceCall call, $0.RuntimeAllowedPortRangeRequest request);
   $async.Future<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.FileTransferServiceRootDirResponse> getFileTransferServiceRootDir($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> startFileTransferService($grpc.ServiceCall call, $0.StartFileTransferServiceRequest request);
@@ -676,4 +1139,21 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Stream<$0.PingPeerEvent> pingPeer($grpc.ServiceCall call, $0.PingPeerRequest request);
   $async.Future<$0.ListConnectionsResponse> listConnections($grpc.ServiceCall call, $0.ListConnectionsRequest request);
   $async.Future<$0.ListActiveStreamsResponse> listActiveStreams($grpc.ServiceCall call, $0.ListActiveStreamsRequest request);
+  $async.Future<$0.ServiceInstanceResponse> deployService($grpc.ServiceCall call, $0.DeployServiceRequest request);
+  $async.Future<$0.Empty> startService($grpc.ServiceCall call, $0.ServiceNameRequest request);
+  $async.Future<$0.Empty> stopService($grpc.ServiceCall call, $0.ServiceNameRequest request);
+  $async.Future<$0.Empty> removeService($grpc.ServiceCall call, $0.ServiceNameRequest request);
+  $async.Future<$0.ServiceInstanceResponse> inspectService($grpc.ServiceCall call, $0.ServiceNameRequest request);
+  $async.Future<$0.ServiceLogsResponse> getServiceLogs($grpc.ServiceCall call, $0.GetServiceLogsRequest request);
+  $async.Future<$0.ListServicesResponse> listServices($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.DiscoverPeerServicesResponse> discoverPeerServices($grpc.ServiceCall call, $0.DiscoverPeerServicesRequest request);
+  $async.Future<$0.DiscoverPeerCapabilitiesResponse> discoverPeerCapabilities($grpc.ServiceCall call, $0.DiscoverPeerCapabilitiesRequest request);
+  $async.Future<$0.RemoteServiceControlResponse> remoteDeployService($grpc.ServiceCall call, $0.RemoteDeployServiceRequest request);
+  $async.Future<$0.RemoteServiceControlResponse> remoteStartService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
+  $async.Future<$0.RemoteServiceControlResponse> remoteStopService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
+  $async.Future<$0.RemoteServiceControlResponse> remoteRemoveService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
+  $async.Future<$0.ListServicesResponse> remoteListServices($grpc.ServiceCall call, $0.RemotePeerRequest request);
+  $async.Future<$0.EnabledRemoteServiceResponse> enableRemoteService($grpc.ServiceCall call, $0.EnableRemoteServiceRequest request);
+  $async.Future<$0.Empty> disableRemoteService($grpc.ServiceCall call, $0.DisableRemoteServiceRequest request);
+  $async.Future<$0.EnabledRemoteServicesResponse> listEnabledRemoteServices($grpc.ServiceCall call, $0.ListEnabledRemoteServicesRequest request);
 }

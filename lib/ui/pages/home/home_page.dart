@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fungi_app/ui/pages/home/drive_page.dart';
-import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
+import 'package:fungi_app/ui/pages/home/available_services_page.dart';
+import 'package:fungi_app/ui/pages/home/legacy_page.dart';
+import 'package:fungi_app/ui/pages/home/local_services_page.dart';
+import 'package:fungi_app/ui/pages/home/node_management_page.dart';
 import 'package:fungi_app/ui/pages/settings/settings.dart';
 import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:fungi_app/ui/widgets/service_overlay.dart';
@@ -203,25 +205,30 @@ class HomePage extends StatelessWidget {
             child: ServiceOverlay(
               child: DefaultTabController(
                 initialIndex: 0,
-                length: 3,
+                length: 5,
                 child: Column(
                   children: [
                     Container(
                       color: colorScheme.primaryContainer,
                       child: TabBar(
                         tabs: const <Widget>[
-                          Tab(text: "File Transfer", height: 30),
-                          Tab(text: "Data Tunnel", height: 30),
+                          Tab(text: "Available Services", height: 30),
+                          Tab(text: "Node Management", height: 30),
+                          Tab(text: "Local Services", height: 30),
+                          Tab(text: "Legacy", height: 30),
                           Tab(text: "Settings", height: 30),
                         ],
+                        isScrollable: true,
                         indicatorColor: colorScheme.primary,
                       ),
                     ),
                     Expanded(
                       child: const TabBarView(
                         children: <Widget>[
-                          SingleChildScrollView(child: FileTransferPage()),
-                          SingleChildScrollView(child: DataTunnelPage()),
+                          AvailableServicesPage(),
+                          NodeManagementPage(),
+                          LocalServicesPage(),
+                          LegacyPage(),
                           Settings(),
                         ],
                       ),

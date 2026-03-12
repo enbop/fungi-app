@@ -14,6 +14,10 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'fungi_daemon.pbenum.dart';
+
+export 'fungi_daemon.pbenum.dart';
+
 class Empty extends $pb.GeneratedMessage {
   factory Empty() => create();
   Empty._() : super();
@@ -388,6 +392,322 @@ class RemoveIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
   $core.bool hasPeerId() => $_has(0);
   @$pb.TagNumber(1)
   void clearPeerId() => clearField(1);
+}
+
+class RuntimeAllowedHostPathRequest extends $pb.GeneratedMessage {
+  factory RuntimeAllowedHostPathRequest({
+    $core.String? path,
+  }) {
+    final $result = create();
+    if (path != null) {
+      $result.path = path;
+    }
+    return $result;
+  }
+  RuntimeAllowedHostPathRequest._() : super();
+  factory RuntimeAllowedHostPathRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RuntimeAllowedHostPathRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RuntimeAllowedHostPathRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'path')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedHostPathRequest clone() => RuntimeAllowedHostPathRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedHostPathRequest copyWith(void Function(RuntimeAllowedHostPathRequest) updates) => super.copyWith((message) => updates(message as RuntimeAllowedHostPathRequest)) as RuntimeAllowedHostPathRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedHostPathRequest create() => RuntimeAllowedHostPathRequest._();
+  RuntimeAllowedHostPathRequest createEmptyInstance() => create();
+  static $pb.PbList<RuntimeAllowedHostPathRequest> createRepeated() => $pb.PbList<RuntimeAllowedHostPathRequest>();
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedHostPathRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RuntimeAllowedHostPathRequest>(create);
+  static RuntimeAllowedHostPathRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get path => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set path($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPath() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPath() => clearField(1);
+}
+
+class RuntimeAllowedPortRequest extends $pb.GeneratedMessage {
+  factory RuntimeAllowedPortRequest({
+    $core.int? port,
+  }) {
+    final $result = create();
+    if (port != null) {
+      $result.port = port;
+    }
+    return $result;
+  }
+  RuntimeAllowedPortRequest._() : super();
+  factory RuntimeAllowedPortRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RuntimeAllowedPortRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RuntimeAllowedPortRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..a<$core.int>(1, _omitFieldNames ? '' : 'port', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedPortRequest clone() => RuntimeAllowedPortRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedPortRequest copyWith(void Function(RuntimeAllowedPortRequest) updates) => super.copyWith((message) => updates(message as RuntimeAllowedPortRequest)) as RuntimeAllowedPortRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedPortRequest create() => RuntimeAllowedPortRequest._();
+  RuntimeAllowedPortRequest createEmptyInstance() => create();
+  static $pb.PbList<RuntimeAllowedPortRequest> createRepeated() => $pb.PbList<RuntimeAllowedPortRequest>();
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedPortRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RuntimeAllowedPortRequest>(create);
+  static RuntimeAllowedPortRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get port => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set port($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPort() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPort() => clearField(1);
+}
+
+class RuntimeAllowedPortRangeRequest extends $pb.GeneratedMessage {
+  factory RuntimeAllowedPortRangeRequest({
+    $core.int? start,
+    $core.int? end,
+  }) {
+    final $result = create();
+    if (start != null) {
+      $result.start = start;
+    }
+    if (end != null) {
+      $result.end = end;
+    }
+    return $result;
+  }
+  RuntimeAllowedPortRangeRequest._() : super();
+  factory RuntimeAllowedPortRangeRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RuntimeAllowedPortRangeRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RuntimeAllowedPortRangeRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..a<$core.int>(1, _omitFieldNames ? '' : 'start', $pb.PbFieldType.O3)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'end', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedPortRangeRequest clone() => RuntimeAllowedPortRangeRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedPortRangeRequest copyWith(void Function(RuntimeAllowedPortRangeRequest) updates) => super.copyWith((message) => updates(message as RuntimeAllowedPortRangeRequest)) as RuntimeAllowedPortRangeRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedPortRangeRequest create() => RuntimeAllowedPortRangeRequest._();
+  RuntimeAllowedPortRangeRequest createEmptyInstance() => create();
+  static $pb.PbList<RuntimeAllowedPortRangeRequest> createRepeated() => $pb.PbList<RuntimeAllowedPortRangeRequest>();
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedPortRangeRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RuntimeAllowedPortRangeRequest>(create);
+  static RuntimeAllowedPortRangeRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get start => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set start($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasStart() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStart() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get end => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set end($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasEnd() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearEnd() => clearField(2);
+}
+
+class RuntimeAllowedPortRange extends $pb.GeneratedMessage {
+  factory RuntimeAllowedPortRange({
+    $core.int? start,
+    $core.int? end,
+  }) {
+    final $result = create();
+    if (start != null) {
+      $result.start = start;
+    }
+    if (end != null) {
+      $result.end = end;
+    }
+    return $result;
+  }
+  RuntimeAllowedPortRange._() : super();
+  factory RuntimeAllowedPortRange.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RuntimeAllowedPortRange.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RuntimeAllowedPortRange', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..a<$core.int>(1, _omitFieldNames ? '' : 'start', $pb.PbFieldType.O3)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'end', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedPortRange clone() => RuntimeAllowedPortRange()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RuntimeAllowedPortRange copyWith(void Function(RuntimeAllowedPortRange) updates) => super.copyWith((message) => updates(message as RuntimeAllowedPortRange)) as RuntimeAllowedPortRange;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedPortRange create() => RuntimeAllowedPortRange._();
+  RuntimeAllowedPortRange createEmptyInstance() => create();
+  static $pb.PbList<RuntimeAllowedPortRange> createRepeated() => $pb.PbList<RuntimeAllowedPortRange>();
+  @$core.pragma('dart2js:noInline')
+  static RuntimeAllowedPortRange getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RuntimeAllowedPortRange>(create);
+  static RuntimeAllowedPortRange? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get start => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set start($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasStart() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStart() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get end => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set end($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasEnd() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearEnd() => clearField(2);
+}
+
+class RuntimeConfigResponse extends $pb.GeneratedMessage {
+  factory RuntimeConfigResponse({
+    $core.bool? disableDocker,
+    $core.bool? disableWasmtime,
+    $core.Iterable<$core.String>? allowedHostPaths,
+    $core.Iterable<$core.int>? allowedPorts,
+    $core.Iterable<RuntimeAllowedPortRange>? allowedPortRanges,
+  }) {
+    final $result = create();
+    if (disableDocker != null) {
+      $result.disableDocker = disableDocker;
+    }
+    if (disableWasmtime != null) {
+      $result.disableWasmtime = disableWasmtime;
+    }
+    if (allowedHostPaths != null) {
+      $result.allowedHostPaths.addAll(allowedHostPaths);
+    }
+    if (allowedPorts != null) {
+      $result.allowedPorts.addAll(allowedPorts);
+    }
+    if (allowedPortRanges != null) {
+      $result.allowedPortRanges.addAll(allowedPortRanges);
+    }
+    return $result;
+  }
+  RuntimeConfigResponse._() : super();
+  factory RuntimeConfigResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RuntimeConfigResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RuntimeConfigResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOB(1, _omitFieldNames ? '' : 'disableDocker')
+    ..aOB(2, _omitFieldNames ? '' : 'disableWasmtime')
+    ..pPS(3, _omitFieldNames ? '' : 'allowedHostPaths')
+    ..p<$core.int>(4, _omitFieldNames ? '' : 'allowedPorts', $pb.PbFieldType.K3)
+    ..pc<RuntimeAllowedPortRange>(5, _omitFieldNames ? '' : 'allowedPortRanges', $pb.PbFieldType.PM, subBuilder: RuntimeAllowedPortRange.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RuntimeConfigResponse clone() => RuntimeConfigResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RuntimeConfigResponse copyWith(void Function(RuntimeConfigResponse) updates) => super.copyWith((message) => updates(message as RuntimeConfigResponse)) as RuntimeConfigResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RuntimeConfigResponse create() => RuntimeConfigResponse._();
+  RuntimeConfigResponse createEmptyInstance() => create();
+  static $pb.PbList<RuntimeConfigResponse> createRepeated() => $pb.PbList<RuntimeConfigResponse>();
+  @$core.pragma('dart2js:noInline')
+  static RuntimeConfigResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RuntimeConfigResponse>(create);
+  static RuntimeConfigResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get disableDocker => $_getBF(0);
+  @$pb.TagNumber(1)
+  set disableDocker($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDisableDocker() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDisableDocker() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get disableWasmtime => $_getBF(1);
+  @$pb.TagNumber(2)
+  set disableWasmtime($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDisableWasmtime() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDisableWasmtime() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.String> get allowedHostPaths => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.List<$core.int> get allowedPorts => $_getList(3);
+
+  @$pb.TagNumber(5)
+  $core.List<RuntimeAllowedPortRange> get allowedPortRanges => $_getList(4);
 }
 
 class FileTransferServiceEnabledResponse extends $pb.GeneratedMessage {
@@ -1172,6 +1492,10 @@ class ForwardingRule extends $pb.GeneratedMessage {
     $core.int? localPort,
     $core.String? remotePeerId,
     $core.int? remotePort,
+    $core.String? remoteProtocol,
+    $core.String? remoteServiceId,
+    $core.String? remoteServiceName,
+    $core.String? remoteServicePortName,
   }) {
     final $result = create();
     if (localHost != null) {
@@ -1186,6 +1510,18 @@ class ForwardingRule extends $pb.GeneratedMessage {
     if (remotePort != null) {
       $result.remotePort = remotePort;
     }
+    if (remoteProtocol != null) {
+      $result.remoteProtocol = remoteProtocol;
+    }
+    if (remoteServiceId != null) {
+      $result.remoteServiceId = remoteServiceId;
+    }
+    if (remoteServiceName != null) {
+      $result.remoteServiceName = remoteServiceName;
+    }
+    if (remoteServicePortName != null) {
+      $result.remoteServicePortName = remoteServicePortName;
+    }
     return $result;
   }
   ForwardingRule._() : super();
@@ -1197,6 +1533,10 @@ class ForwardingRule extends $pb.GeneratedMessage {
     ..a<$core.int>(2, _omitFieldNames ? '' : 'localPort', $pb.PbFieldType.O3)
     ..aOS(3, _omitFieldNames ? '' : 'remotePeerId')
     ..a<$core.int>(4, _omitFieldNames ? '' : 'remotePort', $pb.PbFieldType.O3)
+    ..aOS(5, _omitFieldNames ? '' : 'remoteProtocol')
+    ..aOS(6, _omitFieldNames ? '' : 'remoteServiceId')
+    ..aOS(7, _omitFieldNames ? '' : 'remoteServiceName')
+    ..aOS(8, _omitFieldNames ? '' : 'remoteServicePortName')
     ..hasRequiredFields = false
   ;
 
@@ -1256,6 +1596,42 @@ class ForwardingRule extends $pb.GeneratedMessage {
   $core.bool hasRemotePort() => $_has(3);
   @$pb.TagNumber(4)
   void clearRemotePort() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get remoteProtocol => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set remoteProtocol($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasRemoteProtocol() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearRemoteProtocol() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get remoteServiceId => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set remoteServiceId($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasRemoteServiceId() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearRemoteServiceId() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get remoteServiceName => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set remoteServiceName($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasRemoteServiceName() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearRemoteServiceName() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get remoteServicePortName => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set remoteServicePortName($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasRemoteServicePortName() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearRemoteServicePortName() => clearField(8);
 }
 
 class ListeningRule extends $pb.GeneratedMessage {
@@ -1263,6 +1639,7 @@ class ListeningRule extends $pb.GeneratedMessage {
     $core.String? host,
     $core.int? port,
     $core.Iterable<$core.String>? allowedPeers,
+    $core.String? protocol,
   }) {
     final $result = create();
     if (host != null) {
@@ -1274,6 +1651,9 @@ class ListeningRule extends $pb.GeneratedMessage {
     if (allowedPeers != null) {
       $result.allowedPeers.addAll(allowedPeers);
     }
+    if (protocol != null) {
+      $result.protocol = protocol;
+    }
     return $result;
   }
   ListeningRule._() : super();
@@ -1284,6 +1664,7 @@ class ListeningRule extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'host')
     ..a<$core.int>(2, _omitFieldNames ? '' : 'port', $pb.PbFieldType.O3)
     ..pPS(3, _omitFieldNames ? '' : 'allowedPeers')
+    ..aOS(4, _omitFieldNames ? '' : 'protocol')
     ..hasRequiredFields = false
   ;
 
@@ -1328,6 +1709,15 @@ class ListeningRule extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $core.List<$core.String> get allowedPeers => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.String get protocol => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set protocol($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasProtocol() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearProtocol() => clearField(4);
 }
 
 class TcpTunnelingConfigResponse extends $pb.GeneratedMessage {
@@ -1416,6 +1806,10 @@ class AddTcpForwardingRuleRequest extends $pb.GeneratedMessage {
     $core.int? localPort,
     $core.String? peerId,
     $core.int? remotePort,
+    $core.String? remoteProtocol,
+    $core.String? remoteServiceId,
+    $core.String? remoteServiceName,
+    $core.String? remoteServicePortName,
   }) {
     final $result = create();
     if (localHost != null) {
@@ -1430,6 +1824,18 @@ class AddTcpForwardingRuleRequest extends $pb.GeneratedMessage {
     if (remotePort != null) {
       $result.remotePort = remotePort;
     }
+    if (remoteProtocol != null) {
+      $result.remoteProtocol = remoteProtocol;
+    }
+    if (remoteServiceId != null) {
+      $result.remoteServiceId = remoteServiceId;
+    }
+    if (remoteServiceName != null) {
+      $result.remoteServiceName = remoteServiceName;
+    }
+    if (remoteServicePortName != null) {
+      $result.remoteServicePortName = remoteServicePortName;
+    }
     return $result;
   }
   AddTcpForwardingRuleRequest._() : super();
@@ -1441,6 +1847,10 @@ class AddTcpForwardingRuleRequest extends $pb.GeneratedMessage {
     ..a<$core.int>(2, _omitFieldNames ? '' : 'localPort', $pb.PbFieldType.O3)
     ..aOS(3, _omitFieldNames ? '' : 'peerId')
     ..a<$core.int>(4, _omitFieldNames ? '' : 'remotePort', $pb.PbFieldType.O3)
+    ..aOS(5, _omitFieldNames ? '' : 'remoteProtocol')
+    ..aOS(6, _omitFieldNames ? '' : 'remoteServiceId')
+    ..aOS(7, _omitFieldNames ? '' : 'remoteServiceName')
+    ..aOS(8, _omitFieldNames ? '' : 'remoteServicePortName')
     ..hasRequiredFields = false
   ;
 
@@ -1500,6 +1910,42 @@ class AddTcpForwardingRuleRequest extends $pb.GeneratedMessage {
   $core.bool hasRemotePort() => $_has(3);
   @$pb.TagNumber(4)
   void clearRemotePort() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get remoteProtocol => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set remoteProtocol($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasRemoteProtocol() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearRemoteProtocol() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get remoteServiceId => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set remoteServiceId($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasRemoteServiceId() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearRemoteServiceId() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get remoteServiceName => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set remoteServiceName($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasRemoteServiceName() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearRemoteServiceName() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get remoteServicePortName => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set remoteServicePortName($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasRemoteServicePortName() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearRemoteServicePortName() => clearField(8);
 }
 
 class TcpForwardingRuleResponse extends $pb.GeneratedMessage {
@@ -1558,6 +2004,7 @@ class RemoveTcpForwardingRuleRequest extends $pb.GeneratedMessage {
     $core.int? localPort,
     $core.String? peerId,
     $core.int? remotePort,
+    $core.String? remoteProtocol,
   }) {
     final $result = create();
     if (localHost != null) {
@@ -1572,6 +2019,9 @@ class RemoveTcpForwardingRuleRequest extends $pb.GeneratedMessage {
     if (remotePort != null) {
       $result.remotePort = remotePort;
     }
+    if (remoteProtocol != null) {
+      $result.remoteProtocol = remoteProtocol;
+    }
     return $result;
   }
   RemoveTcpForwardingRuleRequest._() : super();
@@ -1583,6 +2033,7 @@ class RemoveTcpForwardingRuleRequest extends $pb.GeneratedMessage {
     ..a<$core.int>(2, _omitFieldNames ? '' : 'localPort', $pb.PbFieldType.O3)
     ..aOS(3, _omitFieldNames ? '' : 'peerId')
     ..a<$core.int>(4, _omitFieldNames ? '' : 'remotePort', $pb.PbFieldType.O3)
+    ..aOS(5, _omitFieldNames ? '' : 'remoteProtocol')
     ..hasRequiredFields = false
   ;
 
@@ -1642,6 +2093,15 @@ class RemoveTcpForwardingRuleRequest extends $pb.GeneratedMessage {
   $core.bool hasRemotePort() => $_has(3);
   @$pb.TagNumber(4)
   void clearRemotePort() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get remoteProtocol => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set remoteProtocol($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasRemoteProtocol() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearRemoteProtocol() => clearField(5);
 }
 
 class AddTcpListeningRuleRequest extends $pb.GeneratedMessage {
@@ -1649,6 +2109,7 @@ class AddTcpListeningRuleRequest extends $pb.GeneratedMessage {
     $core.String? localHost,
     $core.int? localPort,
     $core.Iterable<$core.String>? allowedPeers,
+    $core.String? protocol,
   }) {
     final $result = create();
     if (localHost != null) {
@@ -1660,6 +2121,9 @@ class AddTcpListeningRuleRequest extends $pb.GeneratedMessage {
     if (allowedPeers != null) {
       $result.allowedPeers.addAll(allowedPeers);
     }
+    if (protocol != null) {
+      $result.protocol = protocol;
+    }
     return $result;
   }
   AddTcpListeningRuleRequest._() : super();
@@ -1670,6 +2134,7 @@ class AddTcpListeningRuleRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'localHost')
     ..a<$core.int>(2, _omitFieldNames ? '' : 'localPort', $pb.PbFieldType.O3)
     ..pPS(3, _omitFieldNames ? '' : 'allowedPeers')
+    ..aOS(4, _omitFieldNames ? '' : 'protocol')
     ..hasRequiredFields = false
   ;
 
@@ -1714,6 +2179,15 @@ class AddTcpListeningRuleRequest extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $core.List<$core.String> get allowedPeers => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.String get protocol => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set protocol($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasProtocol() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearProtocol() => clearField(4);
 }
 
 class TcpListeningRuleResponse extends $pb.GeneratedMessage {
@@ -1770,6 +2244,7 @@ class RemoveTcpListeningRuleRequest extends $pb.GeneratedMessage {
   factory RemoveTcpListeningRuleRequest({
     $core.String? localHost,
     $core.int? localPort,
+    $core.String? protocol,
   }) {
     final $result = create();
     if (localHost != null) {
@@ -1777,6 +2252,9 @@ class RemoveTcpListeningRuleRequest extends $pb.GeneratedMessage {
     }
     if (localPort != null) {
       $result.localPort = localPort;
+    }
+    if (protocol != null) {
+      $result.protocol = protocol;
     }
     return $result;
   }
@@ -1787,6 +2265,7 @@ class RemoveTcpListeningRuleRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RemoveTcpListeningRuleRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'localHost')
     ..a<$core.int>(2, _omitFieldNames ? '' : 'localPort', $pb.PbFieldType.O3)
+    ..aOS(3, _omitFieldNames ? '' : 'protocol')
     ..hasRequiredFields = false
   ;
 
@@ -1828,6 +2307,15 @@ class RemoveTcpListeningRuleRequest extends $pb.GeneratedMessage {
   $core.bool hasLocalPort() => $_has(1);
   @$pb.TagNumber(2)
   void clearLocalPort() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get protocol => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set protocol($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasProtocol() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearProtocol() => clearField(3);
 }
 
 class PeerInfo extends $pb.GeneratedMessage {
@@ -3288,6 +3776,1082 @@ class ListActiveStreamsResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<ActiveStreamSnapshot> get streams => $_getList(0);
+}
+
+class DeployServiceRequest extends $pb.GeneratedMessage {
+  factory DeployServiceRequest({
+    $core.String? manifestYaml,
+    $core.String? manifestBaseDir,
+  }) {
+    final $result = create();
+    if (manifestYaml != null) {
+      $result.manifestYaml = manifestYaml;
+    }
+    if (manifestBaseDir != null) {
+      $result.manifestBaseDir = manifestBaseDir;
+    }
+    return $result;
+  }
+  DeployServiceRequest._() : super();
+  factory DeployServiceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DeployServiceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DeployServiceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'manifestYaml')
+    ..aOS(2, _omitFieldNames ? '' : 'manifestBaseDir')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DeployServiceRequest clone() => DeployServiceRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DeployServiceRequest copyWith(void Function(DeployServiceRequest) updates) => super.copyWith((message) => updates(message as DeployServiceRequest)) as DeployServiceRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DeployServiceRequest create() => DeployServiceRequest._();
+  DeployServiceRequest createEmptyInstance() => create();
+  static $pb.PbList<DeployServiceRequest> createRepeated() => $pb.PbList<DeployServiceRequest>();
+  @$core.pragma('dart2js:noInline')
+  static DeployServiceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DeployServiceRequest>(create);
+  static DeployServiceRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get manifestYaml => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set manifestYaml($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasManifestYaml() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearManifestYaml() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get manifestBaseDir => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set manifestBaseDir($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasManifestBaseDir() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearManifestBaseDir() => clearField(2);
+}
+
+class ServiceNameRequest extends $pb.GeneratedMessage {
+  factory ServiceNameRequest({
+    ServiceRuntimeKind? runtime,
+    $core.String? name,
+  }) {
+    final $result = create();
+    if (runtime != null) {
+      $result.runtime = runtime;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    return $result;
+  }
+  ServiceNameRequest._() : super();
+  factory ServiceNameRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ServiceNameRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ServiceNameRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..e<ServiceRuntimeKind>(1, _omitFieldNames ? '' : 'runtime', $pb.PbFieldType.OE, defaultOrMaker: ServiceRuntimeKind.SERVICE_RUNTIME_KIND_UNSPECIFIED, valueOf: ServiceRuntimeKind.valueOf, enumValues: ServiceRuntimeKind.values)
+    ..aOS(2, _omitFieldNames ? '' : 'name')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ServiceNameRequest clone() => ServiceNameRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ServiceNameRequest copyWith(void Function(ServiceNameRequest) updates) => super.copyWith((message) => updates(message as ServiceNameRequest)) as ServiceNameRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ServiceNameRequest create() => ServiceNameRequest._();
+  ServiceNameRequest createEmptyInstance() => create();
+  static $pb.PbList<ServiceNameRequest> createRepeated() => $pb.PbList<ServiceNameRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ServiceNameRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServiceNameRequest>(create);
+  static ServiceNameRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ServiceRuntimeKind get runtime => $_getN(0);
+  @$pb.TagNumber(1)
+  set runtime(ServiceRuntimeKind v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRuntime() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRuntime() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+}
+
+class GetServiceLogsRequest extends $pb.GeneratedMessage {
+  factory GetServiceLogsRequest({
+    ServiceRuntimeKind? runtime,
+    $core.String? name,
+    $core.String? tail,
+  }) {
+    final $result = create();
+    if (runtime != null) {
+      $result.runtime = runtime;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (tail != null) {
+      $result.tail = tail;
+    }
+    return $result;
+  }
+  GetServiceLogsRequest._() : super();
+  factory GetServiceLogsRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetServiceLogsRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetServiceLogsRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..e<ServiceRuntimeKind>(1, _omitFieldNames ? '' : 'runtime', $pb.PbFieldType.OE, defaultOrMaker: ServiceRuntimeKind.SERVICE_RUNTIME_KIND_UNSPECIFIED, valueOf: ServiceRuntimeKind.valueOf, enumValues: ServiceRuntimeKind.values)
+    ..aOS(2, _omitFieldNames ? '' : 'name')
+    ..aOS(3, _omitFieldNames ? '' : 'tail')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetServiceLogsRequest clone() => GetServiceLogsRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetServiceLogsRequest copyWith(void Function(GetServiceLogsRequest) updates) => super.copyWith((message) => updates(message as GetServiceLogsRequest)) as GetServiceLogsRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetServiceLogsRequest create() => GetServiceLogsRequest._();
+  GetServiceLogsRequest createEmptyInstance() => create();
+  static $pb.PbList<GetServiceLogsRequest> createRepeated() => $pb.PbList<GetServiceLogsRequest>();
+  @$core.pragma('dart2js:noInline')
+  static GetServiceLogsRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetServiceLogsRequest>(create);
+  static GetServiceLogsRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ServiceRuntimeKind get runtime => $_getN(0);
+  @$pb.TagNumber(1)
+  set runtime(ServiceRuntimeKind v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRuntime() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRuntime() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get tail => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set tail($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTail() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTail() => clearField(3);
+}
+
+class ServiceInstanceResponse extends $pb.GeneratedMessage {
+  factory ServiceInstanceResponse({
+    $core.String? instanceJson,
+  }) {
+    final $result = create();
+    if (instanceJson != null) {
+      $result.instanceJson = instanceJson;
+    }
+    return $result;
+  }
+  ServiceInstanceResponse._() : super();
+  factory ServiceInstanceResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ServiceInstanceResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ServiceInstanceResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'instanceJson')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ServiceInstanceResponse clone() => ServiceInstanceResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ServiceInstanceResponse copyWith(void Function(ServiceInstanceResponse) updates) => super.copyWith((message) => updates(message as ServiceInstanceResponse)) as ServiceInstanceResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ServiceInstanceResponse create() => ServiceInstanceResponse._();
+  ServiceInstanceResponse createEmptyInstance() => create();
+  static $pb.PbList<ServiceInstanceResponse> createRepeated() => $pb.PbList<ServiceInstanceResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ServiceInstanceResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServiceInstanceResponse>(create);
+  static ServiceInstanceResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get instanceJson => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set instanceJson($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasInstanceJson() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearInstanceJson() => clearField(1);
+}
+
+class ServiceLogsResponse extends $pb.GeneratedMessage {
+  factory ServiceLogsResponse({
+    $core.List<$core.int>? raw,
+    $core.String? text,
+  }) {
+    final $result = create();
+    if (raw != null) {
+      $result.raw = raw;
+    }
+    if (text != null) {
+      $result.text = text;
+    }
+    return $result;
+  }
+  ServiceLogsResponse._() : super();
+  factory ServiceLogsResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ServiceLogsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ServiceLogsResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'raw', $pb.PbFieldType.OY)
+    ..aOS(2, _omitFieldNames ? '' : 'text')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ServiceLogsResponse clone() => ServiceLogsResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ServiceLogsResponse copyWith(void Function(ServiceLogsResponse) updates) => super.copyWith((message) => updates(message as ServiceLogsResponse)) as ServiceLogsResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ServiceLogsResponse create() => ServiceLogsResponse._();
+  ServiceLogsResponse createEmptyInstance() => create();
+  static $pb.PbList<ServiceLogsResponse> createRepeated() => $pb.PbList<ServiceLogsResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ServiceLogsResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ServiceLogsResponse>(create);
+  static ServiceLogsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get raw => $_getN(0);
+  @$pb.TagNumber(1)
+  set raw($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRaw() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRaw() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get text => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set text($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasText() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearText() => clearField(2);
+}
+
+class ListServicesResponse extends $pb.GeneratedMessage {
+  factory ListServicesResponse({
+    $core.String? servicesJson,
+  }) {
+    final $result = create();
+    if (servicesJson != null) {
+      $result.servicesJson = servicesJson;
+    }
+    return $result;
+  }
+  ListServicesResponse._() : super();
+  factory ListServicesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListServicesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListServicesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'servicesJson')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListServicesResponse clone() => ListServicesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListServicesResponse copyWith(void Function(ListServicesResponse) updates) => super.copyWith((message) => updates(message as ListServicesResponse)) as ListServicesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListServicesResponse create() => ListServicesResponse._();
+  ListServicesResponse createEmptyInstance() => create();
+  static $pb.PbList<ListServicesResponse> createRepeated() => $pb.PbList<ListServicesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListServicesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListServicesResponse>(create);
+  static ListServicesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get servicesJson => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set servicesJson($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasServicesJson() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearServicesJson() => clearField(1);
+}
+
+class DiscoverPeerServicesRequest extends $pb.GeneratedMessage {
+  factory DiscoverPeerServicesRequest({
+    $core.String? peerId,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    return $result;
+  }
+  DiscoverPeerServicesRequest._() : super();
+  factory DiscoverPeerServicesRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DiscoverPeerServicesRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DiscoverPeerServicesRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerServicesRequest clone() => DiscoverPeerServicesRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerServicesRequest copyWith(void Function(DiscoverPeerServicesRequest) updates) => super.copyWith((message) => updates(message as DiscoverPeerServicesRequest)) as DiscoverPeerServicesRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerServicesRequest create() => DiscoverPeerServicesRequest._();
+  DiscoverPeerServicesRequest createEmptyInstance() => create();
+  static $pb.PbList<DiscoverPeerServicesRequest> createRepeated() => $pb.PbList<DiscoverPeerServicesRequest>();
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerServicesRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DiscoverPeerServicesRequest>(create);
+  static DiscoverPeerServicesRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+}
+
+class DiscoverPeerServicesResponse extends $pb.GeneratedMessage {
+  factory DiscoverPeerServicesResponse({
+    $core.String? servicesJson,
+  }) {
+    final $result = create();
+    if (servicesJson != null) {
+      $result.servicesJson = servicesJson;
+    }
+    return $result;
+  }
+  DiscoverPeerServicesResponse._() : super();
+  factory DiscoverPeerServicesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DiscoverPeerServicesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DiscoverPeerServicesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'servicesJson')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerServicesResponse clone() => DiscoverPeerServicesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerServicesResponse copyWith(void Function(DiscoverPeerServicesResponse) updates) => super.copyWith((message) => updates(message as DiscoverPeerServicesResponse)) as DiscoverPeerServicesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerServicesResponse create() => DiscoverPeerServicesResponse._();
+  DiscoverPeerServicesResponse createEmptyInstance() => create();
+  static $pb.PbList<DiscoverPeerServicesResponse> createRepeated() => $pb.PbList<DiscoverPeerServicesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerServicesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DiscoverPeerServicesResponse>(create);
+  static DiscoverPeerServicesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get servicesJson => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set servicesJson($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasServicesJson() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearServicesJson() => clearField(1);
+}
+
+class DiscoverPeerCapabilitiesRequest extends $pb.GeneratedMessage {
+  factory DiscoverPeerCapabilitiesRequest({
+    $core.String? peerId,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    return $result;
+  }
+  DiscoverPeerCapabilitiesRequest._() : super();
+  factory DiscoverPeerCapabilitiesRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DiscoverPeerCapabilitiesRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DiscoverPeerCapabilitiesRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerCapabilitiesRequest clone() => DiscoverPeerCapabilitiesRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerCapabilitiesRequest copyWith(void Function(DiscoverPeerCapabilitiesRequest) updates) => super.copyWith((message) => updates(message as DiscoverPeerCapabilitiesRequest)) as DiscoverPeerCapabilitiesRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerCapabilitiesRequest create() => DiscoverPeerCapabilitiesRequest._();
+  DiscoverPeerCapabilitiesRequest createEmptyInstance() => create();
+  static $pb.PbList<DiscoverPeerCapabilitiesRequest> createRepeated() => $pb.PbList<DiscoverPeerCapabilitiesRequest>();
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerCapabilitiesRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DiscoverPeerCapabilitiesRequest>(create);
+  static DiscoverPeerCapabilitiesRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+}
+
+class DiscoverPeerCapabilitiesResponse extends $pb.GeneratedMessage {
+  factory DiscoverPeerCapabilitiesResponse({
+    $core.String? capabilitiesJson,
+  }) {
+    final $result = create();
+    if (capabilitiesJson != null) {
+      $result.capabilitiesJson = capabilitiesJson;
+    }
+    return $result;
+  }
+  DiscoverPeerCapabilitiesResponse._() : super();
+  factory DiscoverPeerCapabilitiesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DiscoverPeerCapabilitiesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DiscoverPeerCapabilitiesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'capabilitiesJson')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerCapabilitiesResponse clone() => DiscoverPeerCapabilitiesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DiscoverPeerCapabilitiesResponse copyWith(void Function(DiscoverPeerCapabilitiesResponse) updates) => super.copyWith((message) => updates(message as DiscoverPeerCapabilitiesResponse)) as DiscoverPeerCapabilitiesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerCapabilitiesResponse create() => DiscoverPeerCapabilitiesResponse._();
+  DiscoverPeerCapabilitiesResponse createEmptyInstance() => create();
+  static $pb.PbList<DiscoverPeerCapabilitiesResponse> createRepeated() => $pb.PbList<DiscoverPeerCapabilitiesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static DiscoverPeerCapabilitiesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DiscoverPeerCapabilitiesResponse>(create);
+  static DiscoverPeerCapabilitiesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get capabilitiesJson => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set capabilitiesJson($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasCapabilitiesJson() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCapabilitiesJson() => clearField(1);
+}
+
+class RemoteDeployServiceRequest extends $pb.GeneratedMessage {
+  factory RemoteDeployServiceRequest({
+    $core.String? peerId,
+    $core.String? manifestYaml,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (manifestYaml != null) {
+      $result.manifestYaml = manifestYaml;
+    }
+    return $result;
+  }
+  RemoteDeployServiceRequest._() : super();
+  factory RemoteDeployServiceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RemoteDeployServiceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RemoteDeployServiceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..aOS(2, _omitFieldNames ? '' : 'manifestYaml')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RemoteDeployServiceRequest clone() => RemoteDeployServiceRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RemoteDeployServiceRequest copyWith(void Function(RemoteDeployServiceRequest) updates) => super.copyWith((message) => updates(message as RemoteDeployServiceRequest)) as RemoteDeployServiceRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RemoteDeployServiceRequest create() => RemoteDeployServiceRequest._();
+  RemoteDeployServiceRequest createEmptyInstance() => create();
+  static $pb.PbList<RemoteDeployServiceRequest> createRepeated() => $pb.PbList<RemoteDeployServiceRequest>();
+  @$core.pragma('dart2js:noInline')
+  static RemoteDeployServiceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RemoteDeployServiceRequest>(create);
+  static RemoteDeployServiceRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get manifestYaml => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set manifestYaml($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasManifestYaml() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearManifestYaml() => clearField(2);
+}
+
+class RemoteServiceNameRequest extends $pb.GeneratedMessage {
+  factory RemoteServiceNameRequest({
+    $core.String? peerId,
+    $core.String? name,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    return $result;
+  }
+  RemoteServiceNameRequest._() : super();
+  factory RemoteServiceNameRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RemoteServiceNameRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RemoteServiceNameRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..aOS(2, _omitFieldNames ? '' : 'name')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RemoteServiceNameRequest clone() => RemoteServiceNameRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RemoteServiceNameRequest copyWith(void Function(RemoteServiceNameRequest) updates) => super.copyWith((message) => updates(message as RemoteServiceNameRequest)) as RemoteServiceNameRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RemoteServiceNameRequest create() => RemoteServiceNameRequest._();
+  RemoteServiceNameRequest createEmptyInstance() => create();
+  static $pb.PbList<RemoteServiceNameRequest> createRepeated() => $pb.PbList<RemoteServiceNameRequest>();
+  @$core.pragma('dart2js:noInline')
+  static RemoteServiceNameRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RemoteServiceNameRequest>(create);
+  static RemoteServiceNameRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+}
+
+class RemotePeerRequest extends $pb.GeneratedMessage {
+  factory RemotePeerRequest({
+    $core.String? peerId,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    return $result;
+  }
+  RemotePeerRequest._() : super();
+  factory RemotePeerRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RemotePeerRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RemotePeerRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RemotePeerRequest clone() => RemotePeerRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RemotePeerRequest copyWith(void Function(RemotePeerRequest) updates) => super.copyWith((message) => updates(message as RemotePeerRequest)) as RemotePeerRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RemotePeerRequest create() => RemotePeerRequest._();
+  RemotePeerRequest createEmptyInstance() => create();
+  static $pb.PbList<RemotePeerRequest> createRepeated() => $pb.PbList<RemotePeerRequest>();
+  @$core.pragma('dart2js:noInline')
+  static RemotePeerRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RemotePeerRequest>(create);
+  static RemotePeerRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+}
+
+class RemoteServiceControlResponse extends $pb.GeneratedMessage {
+  factory RemoteServiceControlResponse({
+    $core.String? serviceName,
+  }) {
+    final $result = create();
+    if (serviceName != null) {
+      $result.serviceName = serviceName;
+    }
+    return $result;
+  }
+  RemoteServiceControlResponse._() : super();
+  factory RemoteServiceControlResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RemoteServiceControlResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RemoteServiceControlResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'serviceName')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RemoteServiceControlResponse clone() => RemoteServiceControlResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RemoteServiceControlResponse copyWith(void Function(RemoteServiceControlResponse) updates) => super.copyWith((message) => updates(message as RemoteServiceControlResponse)) as RemoteServiceControlResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RemoteServiceControlResponse create() => RemoteServiceControlResponse._();
+  RemoteServiceControlResponse createEmptyInstance() => create();
+  static $pb.PbList<RemoteServiceControlResponse> createRepeated() => $pb.PbList<RemoteServiceControlResponse>();
+  @$core.pragma('dart2js:noInline')
+  static RemoteServiceControlResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RemoteServiceControlResponse>(create);
+  static RemoteServiceControlResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get serviceName => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set serviceName($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasServiceName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearServiceName() => clearField(1);
+}
+
+class EnableRemoteServiceRequest extends $pb.GeneratedMessage {
+  factory EnableRemoteServiceRequest({
+    $core.String? peerId,
+    $core.String? serviceId,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (serviceId != null) {
+      $result.serviceId = serviceId;
+    }
+    return $result;
+  }
+  EnableRemoteServiceRequest._() : super();
+  factory EnableRemoteServiceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory EnableRemoteServiceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'EnableRemoteServiceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..aOS(2, _omitFieldNames ? '' : 'serviceId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  EnableRemoteServiceRequest clone() => EnableRemoteServiceRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  EnableRemoteServiceRequest copyWith(void Function(EnableRemoteServiceRequest) updates) => super.copyWith((message) => updates(message as EnableRemoteServiceRequest)) as EnableRemoteServiceRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static EnableRemoteServiceRequest create() => EnableRemoteServiceRequest._();
+  EnableRemoteServiceRequest createEmptyInstance() => create();
+  static $pb.PbList<EnableRemoteServiceRequest> createRepeated() => $pb.PbList<EnableRemoteServiceRequest>();
+  @$core.pragma('dart2js:noInline')
+  static EnableRemoteServiceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EnableRemoteServiceRequest>(create);
+  static EnableRemoteServiceRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get serviceId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set serviceId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasServiceId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearServiceId() => clearField(2);
+}
+
+class DisableRemoteServiceRequest extends $pb.GeneratedMessage {
+  factory DisableRemoteServiceRequest({
+    $core.String? peerId,
+    $core.String? serviceId,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (serviceId != null) {
+      $result.serviceId = serviceId;
+    }
+    return $result;
+  }
+  DisableRemoteServiceRequest._() : super();
+  factory DisableRemoteServiceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory DisableRemoteServiceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'DisableRemoteServiceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..aOS(2, _omitFieldNames ? '' : 'serviceId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  DisableRemoteServiceRequest clone() => DisableRemoteServiceRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  DisableRemoteServiceRequest copyWith(void Function(DisableRemoteServiceRequest) updates) => super.copyWith((message) => updates(message as DisableRemoteServiceRequest)) as DisableRemoteServiceRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DisableRemoteServiceRequest create() => DisableRemoteServiceRequest._();
+  DisableRemoteServiceRequest createEmptyInstance() => create();
+  static $pb.PbList<DisableRemoteServiceRequest> createRepeated() => $pb.PbList<DisableRemoteServiceRequest>();
+  @$core.pragma('dart2js:noInline')
+  static DisableRemoteServiceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<DisableRemoteServiceRequest>(create);
+  static DisableRemoteServiceRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get serviceId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set serviceId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasServiceId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearServiceId() => clearField(2);
+}
+
+class ListEnabledRemoteServicesRequest extends $pb.GeneratedMessage {
+  factory ListEnabledRemoteServicesRequest({
+    $core.String? peerId,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    return $result;
+  }
+  ListEnabledRemoteServicesRequest._() : super();
+  factory ListEnabledRemoteServicesRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListEnabledRemoteServicesRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListEnabledRemoteServicesRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListEnabledRemoteServicesRequest clone() => ListEnabledRemoteServicesRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListEnabledRemoteServicesRequest copyWith(void Function(ListEnabledRemoteServicesRequest) updates) => super.copyWith((message) => updates(message as ListEnabledRemoteServicesRequest)) as ListEnabledRemoteServicesRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListEnabledRemoteServicesRequest create() => ListEnabledRemoteServicesRequest._();
+  ListEnabledRemoteServicesRequest createEmptyInstance() => create();
+  static $pb.PbList<ListEnabledRemoteServicesRequest> createRepeated() => $pb.PbList<ListEnabledRemoteServicesRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ListEnabledRemoteServicesRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListEnabledRemoteServicesRequest>(create);
+  static ListEnabledRemoteServicesRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+}
+
+class EnabledRemoteServiceResponse extends $pb.GeneratedMessage {
+  factory EnabledRemoteServiceResponse({
+    $core.String? enabledServiceJson,
+  }) {
+    final $result = create();
+    if (enabledServiceJson != null) {
+      $result.enabledServiceJson = enabledServiceJson;
+    }
+    return $result;
+  }
+  EnabledRemoteServiceResponse._() : super();
+  factory EnabledRemoteServiceResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory EnabledRemoteServiceResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'EnabledRemoteServiceResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'enabledServiceJson')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  EnabledRemoteServiceResponse clone() => EnabledRemoteServiceResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  EnabledRemoteServiceResponse copyWith(void Function(EnabledRemoteServiceResponse) updates) => super.copyWith((message) => updates(message as EnabledRemoteServiceResponse)) as EnabledRemoteServiceResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static EnabledRemoteServiceResponse create() => EnabledRemoteServiceResponse._();
+  EnabledRemoteServiceResponse createEmptyInstance() => create();
+  static $pb.PbList<EnabledRemoteServiceResponse> createRepeated() => $pb.PbList<EnabledRemoteServiceResponse>();
+  @$core.pragma('dart2js:noInline')
+  static EnabledRemoteServiceResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EnabledRemoteServiceResponse>(create);
+  static EnabledRemoteServiceResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get enabledServiceJson => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set enabledServiceJson($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEnabledServiceJson() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEnabledServiceJson() => clearField(1);
+}
+
+class EnabledRemoteServicesResponse extends $pb.GeneratedMessage {
+  factory EnabledRemoteServicesResponse({
+    $core.String? enabledServicesJson,
+  }) {
+    final $result = create();
+    if (enabledServicesJson != null) {
+      $result.enabledServicesJson = enabledServicesJson;
+    }
+    return $result;
+  }
+  EnabledRemoteServicesResponse._() : super();
+  factory EnabledRemoteServicesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory EnabledRemoteServicesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'EnabledRemoteServicesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'enabledServicesJson')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  EnabledRemoteServicesResponse clone() => EnabledRemoteServicesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  EnabledRemoteServicesResponse copyWith(void Function(EnabledRemoteServicesResponse) updates) => super.copyWith((message) => updates(message as EnabledRemoteServicesResponse)) as EnabledRemoteServicesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static EnabledRemoteServicesResponse create() => EnabledRemoteServicesResponse._();
+  EnabledRemoteServicesResponse createEmptyInstance() => create();
+  static $pb.PbList<EnabledRemoteServicesResponse> createRepeated() => $pb.PbList<EnabledRemoteServicesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static EnabledRemoteServicesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<EnabledRemoteServicesResponse>(create);
+  static EnabledRemoteServicesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get enabledServicesJson => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set enabledServicesJson($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEnabledServicesJson() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEnabledServicesJson() => clearField(1);
 }
 
 
