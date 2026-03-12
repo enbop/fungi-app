@@ -988,6 +988,7 @@ class FungiController extends GetxController {
 
   Future<void> startLocalService(String name) async {
     localServicePendingActions[name] = 'start';
+    localServicePendingActions.refresh();
     try {
       await fungiClient.startService(ServiceNameRequest()..name = name);
       await refreshLocalServicesPageData();
@@ -997,11 +998,13 @@ class FungiController extends GetxController {
       Get.snackbar('Start failed', '$e');
     } finally {
       localServicePendingActions.remove(name);
+      localServicePendingActions.refresh();
     }
   }
 
   Future<void> stopLocalService(String name) async {
     localServicePendingActions[name] = 'stop';
+    localServicePendingActions.refresh();
     try {
       await fungiClient.stopService(ServiceNameRequest()..name = name);
       await refreshLocalServicesPageData();
@@ -1011,11 +1014,13 @@ class FungiController extends GetxController {
       Get.snackbar('Stop failed', '$e');
     } finally {
       localServicePendingActions.remove(name);
+      localServicePendingActions.refresh();
     }
   }
 
   Future<void> removeLocalService(String name) async {
     localServicePendingActions[name] = 'remove';
+    localServicePendingActions.refresh();
     try {
       await fungiClient.removeService(ServiceNameRequest()..name = name);
       await refreshLocalServicesPageData();
@@ -1025,6 +1030,7 @@ class FungiController extends GetxController {
       Get.snackbar('Remove failed', '$e');
     } finally {
       localServicePendingActions.remove(name);
+      localServicePendingActions.refresh();
     }
   }
 }
