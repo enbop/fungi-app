@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
@@ -14,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum ThemeOption { light, dark, system }
 
@@ -86,8 +86,7 @@ class FungiController extends GetxController {
   final tcpTunnelingConfig = TcpTunnelingConfigResponse().obs;
   final runtimeConfig = RuntimeConfigResponse().obs;
   final localServices = <LocalServiceView>[].obs;
-  final availableRemoteServices =
-      <String, List<RemoteServiceListEntryView>>{}.obs;
+  final peerCatalogServices = <String, List<RemoteServiceListEntryView>>{}.obs;
   final peerConnections = <String, List<ConnectionSnapshot>>{}.obs;
 
   final localServicesLoading = false.obs;
@@ -759,73 +758,61 @@ class FungiController extends GetxController {
     availableServicesError.value = '';
 
     try {
-      final enabledResponse = await fungiClient.listEnabledRemoteServices(
-        ListEnabledRemoteServicesRequest(),
+      final accessResponse = await fungiClient.listServiceAccesses(
+        ListServiceAccessesRequest(),
       );
-      final enabledServices = decodeJsonStringList(
-        enabledResponse.enabledServicesJson,
-        (json) =>
-            decodeJsonStringObject(jsonEncode(json), (decoded) => decoded) ??
-            json,
+      final attachedAccesses = decodeJsonStringList(
+        accessResponse.serviceAccessesJson,
+        (json) => json,
       );
-      final enabledByService = <String, List<Map<String, dynamic>>>{};
-      for (final service in enabledServices) {
-        final peerId = service['peer_id'] as String? ?? '';
-        final serviceName = service['service_name'] as String? ?? '';
-        enabledByService
-            .putIfAbsent('$peerId::$serviceName', () => [])
-            .add(service);
+      final accessByService = <String, Map<String, dynamic>>{};
+      for (final access in attachedAccesses) {
+        final peerId = access['peer_id'] as String? ?? '';
+        final serviceId = access['service_id'] as String? ?? '';
+        if (peerId.isEmpty || serviceId.isEmpty) {
+          continue;
+        }
+        accessByService['$peerId::$serviceId'] = access;
       }
 
       final next = <String, List<RemoteServiceListEntryView>>{};
       for (final peer in addressBook) {
         try {
-          final remoteServices = await fungiClient.remoteListServices(
-            RemotePeerRequest()..peerId = peer.peerId,
+          final catalogResponse = await fungiClient.listPeerCatalog(
+            ListPeerCatalogRequest()..peerId = peer.peerId,
           );
-          final discoveredResponse = await fungiClient.discoverPeerServices(
-            DiscoverPeerServicesRequest()..peerId = peer.peerId,
-          );
-
-          final services = decodeJsonStringList(remoteServices.servicesJson, (
+          final services = decodeJsonStringList(catalogResponse.servicesJson, (
             serviceJson,
           ) {
-            final serviceName = serviceJson['name'] as String? ?? '';
-            final key = '${peer.peerId}::$serviceName';
-            final discovered = decodeJsonStringList(
-              discoveredResponse.servicesJson,
-              (decoded) => decoded,
-            );
-            final discoveredMatch = discovered.firstWhere(
-              (entry) =>
-                  (entry['service_name'] as String? ?? '') == serviceName,
-              orElse: () => <String, dynamic>{},
-            );
-            final enabledMatch = enabledByService[key] ?? const [];
+            final serviceId = serviceJson['service_id'] as String? ?? '';
+            final access = accessByService['${peer.peerId}::$serviceId'];
 
             return RemoteServiceListEntryView.fromJson({
-              'service_name': serviceName,
-              'runtime': serviceJson['runtime'],
+              'display_name': serviceJson['display_name'],
+              'service_name': serviceJson['service_name'],
+              'runtime': serviceJson['runtime']?.toString(),
+              'transport': serviceJson['transport'],
+              'usage': serviceJson['usage'],
               'state':
                   (serviceJson['status'] as Map<String, dynamic>?)?['state'],
               'running':
                   (serviceJson['status'] as Map<String, dynamic>?)?['running'],
-              'discoverable': discoveredMatch.isNotEmpty,
-              'service_id': discoveredMatch['service_id'],
-              'local_forwarded': enabledMatch.isNotEmpty,
-              'available_endpoints': discoveredMatch['endpoints'] ?? const [],
-              'local_forwarded_endpoints': enabledMatch.isNotEmpty
-                  ? (enabledMatch.first['endpoints'] ?? const [])
-                  : const [],
+              'published': true,
+              'service_id': serviceId,
+              'access_attached': access != null,
+              'catalog_id': serviceJson['catalog_id'],
+              'icon_url': serviceJson['icon_url'],
+              'published_endpoints': serviceJson['endpoints'] ?? const [],
+              'local_access_endpoints': access?['endpoints'] ?? const [],
             });
           });
           next[peer.peerId] = services;
         } catch (e) {
-          debugPrint('Failed to load remote services for ${peer.peerId}: $e');
+          debugPrint('Failed to load peer catalog for ${peer.peerId}: $e');
           next[peer.peerId] = const [];
         }
       }
-      availableRemoteServices.value = next;
+      peerCatalogServices.value = next;
     } catch (e) {
       availableServicesError.value = 'Failed to load available services: $e';
       debugPrint(availableServicesError.value);
@@ -862,7 +849,7 @@ class FungiController extends GetxController {
             peerId: peer.peerId,
             alias: peer.alias,
             hostname: peer.hostname,
-            services: availableRemoteServices[peer.peerId] ?? const [],
+            services: peerCatalogServices[peer.peerId] ?? const [],
           ),
         )
         .where((section) => section.services.isNotEmpty)
@@ -870,7 +857,116 @@ class FungiController extends GetxController {
   }
 
   List<RemoteServiceListEntryView> servicesForPeer(String peerId) {
-    return availableRemoteServices[peerId] ?? const [];
+    return peerCatalogServices[peerId] ?? const [];
+  }
+
+  RemoteServiceListEntryView? catalogServiceForPeer(
+    String peerId,
+    String serviceId,
+  ) {
+    final services = servicesForPeer(peerId);
+    for (final service in services) {
+      if (service.serviceId == serviceId) {
+        return service;
+      }
+    }
+    return null;
+  }
+
+  Future<void> attachCatalogServiceAccess({
+    required String peerId,
+    required String serviceId,
+  }) async {
+    try {
+      await fungiClient.attachServiceAccess(
+        AttachServiceAccessRequest()
+          ..peerId = peerId
+          ..serviceId = serviceId,
+      );
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Local access attached');
+    } catch (e) {
+      Get.snackbar('Attach failed', '$e');
+    }
+  }
+
+  Future<void> detachCatalogServiceAccess({
+    required String peerId,
+    required String serviceId,
+  }) async {
+    try {
+      await fungiClient.detachServiceAccess(
+        DetachServiceAccessRequest()
+          ..peerId = peerId
+          ..serviceId = serviceId,
+      );
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Local access detached');
+    } catch (e) {
+      Get.snackbar('Detach failed', '$e');
+    }
+  }
+
+  Future<void> openCatalogWebService({
+    required String peerId,
+    required String serviceId,
+  }) async {
+    try {
+      var service = catalogServiceForPeer(peerId, serviceId);
+      if (service == null) {
+        throw Exception('Service not found in current catalog');
+      }
+      if (!service.isWeb) {
+        throw Exception('Only web services can be opened in the browser');
+      }
+
+      if (!service.accessAttached) {
+        await fungiClient.attachServiceAccess(
+          AttachServiceAccessRequest()
+            ..peerId = peerId
+            ..serviceId = serviceId,
+        );
+        await refreshAvailableServicesData();
+        service = catalogServiceForPeer(peerId, serviceId);
+        if (service == null) {
+          throw Exception('Failed to refresh local access state');
+        }
+      }
+
+      final uri = catalogWebLaunchUri(service);
+      if (uri == null) {
+        throw Exception('No local web endpoint available');
+      }
+
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        throw Exception('Browser launch request was rejected');
+      }
+    } catch (e) {
+      Get.snackbar('Open failed', '$e');
+    }
+  }
+
+  Uri? catalogWebLaunchUri(RemoteServiceListEntryView service) {
+    if (!service.isWeb || service.localAccessEndpoints.isEmpty) {
+      return null;
+    }
+
+    final endpoint = service.localAccessEndpoints.first;
+    final path = service.usagePath;
+    final normalizedPath = path == null || path.isEmpty
+        ? '/'
+        : (path.startsWith('/') ? path : '/$path');
+
+    return Uri(
+      scheme: 'http',
+      host: endpoint.localHost,
+      port: endpoint.localPort,
+      path: normalizedPath,
+    );
   }
 
   List<ConnectionSnapshot> connectionsForPeer(String peerId) {
@@ -889,7 +985,7 @@ class FungiController extends GetxController {
     return values.first;
   }
 
-  Future<void> deployLocalServiceFromPath(String manifestPath) async {
+  Future<void> pullLocalServiceFromPath(String manifestPath) async {
     try {
       final file = File(manifestPath);
       if (!await file.exists()) {
@@ -897,16 +993,16 @@ class FungiController extends GetxController {
       }
 
       final manifestYaml = await file.readAsString();
-      await fungiClient.deployService(
-        DeployServiceRequest()
+      await fungiClient.pullService(
+        PullServiceRequest()
           ..manifestYaml = manifestYaml
           ..manifestBaseDir = file.parent.path,
       );
       await refreshLocalServicesPageData();
       await refreshNodeManagementData();
-      Get.snackbar('Success', 'Service deployed successfully');
+      Get.snackbar('Success', 'Service pulled successfully');
     } catch (e) {
-      Get.snackbar('Deploy failed', '$e');
+      Get.snackbar('Pull failed', '$e');
     }
   }
 

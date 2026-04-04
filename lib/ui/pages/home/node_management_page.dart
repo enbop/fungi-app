@@ -29,7 +29,7 @@ class NodeManagementPage extends GetView<FungiController> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Known peers from address_book, plus current connection state and discovered services.',
+                        'Known peers from the address book, plus connection state and published catalog services.',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -73,18 +73,17 @@ class _PeerCard extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     final connections = controller.connectionsForPeer(peer.peerId);
-    final discoveredServices = controller.servicesForPeer(peer.peerId);
+    final catalogServices = controller.servicesForPeer(peer.peerId);
     final latency = controller.bestLatencyForPeer(peer.peerId);
+    final title = peer.alias.isNotEmpty
+        ? peer.alias
+        : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: EnhancedCard(
         child: ExpansionTile(
-          title: Text(
-            peer.alias.isNotEmpty
-                ? peer.alias
-                : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId),
-          ),
+          title: Text(title),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -99,7 +98,7 @@ class _PeerCard extends GetView<FungiController> {
                     label: Text(connections.isEmpty ? 'offline' : 'connected'),
                   ),
                   Chip(label: Text('${connections.length} connections')),
-                  Chip(label: Text('${discoveredServices.length} services')),
+                  Chip(label: Text('${catalogServices.length} services')),
                   if (latency != null) Chip(label: Text('$latency ms')),
                 ],
               ),
@@ -107,32 +106,103 @@ class _PeerCard extends GetView<FungiController> {
           ),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [
-            if (peer.version.isNotEmpty) Text('Version: ${peer.version}'),
-            if (peer.os.isNotEmpty) Text('OS: ${peer.os}'),
-            if (peer.publicIp.isNotEmpty) Text('Public IP: ${peer.publicIp}'),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (peer.hostname.isNotEmpty) Chip(label: Text(peer.hostname)),
+                if (peer.os.isNotEmpty) Chip(label: Text(peer.os)),
+                if (peer.version.isNotEmpty)
+                  Chip(label: Text('v${peer.version}')),
+                if (peer.publicIp.isNotEmpty) Chip(label: Text(peer.publicIp)),
+              ],
+            ),
             if (connections.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
                 'Connections',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
+              const SizedBox(height: 8),
               ...connections.map(
-                (connection) => Text(
-                  '${connection.direction} · ${connection.remoteAddr}${connection.hasLastRttMs() ? ' · $connection.lastRttMs ms' : ''}',
-                  style: Theme.of(context).textTheme.bodySmall,
+                (connection) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            Chip(label: Text(connection.direction)),
+                            Chip(
+                              label: Text(
+                                connection.isRelay ? 'relay' : 'direct',
+                              ),
+                            ),
+                            if (connection.hasLastRttMs())
+                              Chip(label: Text('${connection.lastRttMs} ms')),
+                            if (connection.activeStreamsTotal > 0)
+                              Chip(
+                                label: Text(
+                                  '${connection.activeStreamsTotal} streams',
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          connection.remoteAddr,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
-            if (discoveredServices.isNotEmpty) ...[
+            if (catalogServices.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
-                'Discovered Services',
+                'Published Services',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              ...discoveredServices.map(
-                (service) => Text(
-                  '${service.serviceName} · ${service.runtime} · ${service.availableEndpoints.length} endpoints',
-                  style: Theme.of(context).textTheme.bodySmall,
+              const SizedBox(height: 8),
+              ...catalogServices.map(
+                (service) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              service.displayName,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${service.usageKind ?? service.transportKind} · ${service.runtime} · ${service.publishedEndpoints.length} endpoints',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (service.running) Chip(label: const Text('running')),
+                    ],
+                  ),
                 ),
               ),
             ],

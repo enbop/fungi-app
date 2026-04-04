@@ -80,8 +80,8 @@ class LocalServiceView {
   }
 }
 
-class RemoteServiceEndpointView {
-  const RemoteServiceEndpointView({
+class CatalogServiceEndpointView {
+  const CatalogServiceEndpointView({
     required this.name,
     required this.protocol,
     required this.servicePort,
@@ -91,8 +91,8 @@ class RemoteServiceEndpointView {
   final String protocol;
   final int servicePort;
 
-  factory RemoteServiceEndpointView.fromJson(Map<String, dynamic> json) {
-    return RemoteServiceEndpointView(
+  factory CatalogServiceEndpointView.fromJson(Map<String, dynamic> json) {
+    return CatalogServiceEndpointView(
       name: json['name'] as String? ?? '',
       protocol: json['protocol'] as String? ?? '',
       servicePort: json['service_port'] as int? ?? 0,
@@ -100,8 +100,8 @@ class RemoteServiceEndpointView {
   }
 }
 
-class RemoteForwardedEndpointView {
-  const RemoteForwardedEndpointView({
+class ServiceAccessEndpointView {
+  const ServiceAccessEndpointView({
     required this.name,
     required this.localHost,
     required this.localPort,
@@ -113,8 +113,8 @@ class RemoteForwardedEndpointView {
   final int localPort;
   final String protocol;
 
-  factory RemoteForwardedEndpointView.fromJson(Map<String, dynamic> json) {
-    return RemoteForwardedEndpointView(
+  factory ServiceAccessEndpointView.fromJson(Map<String, dynamic> json) {
+    return ServiceAccessEndpointView(
       name: json['name'] as String? ?? '',
       localHost: json['local_host'] as String? ?? '127.0.0.1',
       localPort: json['local_port'] as int? ?? 0,
@@ -125,46 +125,73 @@ class RemoteForwardedEndpointView {
 
 class RemoteServiceListEntryView {
   const RemoteServiceListEntryView({
+    required this.displayName,
     required this.serviceName,
     required this.runtime,
+    required this.transportKind,
+    required this.usageKind,
+    required this.usagePath,
     required this.state,
     required this.running,
-    required this.discoverable,
+    required this.published,
     required this.serviceId,
-    required this.localForwarded,
-    required this.availableEndpoints,
-    required this.localForwardedEndpoints,
+    required this.accessAttached,
+    required this.catalogId,
+    required this.iconUrl,
+    required this.publishedEndpoints,
+    required this.localAccessEndpoints,
   });
 
+  final String displayName;
   final String serviceName;
   final String runtime;
+  final String transportKind;
+  final String? usageKind;
+  final String? usagePath;
   final String state;
   final bool running;
-  final bool discoverable;
+  final bool published;
   final String? serviceId;
-  final bool localForwarded;
-  final List<RemoteServiceEndpointView> availableEndpoints;
-  final List<RemoteForwardedEndpointView> localForwardedEndpoints;
+  final bool accessAttached;
+  final String? catalogId;
+  final String? iconUrl;
+  final List<CatalogServiceEndpointView> publishedEndpoints;
+  final List<ServiceAccessEndpointView> localAccessEndpoints;
 
   factory RemoteServiceListEntryView.fromJson(Map<String, dynamic> json) {
     return RemoteServiceListEntryView(
+      displayName:
+          json['display_name'] as String? ??
+          json['service_name'] as String? ??
+          '',
       serviceName: json['service_name'] as String? ?? '',
       runtime: json['runtime'] as String? ?? 'unknown',
+      transportKind:
+          (json['transport'] as Map<String, dynamic>?)?['kind'] as String? ??
+          'tcp',
+      usageKind: (json['usage'] as Map<String, dynamic>?)?['kind'] as String?,
+      usagePath: (json['usage'] as Map<String, dynamic>?)?['path'] as String?,
       state: json['state'] as String? ?? 'unknown',
       running: json['running'] as bool? ?? false,
-      discoverable: json['discoverable'] as bool? ?? false,
+      published: json['published'] as bool? ?? false,
       serviceId: json['service_id'] as String?,
-      localForwarded: json['local_forwarded'] as bool? ?? false,
-      availableEndpoints: decodeJsonList(
-        json['available_endpoints'],
-        RemoteServiceEndpointView.fromJson,
+      accessAttached: json['access_attached'] as bool? ?? false,
+      catalogId: json['catalog_id'] as String?,
+      iconUrl: json['icon_url'] as String?,
+      publishedEndpoints: decodeJsonList(
+        json['published_endpoints'],
+        CatalogServiceEndpointView.fromJson,
       ),
-      localForwardedEndpoints: decodeJsonList(
-        json['local_forwarded_endpoints'],
-        RemoteForwardedEndpointView.fromJson,
+      localAccessEndpoints: decodeJsonList(
+        json['local_access_endpoints'],
+        ServiceAccessEndpointView.fromJson,
       ),
     );
   }
+
+  bool get isWeb => usageKind == 'web';
+
+  bool get isTcp => transportKind == 'tcp';
 }
 
 class NodeCapabilitiesView {

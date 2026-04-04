@@ -1,6 +1,5 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
@@ -28,19 +27,19 @@ class LocalServicesPage extends GetView<FungiController> {
               children: [
                 // TODO change this to a mouse hover tooltip with more details, and maybe a quick action to copy the name
                 // Text(
-                //   'Manage local service deployment and inspect runtime/security boundaries. YAML-path deployment is used for now.',
+                //   'Manage local service pull state and inspect runtime/security boundaries. YAML-path pull is used for now.',
                 //   style: Theme.of(context).textTheme.bodySmall,
                 // ),
                 // const SizedBox(height: 12),
                 Row(
                   children: [
                     FilledButton.icon(
-                      onPressed: _pickManifestAndDeploy,
+                      onPressed: _pickManifestAndPull,
                       icon: const Icon(Icons.upload_file),
-                      label: const Text('Deploy YAML Path'),
+                      label: const Text('Pull YAML Path'),
                     ),
                     const SizedBox(width: 12),
-                    _CountBadge(label: 'Deployed', value: services.length),
+                    _CountBadge(label: 'Pulled', value: services.length),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -63,7 +62,7 @@ class LocalServicesPage extends GetView<FungiController> {
                   )
                 else if (services.isEmpty)
                   const _InlineEmptyState(
-                    message: 'No local services deployed yet.',
+                    message: 'No local services pulled yet.',
                   )
                 else
                   ...services.map(
@@ -194,7 +193,7 @@ class LocalServicesPage extends GetView<FungiController> {
     });
   }
 
-  Future<void> _pickManifestAndDeploy() async {
+  Future<void> _pickManifestAndPull() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: const ['yaml', 'yml'],
@@ -204,7 +203,7 @@ class LocalServicesPage extends GetView<FungiController> {
     if (path == null || path.isEmpty) {
       return;
     }
-    await controller.deployLocalServiceFromPath(path);
+    await controller.pullLocalServiceFromPath(path);
   }
 
   Future<void> _showAddPathDialog() async {
@@ -789,39 +788,3 @@ class _InlineEmptyState extends StatelessWidget {
   }
 }
 
-class _CopyIconButton extends StatelessWidget {
-  const _CopyIconButton({
-    required this.value,
-    required this.toastMessage,
-    this.size = 16,
-  });
-
-  final String value;
-  final String toastMessage;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: 'Copy',
-      waitDuration: const Duration(milliseconds: 500),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: () async {
-          await Clipboard.setData(ClipboardData(text: value));
-          SmartDialog.showToast(toastMessage);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Icon(
-            Icons.copy,
-            size: size,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-      ),
-    );
-  }
-}

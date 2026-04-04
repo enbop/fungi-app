@@ -18,9 +18,9 @@ class AvailableServicesPage extends GetView<FungiController> {
           padding: const EdgeInsets.all(16),
           children: [
             _SectionHeader(
-              title: 'Available Services',
+              title: 'Remote Catalog',
               subtitle:
-                  'Browse services discovered from known peers. This first pass groups by peer.',
+                  'Browse published services from known peers and reuse local access entries when available.',
               trailing: IconButton(
                 onPressed: controller.availableServicesLoading.value
                     ? null
@@ -45,7 +45,7 @@ class AvailableServicesPage extends GetView<FungiController> {
               )
             else if (sections.isEmpty)
               Text(
-                'No peer services discovered yet.',
+                'No published peer services found yet.',
                 style: Theme.of(context).textTheme.bodyMedium,
               )
             else
@@ -66,6 +66,8 @@ class _PeerServicesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<FungiController>();
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -105,7 +107,7 @@ class _PeerServicesSection extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            service.serviceName,
+                            service.displayName,
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                         ),
@@ -116,40 +118,131 @@ class _PeerServicesSection extends StatelessWidget {
                         service.serviceId!.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: SelectableText(
-                          service.serviceId!,
-                          style: Theme.of(context).textTheme.bodySmall,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SelectableText(
+                              service.serviceId!,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            if (service.catalogId != null &&
+                                service.catalogId!.isNotEmpty)
+                              Text(
+                                'Catalog ID: ${service.catalogId!}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                          ],
                         ),
                       ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        Chip(
+                          label: Text(
+                            service.usageKind ?? service.transportKind,
+                          ),
+                        ),
+                        if (!service.isWeb)
+                          Chip(
+                            label: Text(
+                              service.accessAttached
+                                  ? 'TCP attached'
+                                  : 'TCP not attached',
+                            ),
+                          ),
+                      ],
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'State: ${service.state}${service.running ? ' • running' : ''}',
                     ),
-                    if (service.availableEndpoints.isNotEmpty) ...[
+                    Text(
+                      service.accessAttached
+                          ? 'Local access attached'
+                          : 'No local access attached',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    if (service.serviceId != null &&
+                        service.serviceId!.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (service.isWeb)
+                            FilledButton.icon(
+                              onPressed: () => controller.openCatalogWebService(
+                                peerId: section.peerId,
+                                serviceId: service.serviceId!,
+                              ),
+                              icon: const Icon(Icons.open_in_new),
+                              label: const Text('Open'),
+                            ),
+                          if (!service.accessAttached)
+                            OutlinedButton.icon(
+                              onPressed: () =>
+                                  controller.attachCatalogServiceAccess(
+                                    peerId: section.peerId,
+                                    serviceId: service.serviceId!,
+                                  ),
+                              icon: const Icon(Icons.link),
+                              label: Text(
+                                service.isWeb ? 'Attach Only' : 'Attach',
+                              ),
+                            )
+                          else
+                            OutlinedButton.icon(
+                              onPressed: () =>
+                                  controller.detachCatalogServiceAccess(
+                                    peerId: section.peerId,
+                                    serviceId: service.serviceId!,
+                                  ),
+                              icon: const Icon(Icons.link_off),
+                              label: const Text('Detach'),
+                            ),
+                        ],
+                      ),
+                    ],
+                    if (service.publishedEndpoints.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Endpoints',
+                        'Published Endpoints',
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
-                      ...service.availableEndpoints.map(
+                      ...service.publishedEndpoints.map(
                         (endpoint) => Text(
                           '${endpoint.name} · ${endpoint.protocol} · service:${endpoint.servicePort}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     ],
-                    if (service.localForwardedEndpoints.isNotEmpty) ...[
+                    if (service.localAccessEndpoints.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Forwarded Locally',
+                        'Local Access Endpoints',
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
-                      ...service.localForwardedEndpoints.map(
+                      ...service.localAccessEndpoints.map(
                         (endpoint) => Text(
                           '${endpoint.name} -> ${endpoint.localHost}:${endpoint.localPort} [${endpoint.protocol}]',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
+                    ],
+                    if (service.isWeb) ...[
+                      if (controller.catalogWebLaunchUri(service) != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Open URL',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        SelectableText(
+                          controller.catalogWebLaunchUri(service)!.toString(),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                     ],
                   ],
                 ),
