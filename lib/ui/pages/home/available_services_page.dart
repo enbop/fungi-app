@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
+import 'package:fungi_app/ui/widgets/service_icon.dart';
 import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:get/get.dart';
 
@@ -11,16 +12,42 @@ class AvailableServicesPage extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final sections = controller.availableServiceSections;
       return RefreshIndicator(
         onRefresh: controller.refreshAvailableServicesData,
         child: ListView(
           padding: const EdgeInsets.all(16),
-          children: [
+          children: const [PublishedServicesSection()],
+        ),
+      );
+    });
+  }
+}
+
+class PublishedServicesSection extends GetView<FungiController> {
+  const PublishedServicesSection({
+    super.key,
+    this.showHeader = true,
+    this.title = 'Catalog',
+    this.subtitle =
+        'Browse published services from known peers and reuse local access entries when available.',
+  });
+
+  final bool showHeader;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final sections = controller.availableServiceSections;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (showHeader)
             _SectionHeader(
-              title: 'Remote Catalog',
-              subtitle:
-                  'Browse published services from known peers and reuse local access entries when available.',
+              title: title,
+              subtitle: subtitle,
               trailing: IconButton(
                 onPressed: controller.availableServicesLoading.value
                     ? null
@@ -28,32 +55,31 @@ class AvailableServicesPage extends GetView<FungiController> {
                 icon: const Icon(Icons.refresh),
               ),
             ),
-            if (controller.availableServicesError.value.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  controller.availableServicesError.value,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
+          if (controller.availableServicesError.value.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                controller.availableServicesError.value,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-            if (controller.availableServicesLoading.value)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (sections.isEmpty)
-              Text(
-                'No published peer services found yet.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              )
-            else
-              ...sections.map(
-                (section) => _PeerServicesSection(section: section),
+            ),
+          if (controller.availableServicesLoading.value)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: CircularProgressIndicator(),
               ),
-          ],
-        ),
+            )
+          else if (sections.isEmpty)
+            Text(
+              'No published peer services found yet.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            )
+          else
+            ...sections.map(
+              (section) => _PeerServicesSection(section: section),
+            ),
+        ],
       );
     });
   }
@@ -104,11 +130,31 @@ class _PeerServicesSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        ServiceIcon(
+                          iconUrl: service.iconUrl,
+                          fallbackLabel: service.displayName,
+                        ),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            service.displayName,
-                            style: Theme.of(context).textTheme.titleSmall,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                service.displayName,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                section.alias?.isNotEmpty == true
+                                    ? section.alias!
+                                    : (section.hostname?.isNotEmpty == true
+                                          ? section.hostname!
+                                          : section.peerId),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                           ),
                         ),
                         Chip(label: Text(service.runtime)),

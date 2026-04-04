@@ -969,6 +969,22 @@ class FungiController extends GetxController {
     );
   }
 
+  String peerDisplayLabel(String peerId) {
+    for (final peer in addressBook) {
+      if (peer.peerId != peerId) {
+        continue;
+      }
+      if (peer.alias.isNotEmpty) {
+        return peer.alias;
+      }
+      if (peer.hostname.isNotEmpty) {
+        return peer.hostname;
+      }
+      break;
+    }
+    return peerId;
+  }
+
   List<ConnectionSnapshot> connectionsForPeer(String peerId) {
     return peerConnections[peerId] ?? const [];
   }

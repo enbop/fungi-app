@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
+import 'package:fungi_app/ui/pages/home/available_services_page.dart';
+import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
+import 'package:fungi_app/ui/widgets/service_icon.dart';
 import 'package:get/get.dart';
 
 class DashboardPage extends GetView<FungiController> {
@@ -112,10 +115,83 @@ class DashboardPage extends GetView<FungiController> {
               ...quickEntries
                   .take(12)
                   .map((entry) => _QuickServiceCard(entry: entry)),
+            const SizedBox(height: 20),
+            _SectionHeader(
+              title: 'Catalog',
+              subtitle:
+                  'Open the full remote catalog when you need configuration details, endpoint information, and attach or detach controls.',
+            ),
+            _CatalogEntryCard(
+              onOpen: () => _showCatalogDialog(context),
+              serviceCount: sections.fold(
+                0,
+                (sum, section) => sum + section.services.length,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const _SectionHeader(
+              title: 'Client Data Tunnel',
+              subtitle:
+                  'Create raw client-side forwarding rules for cases that are not modeled as services yet.',
+            ),
+            const ClientDataTunnelSection(showTitle: false),
           ],
         ),
       );
     });
+  }
+
+  void _showCatalogDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: SizedBox(
+          width: 980,
+          height: 760,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Catalog',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Browse published services from known peers and manage local access entries.',
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              const Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(16),
+                  child: PublishedServicesSection(showHeader: false),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -189,104 +265,196 @@ class _QuickServiceCard extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     final service = entry.service;
-    final launchUri = service.isWeb
-        ? controller.catalogWebLaunchUri(service)
-        : null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: EnhancedCard(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      service.displayName,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  Chip(label: Text(service.usageKind ?? service.transportKind)),
-                ],
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+          leading: ServiceIcon(
+            iconUrl: service.iconUrl,
+            fallbackLabel: service.displayName,
+          ),
+          title: Text(
+            service.displayName,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          subtitle: Text(
+            entry.peerLabel,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          trailing: _QuickAccessActions(entry: entry),
+          children: [_QuickServiceDetails(entry: entry)],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickAccessActions extends GetView<FungiController> {
+  const _QuickAccessActions({required this.entry});
+
+  final _DashboardCatalogEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final service = entry.service;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (service.isWeb && service.serviceId != null)
+          FilledButton(
+            onPressed: () => controller.openCatalogWebService(
+              peerId: entry.peerId,
+              serviceId: service.serviceId!,
+            ),
+            child: const Text('Open'),
+          ),
+        const SizedBox(width: 8),
+        const Icon(Icons.expand_more),
+      ],
+    );
+  }
+}
+
+class _QuickServiceDetails extends GetView<FungiController> {
+  const _QuickServiceDetails({required this.entry});
+
+  final _DashboardCatalogEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final service = entry.service;
+    final launchUri = service.isWeb
+        ? controller.catalogWebLaunchUri(service)
+        : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            Chip(label: Text(service.usageKind ?? service.transportKind)),
+            Chip(label: Text(service.runtime)),
+            Chip(
+              label: Text(
+                service.accessAttached
+                    ? 'Access attached'
+                    : 'Access not attached',
               ),
-              const SizedBox(height: 4),
-              Text(
-                entry.peerLabel,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  Chip(label: Text(service.runtime)),
-                  Chip(
-                    label: Text(
-                      service.accessAttached
-                          ? 'Access attached'
-                          : 'Access not attached',
-                    ),
-                  ),
-                ],
-              ),
-              if (launchUri != null) ...[
-                const SizedBox(height: 6),
-                SelectableText(
-                  launchUri.toString(),
-                  style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'State: ${service.state}${service.running ? ' • running' : ''}',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (service.serviceId != null && service.serviceId!.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          SelectableText(
+            service.serviceId!,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+        if (launchUri != null) ...[
+          const SizedBox(height: 8),
+          SelectableText(
+            launchUri.toString(),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (!service.isWeb &&
+                !service.accessAttached &&
+                service.serviceId != null)
+              OutlinedButton.icon(
+                onPressed: () => controller.attachCatalogServiceAccess(
+                  peerId: entry.peerId,
+                  serviceId: service.serviceId!,
                 ),
-              ],
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (service.isWeb)
-                    FilledButton.icon(
-                      onPressed: service.serviceId == null
-                          ? null
-                          : () => controller.openCatalogWebService(
-                              peerId: entry.peerId,
-                              serviceId: service.serviceId!,
-                            ),
-                      icon: const Icon(Icons.open_in_new),
-                      label: const Text('Open'),
-                    ),
-                  if (!service.accessAttached && service.serviceId != null)
-                    OutlinedButton.icon(
-                      onPressed: () => controller.attachCatalogServiceAccess(
-                        peerId: entry.peerId,
-                        serviceId: service.serviceId!,
-                      ),
-                      icon: const Icon(Icons.link),
-                      label: Text(service.isWeb ? 'Attach Only' : 'Attach'),
-                    ),
-                  if (service.accessAttached && service.serviceId != null)
-                    OutlinedButton.icon(
-                      onPressed: () => controller.detachCatalogServiceAccess(
-                        peerId: entry.peerId,
-                        serviceId: service.serviceId!,
-                      ),
-                      icon: const Icon(Icons.link_off),
-                      label: const Text('Detach'),
-                    ),
-                ],
+                icon: const Icon(Icons.link),
+                label: const Text('Attach'),
               ),
-              if (!service.isWeb &&
-                  service.localAccessEndpoints.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                ...service.localAccessEndpoints.map(
-                  (endpoint) => Text(
-                    '${endpoint.name} -> ${endpoint.localHost}:${endpoint.localPort} [${endpoint.protocol}]',
+            if (service.isWeb &&
+                !service.accessAttached &&
+                service.serviceId != null)
+              OutlinedButton.icon(
+                onPressed: () => controller.attachCatalogServiceAccess(
+                  peerId: entry.peerId,
+                  serviceId: service.serviceId!,
+                ),
+                icon: const Icon(Icons.link),
+                label: const Text('Attach Only'),
+              ),
+            if (service.accessAttached && service.serviceId != null)
+              OutlinedButton.icon(
+                onPressed: () => controller.detachCatalogServiceAccess(
+                  peerId: entry.peerId,
+                  serviceId: service.serviceId!,
+                ),
+                icon: const Icon(Icons.link_off),
+                label: const Text('Detach'),
+              ),
+          ],
+        ),
+        if (service.localAccessEndpoints.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          ...service.localAccessEndpoints.map(
+            (endpoint) => Text(
+              '${endpoint.name} -> ${endpoint.localHost}:${endpoint.localPort} [${endpoint.protocol}]',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _CatalogEntryCard extends StatelessWidget {
+  const _CatalogEntryCard({required this.onOpen, required this.serviceCount});
+
+  final VoidCallback onOpen;
+  final int serviceCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return EnhancedCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Catalog',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$serviceCount published services are currently available across known peers.',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                ),
-              ],
-            ],
-          ),
+                ],
+              ),
+            ),
+            FilledButton.icon(
+              onPressed: onOpen,
+              icon: const Icon(Icons.tune),
+              label: const Text('Open Catalog'),
+            ),
+          ],
         ),
       ),
     );

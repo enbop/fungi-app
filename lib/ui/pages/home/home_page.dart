@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/ui/pages/home/dashboard_page.dart';
-import 'package:fungi_app/ui/pages/home/available_services_page.dart';
-import 'package:fungi_app/ui/pages/home/legacy_page.dart';
 import 'package:fungi_app/ui/pages/home/local_services_page.dart';
 import 'package:fungi_app/ui/pages/home/node_management_page.dart';
 import 'package:fungi_app/ui/pages/settings/settings.dart';
@@ -206,7 +204,7 @@ class HomePage extends StatelessWidget {
             child: ServiceOverlay(
               child: DefaultTabController(
                 initialIndex: 0,
-                length: 6,
+                length: 4,
                 child: Column(
                   children: [
                     Container(
@@ -214,10 +212,8 @@ class HomePage extends StatelessWidget {
                       child: TabBar(
                         tabs: const <Widget>[
                           Tab(text: "Home", height: 30),
-                          Tab(text: "Catalog", height: 30),
                           Tab(text: "Nodes", height: 30),
                           Tab(text: "Local", height: 30),
-                          Tab(text: "Tools", height: 30),
                           Tab(text: "Settings", height: 30),
                         ],
                         isScrollable: true,
@@ -228,10 +224,8 @@ class HomePage extends StatelessWidget {
                       child: const TabBarView(
                         children: <Widget>[
                           DashboardPage(),
-                          AvailableServicesPage(),
                           NodeManagementPage(),
                           LocalServicesPage(),
-                          LegacyPage(),
                           Settings(),
                         ],
                       ),

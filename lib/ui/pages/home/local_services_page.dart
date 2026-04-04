@@ -4,6 +4,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
+import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:get/get.dart';
 
@@ -70,6 +71,12 @@ class LocalServicesPage extends GetView<FungiController> {
                   ),
               ],
             ),
+          ),
+
+          const SizedBox(height: 24),
+          const _CompactSection(
+            title: 'Server Data Tunnel',
+            child: ServerDataTunnelSection(showTitle: false),
           ),
 
           const SizedBox(height: 24),

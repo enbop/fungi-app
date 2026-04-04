@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
@@ -26,136 +27,189 @@ class DataTunnelPage extends GetView<FungiController> {
               color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
             ),
           ),
-          SizedBox(height: 20),
-
-          // Forwarding Rules Section
-          _buildForwardingSection(context),
-
-          SizedBox(height: 30),
-
-          // Listening Rules Section
-          _buildListeningSection(context),
+          const SizedBox(height: 20),
+          const ClientDataTunnelSection(),
+          const SizedBox(height: 30),
+          const ServerDataTunnelSection(),
         ],
       ),
     );
   }
+}
 
-  Widget _buildForwardingSection(BuildContext context) {
+class ClientDataTunnelSection extends GetView<FungiController> {
+  const ClientDataTunnelSection({super.key, this.showTitle = true});
+
+  final bool showTitle;
+
+  bool _isRawForwardingRule(ForwardingRule rule) {
+    if (rule.remoteServiceId.isNotEmpty || rule.remoteServiceName.isNotEmpty) {
+      return false;
+    }
+    if (rule.remoteProtocol.startsWith('/fungi/service-port')) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.arrow_forward,
-              size: 20,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            SizedBox(width: 8),
-            Text(
-              "Port Forwarding Rules",
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ],
-        ),
-        Text(
-          "Forward local ports to remote devices",
-          style: Theme.of(context).textTheme.labelSmall?.apply(
-            color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+        if (showTitle) ...[
+          Row(
+            children: [
+              Icon(
+                Icons.arrow_forward,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Client Data Tunnel",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
           ),
-        ),
-        SizedBox(height: 10),
+          Text(
+            "Forward local ports to remote devices without going through the service catalog.",
+            style: Theme.of(context).textTheme.labelSmall?.apply(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
         TextButton.icon(
-          onPressed: () => showAddForwardingRuleDialog(),
-          icon: Icon(Icons.add_circle),
-          label: Text("Add Forwarding Rule"),
+          onPressed: showAddForwardingRuleDialog,
+          icon: const Icon(Icons.add_circle),
+          label: const Text("Add Forwarding Rule"),
         ),
-        SizedBox(height: 10),
-        Obx(
-          () => controller.tcpTunnelingConfig.value.forwardingRules.isEmpty
-              ? Text(
-                  "-- No forwarding rules. --",
-                  style: Theme.of(context).textTheme.bodySmall?.apply(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha(150),
-                  ),
-                )
-              : Column(
-                  children: controller.tcpTunnelingConfig.value.forwardingRules.map((
-                    rule,
-                  ) {
-                    return EnhancedCard(
-                      child: ListTile(
-                        title: Text(
-                          "${rule.localHost}:${rule.localPort} → Remote:${rule.remotePort}",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TruncatedId(
-                              id: rule.remotePeerId,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.apply(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withAlpha(150),
-                                  ),
+        const SizedBox(height: 10),
+        Obx(() {
+          final rawForwardingRules = controller
+              .tcpTunnelingConfig
+              .value
+              .forwardingRules
+              .where(_isRawForwardingRule)
+              .toList(growable: false);
+
+          if (rawForwardingRules.isEmpty) {
+            return Text(
+              "-- No raw forwarding rules. --",
+              style: Theme.of(context).textTheme.bodySmall?.apply(
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+              ),
+            );
+          }
+
+          return Column(
+            children: rawForwardingRules.map((rule) {
+              final peerLabel = controller.peerDisplayLabel(rule.remotePeerId);
+              final titleTarget = peerLabel == rule.remotePeerId
+                  ? 'Remote'
+                  : peerLabel;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: EnhancedCard(
+                  child: ListTile(
+                    title: Text(
+                      "${rule.localHost}:${rule.localPort} → $titleTarget:${rule.remotePort}",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (peerLabel != rule.remotePeerId)
+                          Text(
+                            "Alias: $peerLabel",
+                            style: Theme.of(context).textTheme.bodySmall?.apply(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withAlpha(150),
                             ),
-                            Text(
-                              "Protocol: /fungi/tunnel/0.1.0/${rule.remotePort}",
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.apply(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withAlpha(120),
-                                  ),
-                            ),
-                          ],
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete, size: 20, color: Colors.red),
-                          onPressed: () => controller.removeTcpForwardingRule(
-                            localHost: rule.localHost,
-                            localPort: rule.localPort,
-                            peerId: rule.remotePeerId,
-                            remotePort: rule.remotePort,
+                          ),
+                        TruncatedId(
+                          id: rule.remotePeerId,
+                          style: Theme.of(context).textTheme.bodySmall?.apply(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withAlpha(150),
                           ),
                         ),
+                        if (rule.remoteProtocol.isNotEmpty)
+                          Text(
+                            "Protocol: ${rule.remoteProtocol}",
+                            style: Theme.of(context).textTheme.bodySmall?.apply(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withAlpha(120),
+                            ),
+                          ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        size: 20,
+                        color: Colors.red,
                       ),
-                    );
-                  }).toList(),
+                      onPressed: () => controller.removeTcpForwardingRule(
+                        localHost: rule.localHost,
+                        localPort: rule.localPort,
+                        peerId: rule.remotePeerId,
+                        remotePort: rule.remotePort,
+                      ),
+                    ),
+                  ),
                 ),
-        ),
+              );
+            }).toList(),
+          );
+        }),
       ],
     );
   }
+}
 
-  Widget _buildListeningSection(BuildContext context) {
+class ServerDataTunnelSection extends GetView<FungiController> {
+  const ServerDataTunnelSection({super.key, this.showTitle = true});
+
+  final bool showTitle;
+
+  bool _isRawListeningRule(ListeningRule rule) {
+    return !rule.protocol.startsWith('/fungi/service-port');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.arrow_back,
-              size: 20,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            SizedBox(width: 8),
-            Text(
-              "Port Listening Rules",
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ],
-        ),
-        Text(
-          "Expose local services to remote devices",
-          style: Theme.of(context).textTheme.labelSmall?.apply(
-            color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+        if (showTitle) ...[
+          Row(
+            children: [
+              Icon(
+                Icons.arrow_back,
+                size: 20,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Server Data Tunnel",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
           ),
-        ),
+          Text(
+            "Expose local services to remote devices without wrapping them as published services.",
+            style: Theme.of(context).textTheme.labelSmall?.apply(
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -164,89 +218,92 @@ class DataTunnelPage extends GetView<FungiController> {
               "Incoming Allowed Peers: ",
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             SelectableText(
               "${controller.incomingAllowedPeers.length}",
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             IconButton(
-              onPressed: () {
-                showAllowedPeersList();
-              },
-              icon: Icon(Icons.edit, size: 15),
+              onPressed: showAllowedPeersList,
+              icon: const Icon(Icons.edit, size: 15),
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         TextButton.icon(
-          onPressed: () => showAddListeningRuleDialog(),
-          icon: Icon(Icons.add_circle),
-          label: Text("Add Listening Rule"),
+          onPressed: showAddListeningRuleDialog,
+          icon: const Icon(Icons.add_circle),
+          label: const Text("Add Listening Rule"),
         ),
-        SizedBox(height: 10),
-        Obx(
-          () => controller.tcpTunnelingConfig.value.listeningRules.isEmpty
-              ? Text(
-                  "-- No listening rules. --",
-                  style: Theme.of(context).textTheme.bodySmall?.apply(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withAlpha(150),
-                  ),
-                )
-              : Column(
-                  children: controller.tcpTunnelingConfig.value.listeningRules
-                      .map((rule) {
-                        return EnhancedCard(
-                          accentColor: Theme.of(context).colorScheme.secondary,
-                          child: ListTile(
-                            title: Text(
-                              "Local:${rule.host}:${rule.port}",
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Protocol: /fungi/tunnel/0.1.0/${rule.port}",
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.apply(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurface.withAlpha(120),
-                                      ),
-                                ),
-                                if (rule.allowedPeers.isNotEmpty)
-                                  Text(
-                                    "Allowed peers: ${rule.allowedPeers.length}",
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.apply(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface
-                                              .withAlpha(150),
-                                        ),
-                                  ),
-                              ],
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                size: 20,
-                                color: Colors.red,
-                              ),
-                              onPressed: () =>
-                                  controller.removeTcpListeningRule(
-                                    localHost: rule.host,
-                                    localPort: rule.port,
-                                  ),
+        const SizedBox(height: 10),
+        Obx(() {
+          final rawListeningRules = controller
+              .tcpTunnelingConfig
+              .value
+              .listeningRules
+              .where(_isRawListeningRule)
+              .toList(growable: false);
+
+          if (rawListeningRules.isEmpty) {
+            return Text(
+              "-- No raw listening rules. --",
+              style: Theme.of(context).textTheme.bodySmall?.apply(
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+              ),
+            );
+          }
+
+          return Column(
+            children: rawListeningRules.map((rule) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: EnhancedCard(
+                  accentColor: Theme.of(context).colorScheme.secondary,
+                  child: ListTile(
+                    title: Text(
+                      "Local:${rule.host}:${rule.port}",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (rule.protocol.isNotEmpty)
+                          Text(
+                            "Protocol: ${rule.protocol}",
+                            style: Theme.of(context).textTheme.bodySmall?.apply(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withAlpha(120),
                             ),
                           ),
-                        );
-                      })
-                      .toList(),
+                        if (rule.allowedPeers.isNotEmpty)
+                          Text(
+                            "Allowed peers: ${rule.allowedPeers.length}",
+                            style: Theme.of(context).textTheme.bodySmall?.apply(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withAlpha(150),
+                            ),
+                          ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        size: 20,
+                        color: Colors.red,
+                      ),
+                      onPressed: () => controller.removeTcpListeningRule(
+                        localHost: rule.host,
+                        localPort: rule.port,
+                      ),
+                    ),
+                  ),
                 ),
-        ),
+              );
+            }).toList(),
+          );
+        }),
       ],
     );
   }
