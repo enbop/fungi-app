@@ -44,19 +44,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Read Fungi Version
+      - name: Resolve Fungi Artifact Source
         id: fungi_version
         shell: bash
         run: |
-          VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Using Fungi Version: $VERSION"
+          FUNGI_VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
+            FUNGI_RELEASE_TAG="nightly"
+          else
+            FUNGI_RELEASE_TAG="$FUNGI_VERSION"
+          fi
+
+          echo "FUNGI_VERSION=$FUNGI_VERSION" >> $GITHUB_ENV
+          echo "FUNGI_RELEASE_TAG=$FUNGI_RELEASE_TAG" >> $GITHUB_ENV
+          echo "Using Fungi version: $FUNGI_VERSION"
+          echo "Downloading artifacts from release tag: $FUNGI_RELEASE_TAG"
 
       - name: Download Fungi Artifacts
         shell: bash
         run: |
           mkdir -p fungi-artifacts
-          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
+          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.FUNGI_RELEASE_TAG }}"
           
           # Download binary artifact
           curl -fL -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
