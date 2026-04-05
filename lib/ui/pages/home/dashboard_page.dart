@@ -5,7 +5,6 @@ import 'package:fungi_app/ui/pages/home/available_services_page.dart';
 import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
-import 'package:fungi_app/ui/widgets/node_management_dialogs.dart';
 import 'package:fungi_app/ui/widgets/service_icon.dart';
 import 'package:get/get.dart';
 
@@ -65,22 +64,10 @@ class DashboardPage extends GetView<FungiController> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Row(
-              children: [
-                Text('Home', style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(width: 6),
-                const HelpTooltip(
-                  title: 'Home',
-                  message:
-                      'Home focuses on quick access to remote services. Web services can open in the browser, and TCP services can create local access endpoints.',
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             _SectionHeader(
               title: 'Quick Access',
               helpMessage:
-                  'Use this list for the most common service actions. Web services can open directly, and TCP services can attach local access.',
+                  'Use this list for the most common service actions. Web services can open directly.',
             ),
             if (quickEntries.isEmpty)
               _HomeOnboardingPanel(hasPeers: controller.addressBook.isNotEmpty)
@@ -88,7 +75,7 @@ class DashboardPage extends GetView<FungiController> {
               ...quickEntries
                   .take(12)
                   .map((entry) => _QuickServiceCard(entry: entry)),
-            const SizedBox(height: 20),
+            const _SectionDivider(),
             _SectionHeader(
               title: 'Catalog',
               helpMessage:
@@ -101,11 +88,11 @@ class DashboardPage extends GetView<FungiController> {
                 (sum, section) => sum + section.services.length,
               ),
             ),
-            const SizedBox(height: 20),
+            const _SectionDivider(),
             const _SectionHeader(
-              title: 'Client Data Tunnel',
+              title: 'Port Forwarding',
               helpMessage:
-                  'Create raw client-side forwarding rules for destinations that are not modeled as catalog services yet.',
+                  'Create raw client-side port forwarding rules for destinations that are not modeled as catalog services yet.',
             ),
             const ClientDataTunnelSection(showTitle: false),
           ],
@@ -225,14 +212,14 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
             Text(
               hasPeers
                   ? 'No quick-access services yet.'
-                  : 'Add a node to get started.',
+                  : 'Add a peer to get started.',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 6),
             Text(
               hasPeers
-                  ? 'Your nodes are saved, but none of them currently expose Web or TCP services in the catalog.'
-                  : 'Save a node manually or discover one on the local network, then try pulling a service manifest to it.',
+                  ? 'Your peers are saved, but none of them currently expose Web or TCP services in the catalog.'
+                  : 'Save a peer manually or discover one on the local network, then try pulling a service manifest to it.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 14),
@@ -241,14 +228,10 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
               runSpacing: 10,
               children: [
                 FilledButton.icon(
-                  onPressed: () => showNodeEditorDialog(),
-                  icon: const Icon(Icons.add_link),
-                  label: const Text('Add Node'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => showNodeEditorDialog(),
-                  icon: const Icon(Icons.devices),
-                  label: const Text('Discover via mDNS'),
+                  onPressed: () =>
+                      DefaultTabController.of(context).animateTo(1),
+                  icon: const Icon(Icons.device_hub),
+                  label: const Text('Manage Peers'),
                 ),
                 OutlinedButton.icon(
                   onPressed: controller.openDocumentation,
@@ -260,6 +243,18 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SectionDivider extends StatelessWidget {
+  const _SectionDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      child: Divider(height: 1),
     );
   }
 }

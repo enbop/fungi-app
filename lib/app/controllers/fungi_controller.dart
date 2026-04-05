@@ -121,12 +121,14 @@ class FungiController extends GetxController {
   final runtimeConfig = RuntimeConfigResponse().obs;
   final localServices = <LocalServiceView>[].obs;
   final peerCatalogServices = <String, List<RemoteServiceListEntryView>>{}.obs;
+  final peerManagedServices = <String, List<LocalServiceView>>{}.obs;
   final peerConnections = <String, List<ConnectionSnapshot>>{}.obs;
 
   final localServicesLoading = false.obs;
   final availableServicesLoading = false.obs;
   final nodeManagementLoading = false.obs;
   final localServicePendingActions = <String, String>{}.obs;
+  final remoteServicePendingActions = <String, String>{}.obs;
 
   final localServicesError = ''.obs;
   final availableServicesError = ''.obs;
@@ -528,6 +530,33 @@ class FungiController extends GetxController {
       RemoveAddressBookPeerRequest()..peerId = peerId,
     );
     await updateAddressBook();
+  }
+
+  Future<void> deletePeer(String peerId) async {
+    try {
+      await refreshPeerManagedServicesData(peerId: peerId);
+      final managedServices = managedServicesForPeer(peerId);
+      if (managedServices.isNotEmpty) {
+        throw Exception('Peer still has ${managedServices.length} service(s)');
+      }
+
+      await removeAddressBookPeer(peerId);
+      final nextManagedServices = Map<String, List<LocalServiceView>>.from(
+        peerManagedServices,
+      )..remove(peerId);
+      peerManagedServices.value = nextManagedServices;
+
+      final nextConnections = Map<String, List<ConnectionSnapshot>>.from(
+        peerConnections,
+      )..remove(peerId);
+      peerConnections.value = nextConnections;
+
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Peer deleted');
+    } catch (e) {
+      Get.snackbar('Delete failed', '$e');
+      rethrow;
+    }
   }
 
   Future<List<PeerInfo>> listMdnsPeers() async {
@@ -1326,12 +1355,40 @@ class FungiController extends GetxController {
         grouped.putIfAbsent(connection.peerId, () => []).add(connection);
       }
       peerConnections.value = grouped;
-      await refreshAvailableServicesData();
+      await Future.wait([
+        refreshPeerManagedServicesData(),
+        refreshAvailableServicesData(),
+      ]);
     } catch (e) {
       debugPrint('Failed to refresh node management data: $e');
     } finally {
       nodeManagementLoading.value = false;
     }
+  }
+
+  Future<void> refreshPeerManagedServicesData({String? peerId}) async {
+    final next = Map<String, List<LocalServiceView>>.from(peerManagedServices);
+    final peers = peerId == null
+        ? addressBook.map((peer) => peer.peerId).toList(growable: false)
+        : <String>[peerId];
+
+    for (final currentPeerId in peers) {
+      try {
+        final response = await fungiClient.remoteListServices(
+          RemotePeerRequest()..peerId = currentPeerId,
+        );
+        final services = decodeJsonStringList(
+          response.servicesJson,
+          LocalServiceView.fromJson,
+        )..sort((left, right) => left.name.compareTo(right.name));
+        next[currentPeerId] = services;
+      } catch (e) {
+        debugPrint('Failed to load managed services for $currentPeerId: $e');
+        next[currentPeerId] = const [];
+      }
+    }
+
+    peerManagedServices.value = next;
   }
 
   List<PeerServicesSectionView> get availableServiceSections {
@@ -1348,15 +1405,15 @@ class FungiController extends GetxController {
         .toList(growable: false);
   }
 
-  List<RemoteServiceListEntryView> servicesForPeer(String peerId) {
-    return peerCatalogServices[peerId] ?? const [];
+  List<LocalServiceView> managedServicesForPeer(String peerId) {
+    return peerManagedServices[peerId] ?? const [];
   }
 
   RemoteServiceListEntryView? catalogServiceForPeer(
     String peerId,
     String serviceId,
   ) {
-    final services = servicesForPeer(peerId);
+    final services = peerCatalogServices[peerId] ?? const [];
     for (final service in services) {
       if (service.serviceId == serviceId) {
         return service;
@@ -1458,11 +1515,87 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..manifestYaml = manifestYaml,
       );
-      await refreshNodeManagementData();
+      await refreshPeerManagedServicesData(peerId: peerId);
       await refreshAvailableServicesData();
       Get.snackbar('Success', 'Remote service pull requested');
     } catch (e) {
       Get.snackbar('Remote pull failed', '$e');
+    }
+  }
+
+  String remoteServiceActionKey(String peerId, String serviceName) {
+    return '$peerId::$serviceName';
+  }
+
+  Future<void> startRemoteService({
+    required String peerId,
+    required String serviceName,
+  }) async {
+    final actionKey = remoteServiceActionKey(peerId, serviceName);
+    remoteServicePendingActions[actionKey] = 'start';
+    remoteServicePendingActions.refresh();
+    try {
+      await fungiClient.remoteStartService(
+        RemoteServiceNameRequest()
+          ..peerId = peerId
+          ..name = serviceName,
+      );
+      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Remote service started');
+    } catch (e) {
+      Get.snackbar('Remote start failed', '$e');
+    } finally {
+      remoteServicePendingActions.remove(actionKey);
+      remoteServicePendingActions.refresh();
+    }
+  }
+
+  Future<void> stopRemoteService({
+    required String peerId,
+    required String serviceName,
+  }) async {
+    final actionKey = remoteServiceActionKey(peerId, serviceName);
+    remoteServicePendingActions[actionKey] = 'stop';
+    remoteServicePendingActions.refresh();
+    try {
+      await fungiClient.remoteStopService(
+        RemoteServiceNameRequest()
+          ..peerId = peerId
+          ..name = serviceName,
+      );
+      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Remote service stopped');
+    } catch (e) {
+      Get.snackbar('Remote stop failed', '$e');
+    } finally {
+      remoteServicePendingActions.remove(actionKey);
+      remoteServicePendingActions.refresh();
+    }
+  }
+
+  Future<void> removeRemoteService({
+    required String peerId,
+    required String serviceName,
+  }) async {
+    final actionKey = remoteServiceActionKey(peerId, serviceName);
+    remoteServicePendingActions[actionKey] = 'remove';
+    remoteServicePendingActions.refresh();
+    try {
+      await fungiClient.remoteRemoveService(
+        RemoteServiceNameRequest()
+          ..peerId = peerId
+          ..name = serviceName,
+      );
+      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Remote service removed');
+    } catch (e) {
+      Get.snackbar('Remote remove failed', '$e');
+    } finally {
+      remoteServicePendingActions.remove(actionKey);
+      remoteServicePendingActions.refresh();
     }
   }
 

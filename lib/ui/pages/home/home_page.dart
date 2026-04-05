@@ -78,11 +78,15 @@ class HomeHeader extends GetView<FungiController> {
                     vertical: 5,
                     horizontal: 20,
                   ),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    width: 50,
-                    height: 50,
-                    color: colorScheme.primary,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: controller.openDocumentation,
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      width: 50,
+                      height: 50,
+                      color: colorScheme.primary,
+                    ),
                   ),
                 ),
                 Column(
@@ -239,7 +243,7 @@ class HomePage extends StatelessWidget {
                       child: TabBar(
                         tabs: const <Widget>[
                           Tab(text: "Home", height: 30),
-                          Tab(text: "Nodes", height: 30),
+                          Tab(text: "Peers", height: 30),
                           Tab(text: "Local", height: 30),
                           Tab(text: "Settings", height: 30),
                         ],

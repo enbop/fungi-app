@@ -6,6 +6,7 @@ import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
+import 'package:fungi_app/ui/widgets/service_management_widgets.dart';
 import 'package:get/get.dart';
 
 class LocalServicesPage extends GetView<FungiController> {
@@ -19,28 +20,22 @@ class LocalServicesPage extends GetView<FungiController> {
       final incomingAllowedPeers = controller.incomingAllowedPeers;
 
       return ListView(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         children: [
-          _CompactSection(
+          _PageSection(
             title: 'Local Services',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TODO change this to a mouse hover tooltip with more details, and maybe a quick action to copy the name
-                // Text(
-                //   'Manage local service pull state and inspect runtime/security boundaries. YAML-path pull is used for now.',
-                //   style: Theme.of(context).textTheme.bodySmall,
-                // ),
-                // const SizedBox(height: 12),
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
-                    FilledButton.icon(
+                    TextButton.icon(
                       onPressed: _pickManifestAndPull,
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text('Pull YAML Path'),
+                      icon: const Icon(Icons.add_circle),
+                      label: const Text('Select a Manifest YAML'),
                     ),
-                    const SizedBox(width: 12),
-                    _CountBadge(label: 'Pulled', value: services.length),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -62,7 +57,7 @@ class LocalServicesPage extends GetView<FungiController> {
                     ),
                   )
                 else if (services.isEmpty)
-                  const _InlineEmptyState(
+                  const ManagementEmptyStateCard(
                     message: 'No local services pulled yet.',
                   )
                 else
@@ -72,15 +67,13 @@ class LocalServicesPage extends GetView<FungiController> {
               ],
             ),
           ),
-
-          const SizedBox(height: 24),
-          const _CompactSection(
-            title: 'Server Data Tunnel',
+          const _PageSectionDivider(),
+          const _PageSection(
+            title: 'Port Listening',
             child: ServerDataTunnelSection(showTitle: false),
           ),
-
-          const SizedBox(height: 24),
-          _CompactSection(
+          const _PageSectionDivider(),
+          _PageSection(
             title: 'Runtime Capability',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,11 +87,11 @@ class LocalServicesPage extends GetView<FungiController> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _StatusBadge(
+                    ServiceStatusBadge(
                       label: 'Docker',
                       active: !runtimeConfig.disableDocker,
                     ),
-                    _StatusBadge(
+                    ServiceStatusBadge(
                       label: 'Wasmtime',
                       active: !runtimeConfig.disableWasmtime,
                     ),
@@ -112,14 +105,14 @@ class LocalServicesPage extends GetView<FungiController> {
                   compact: true,
                 ),
                 if (runtimeConfig.allowedHostPaths.isEmpty)
-                  const _InlineEmptyState(
+                  const ManagementEmptyStateCard(
                     message: 'No allowed host paths configured yet.',
                   )
                 else
                   ...runtimeConfig.allowedHostPaths.map(
                     (path) => _CompactActionRow(
                       title: path,
-                      subtitle: 'Shared runtime boundary for host path access.',
+                      subtitle: 'Remote peers can access this directory.',
                       actionLabel: 'Remove',
                       onAction: () => _confirmRemovePath(path),
                     ),
@@ -132,14 +125,14 @@ class LocalServicesPage extends GetView<FungiController> {
                   compact: true,
                 ),
                 if (runtimeConfig.allowedPorts.isEmpty)
-                  const _InlineEmptyState(
+                  const ManagementEmptyStateCard(
                     message: 'No individually allowed ports configured yet.',
                   )
                 else
                   ...runtimeConfig.allowedPorts.map(
                     (port) => _CompactActionRow(
                       title: '$port',
-                      subtitle: 'Single TCP port allowed for runtime exposure.',
+                      subtitle: 'Remote peers can access this port.',
                       actionLabel: 'Remove',
                       onAction: () => _confirmRemovePort(port),
                     ),
@@ -152,15 +145,14 @@ class LocalServicesPage extends GetView<FungiController> {
                   compact: true,
                 ),
                 if (runtimeConfig.allowedPortRanges.isEmpty)
-                  const _InlineEmptyState(
+                  const ManagementEmptyStateCard(
                     message: 'No allowed port ranges configured yet.',
                   )
                 else
                   ...runtimeConfig.allowedPortRanges.map(
                     (range) => _CompactActionRow(
                       title: '${range.start}-${range.end}',
-                      subtitle:
-                          'Continuous TCP port range allowed for runtime exposure.',
+                      subtitle: 'Remote peers can access ports in this range.',
                       actionLabel: 'Remove',
                       onAction: () =>
                           _confirmRemoveRange(range.start, range.end),
@@ -170,8 +162,8 @@ class LocalServicesPage extends GetView<FungiController> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          _CompactSection(
+          const _PageSectionDivider(),
+          _PageSection(
             title: 'Incoming Allowed Peers',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +177,7 @@ class LocalServicesPage extends GetView<FungiController> {
                   compact: true,
                 ),
                 if (incomingAllowedPeers.isEmpty)
-                  const _InlineEmptyState(
+                  const ManagementEmptyStateCard(
                     message: 'No incoming peers have been allowed yet.',
                   )
                 else
@@ -396,111 +388,68 @@ class _LocalServiceCard extends GetView<FungiController> {
 
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: SelectionArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: SelectableText(
-                          service.name,
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ),
-                      // const SizedBox(width: 4),
-                      // _CopyIconButton(
-                      //   value: service.name,
-                      //   toastMessage: 'Service name copied to clipboard',
-                      // ),
-                    ],
-                  ),
-                  if (service.source.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    SelectableText(
-                      service.source,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _StatusBadge(
-                        label: service.state,
-                        active: service.running,
-                      ),
-                      _PillLabel(label: service.runtime),
-                      if (service.id.isNotEmpty && service.id != service.name)
-                        _PillLabel(label: 'ID ${service.id}'),
-                    ],
-                  ),
-                  if (service.localEndpoints.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    Text('Endpoints', style: theme.textTheme.labelLarge),
-                    const SizedBox(height: 4),
-                    for (final endpoint in service.localEndpoints)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: SelectableText(
-                                '${endpoint.protocol} · ${endpoint.localHost}:${endpoint.localPort}',
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ),
-                            // _CopyIconButton(
-                            //   value: endpoint.protocol,
-                            //   toastMessage: 'Protocol copied to clipboard',
-                            //   size: 14,
-                            // ),
-                          ],
-                        ),
-                      ),
-                  ],
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _AsyncActionButton(
-                        label: 'Start',
-                        isBusy: pendingAction == 'start',
-                        onPressed: service.running || isBusy
-                            ? null
-                            : () => controller.startLocalService(service.name),
-                      ),
-                      _AsyncActionButton(
-                        label: 'Stop',
-                        isBusy: pendingAction == 'stop',
-                        onPressed: !service.running || isBusy
-                            ? null
-                            : () => controller.stopLocalService(service.name),
-                      ),
-                      _AsyncActionButton(
-                        label: 'Remove',
-                        isBusy: pendingAction == 'remove',
-                        onPressed: service.running || isBusy
-                            ? null
-                            : () => controller.removeLocalService(service.name),
-                      ),
-                    ],
+        child: SelectionArea(
+          child: ServiceManagementCard(
+            accentColor: colorScheme.primary,
+            header: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  service.name,
+                  style: theme.textTheme.titleMedium,
+                ),
+                if (service.source.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  SelectableText(
+                    service.source,
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
-              ),
+              ],
             ),
+            badges: [
+              ServiceStatusBadge(label: service.state, active: service.running),
+              ServicePillLabel(label: service.runtime),
+              if (service.id.isNotEmpty && service.id != service.name)
+                ServicePillLabel(label: 'ID ${service.id}'),
+            ],
+            sections: [
+              if (service.localEndpoints.isNotEmpty) ...[
+                Text('Endpoints', style: theme.textTheme.labelLarge),
+                const SizedBox(height: 4),
+                for (final endpoint in service.localEndpoints)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: SelectableText(
+                      '${endpoint.protocol} · ${endpoint.localHost}:${endpoint.localPort}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
+              ],
+            ],
+            actions: [
+              ServiceActionButton(
+                label: 'Start',
+                isBusy: pendingAction == 'start',
+                onPressed: service.running || isBusy
+                    ? null
+                    : () => controller.startLocalService(service.name),
+              ),
+              ServiceActionButton(
+                label: 'Stop',
+                isBusy: pendingAction == 'stop',
+                onPressed: !service.running || isBusy
+                    ? null
+                    : () => controller.stopLocalService(service.name),
+              ),
+              ServiceActionButton(
+                label: 'Remove',
+                isBusy: pendingAction == 'remove',
+                onPressed: service.running || isBusy
+                    ? null
+                    : () => controller.removeLocalService(service.name),
+              ),
+            ],
           ),
         ),
       );
@@ -546,27 +495,11 @@ class _ConfigItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
-        ),
-        child: ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 2,
-          ),
-          title: SelectableText(title),
-          subtitle: SelectableText(subtitle),
-          trailing: OutlinedButton(
-            onPressed: onAction,
-            child: Text(actionLabel),
-          ),
-        ),
+      child: ManagementActionItemCard(
+        title: title,
+        subtitle: subtitle,
+        actionLabel: actionLabel,
+        onAction: onAction,
       ),
     );
   }
@@ -606,31 +539,33 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _CompactSection extends StatelessWidget {
-  const _CompactSection({required this.title, required this.child});
+class _PageSection extends StatelessWidget {
+  const _PageSection({required this.title, required this.child});
 
   final String title;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainer.withValues(alpha: 0.32),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).colorScheme.primaryFixed),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          child,
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        child,
+      ],
+    );
+  }
+}
+
+class _PageSectionDivider extends StatelessWidget {
+  const _PageSectionDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      child: Divider(height: 1),
     );
   }
 }
@@ -652,112 +587,11 @@ class _CompactActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SelectableText(
-                    title,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            TextButton(onPressed: onAction, child: Text(actionLabel)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.label, required this.active});
-
-  final String label;
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final color = active ? colorScheme.tertiary : colorScheme.outline;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
-      ),
-    );
-  }
-}
-
-class _PillLabel extends StatelessWidget {
-  const _PillLabel({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Text(label, style: Theme.of(context).textTheme.labelMedium),
-    );
-  }
-}
-
-class _AsyncActionButton extends StatelessWidget {
-  const _AsyncActionButton({
-    required this.label,
-    required this.isBusy,
-    required this.onPressed,
-  });
-
-  final String label;
-  final bool isBusy;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isBusy) ...[
-            const SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            const SizedBox(width: 8),
-          ],
-          Text(label),
-        ],
+      child: ManagementActionItemCard(
+        title: title,
+        subtitle: subtitle,
+        actionLabel: actionLabel,
+        onAction: onAction,
       ),
     );
   }
@@ -771,27 +605,6 @@ class _CountBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PillLabel(label: '$label $value');
+    return ServicePillLabel(label: '$label $value');
   }
 }
-
-class _InlineEmptyState extends StatelessWidget {
-  const _InlineEmptyState({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Text(message, style: Theme.of(context).textTheme.bodySmall),
-    );
-  }
-}
-

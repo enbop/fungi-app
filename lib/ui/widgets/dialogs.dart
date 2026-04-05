@@ -141,7 +141,7 @@ void showAddAllowedPeerDialog() {
             TextField(
               controller: textAliasController,
               decoration: const InputDecoration(
-                labelText: 'Alias (Optional)',
+                labelText: 'Alias',
                 hintText: 'Enter a friendly name for this device',
               ),
             ),
@@ -165,18 +165,25 @@ void showAddAllowedPeerDialog() {
           ),
           TextButton(
             onPressed: () async {
-              if (textPeerIdController.text.isEmpty) {
+              final peerId = textPeerIdController.text.trim();
+              final alias = textAliasController.text.trim();
+
+              if (peerId.isEmpty) {
                 errorMessage.value = 'Peer ID cannot be empty';
                 return;
               }
+              if (alias.isEmpty) {
+                errorMessage.value = 'Alias cannot be empty';
+                return;
+              }
 
-              if (selectedPeer.value.peerId != textPeerIdController.text) {
+              if (selectedPeer.value.peerId != peerId) {
                 // reset the selectedPeer
                 selectedPeer.value = PeerInfo();
               }
 
-              selectedPeer.value.peerId = textPeerIdController.text;
-              selectedPeer.value.alias = textAliasController.text;
+              selectedPeer.value.peerId = peerId;
+              selectedPeer.value.alias = alias;
               try {
                 await controller.addIncomingAllowedPeer(selectedPeer.value);
                 SmartDialog.dismiss();

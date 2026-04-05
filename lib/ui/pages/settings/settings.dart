@@ -7,7 +7,6 @@ import 'package:fungi_app/ui/pages/home/drive_page.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:fungi_app/ui/pages/settings/log_viewer_dialog.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
-import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -130,14 +129,6 @@ class Settings extends GetView<FungiController> {
           SettingsSection(
             title: Text('Network'),
             tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                leading: Icon(Icons.security),
-                title: Text('Incoming Allowed Peers'),
-                value: Text('${controller.incomingAllowedPeers.length} peers'),
-                onPressed: (context) {
-                  showAllowedPeersList();
-                },
-              ),
               SettingsTile.navigation(
                 leading: Icon(Icons.hub),
                 title: Text('Relay Configuration'),

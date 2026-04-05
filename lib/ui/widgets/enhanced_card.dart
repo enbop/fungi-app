@@ -6,7 +6,6 @@ class EnhancedCard extends StatelessWidget {
   final double elevation;
   final double borderRadius;
   final double borderWidth;
-  final double gradientOpacity;
 
   const EnhancedCard({
     super.key,
@@ -15,7 +14,6 @@ class EnhancedCard extends StatelessWidget {
     this.elevation = 2,
     this.borderRadius = 8,
     this.borderWidth = 1,
-    this.gradientOpacity = 0.08,
   });
 
   @override
@@ -25,6 +23,10 @@ class EnhancedCard extends StatelessWidget {
 
     return Card(
       elevation: elevation,
+      clipBehavior: Clip.antiAlias,
+      color: Theme.of(context).colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: effectiveAccentColor.withValues(alpha: 0.12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         side: BorderSide(
@@ -35,14 +37,7 @@ class EnhancedCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              effectiveAccentColor.withValues(alpha: gradientOpacity),
-              Theme.of(context).colorScheme.surface,
-            ],
-          ),
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: child,
       ),

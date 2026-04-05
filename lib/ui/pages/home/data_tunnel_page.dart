@@ -6,37 +6,6 @@ import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:get/get.dart';
 
-class DataTunnelPage extends GetView<FungiController> {
-  const DataTunnelPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "TCP Port Tunneling",
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          Text(
-            "Create TCP tunnels to forward local ports to remote devices or expose local services through P2P connections.",
-            style: Theme.of(context).textTheme.labelSmall?.apply(
-              color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
-            ),
-          ),
-          const SizedBox(height: 20),
-          const ClientDataTunnelSection(),
-          const SizedBox(height: 30),
-          const ServerDataTunnelSection(),
-        ],
-      ),
-    );
-  }
-}
-
 class ClientDataTunnelSection extends GetView<FungiController> {
   const ClientDataTunnelSection({super.key, this.showTitle = true});
 
@@ -67,7 +36,7 @@ class ClientDataTunnelSection extends GetView<FungiController> {
               ),
               const SizedBox(width: 8),
               Text(
-                "Client Data Tunnel",
+                "Port Forwarding",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ],
@@ -197,7 +166,7 @@ class ServerDataTunnelSection extends GetView<FungiController> {
               ),
               const SizedBox(width: 8),
               Text(
-                "Server Data Tunnel",
+                "Port Listening",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ],
@@ -210,26 +179,6 @@ class ServerDataTunnelSection extends GetView<FungiController> {
           ),
           const SizedBox(height: 10),
         ],
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              "Incoming Allowed Peers: ",
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(width: 5),
-            SelectableText(
-              "${controller.incomingAllowedPeers.length}",
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            IconButton(
-              onPressed: showAllowedPeersList,
-              icon: const Icon(Icons.edit, size: 15),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
         TextButton.icon(
           onPressed: showAddListeningRuleDialog,
           icon: const Icon(Icons.add_circle),

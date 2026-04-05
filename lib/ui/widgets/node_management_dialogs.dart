@@ -18,7 +18,7 @@ Future<void> showNodeEditorDialog({PeerInfo? initialPeer}) async {
   await SmartDialog.show(
     builder: (context) {
       return AlertDialog(
-        title: Text(initialPeer == null ? 'Add Node' : 'Edit Node'),
+        title: Text(initialPeer == null ? 'Add Peer' : 'Edit Peer'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -75,6 +75,17 @@ Future<void> showNodeEditorDialog({PeerInfo? initialPeer}) async {
           ),
         ),
         actions: [
+          if (initialPeer != null)
+            TextButton(
+              onPressed: () {
+                SmartDialog.dismiss();
+                showDeletePeerDialog(peer: initialPeer);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('Delete'),
+            ),
           TextButton(
             onPressed: SmartDialog.dismiss,
             child: const Text('Cancel'),
@@ -82,14 +93,19 @@ Future<void> showNodeEditorDialog({PeerInfo? initialPeer}) async {
           FilledButton(
             onPressed: () async {
               final peerId = peerIdController.text.trim();
+              final alias = aliasController.text.trim();
               if (peerId.isEmpty) {
                 errorMessage.value = 'Peer ID is required';
+                return;
+              }
+              if (alias.isEmpty) {
+                errorMessage.value = 'Alias is required';
                 return;
               }
 
               final peer = selectedPeer.value;
               peer.peerId = peerId;
-              peer.alias = aliasController.text.trim();
+              peer.alias = alias;
 
               try {
                 await controller.saveAddressBookPeer(peer);
@@ -114,7 +130,7 @@ Future<void> showRemoteServicePullDialog({required PeerInfo peer}) async {
   await SmartDialog.show(
     builder: (context) {
       return AlertDialog(
-        title: const Text('Add Service to Node'),
+        title: const Text('Add Service to Peer'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -188,6 +204,38 @@ Future<void> showRemoteServicePullDialog({required PeerInfo peer}) async {
               }
             },
             child: const Text('Try Add Service'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> showDeletePeerDialog({required PeerInfo peer}) async {
+  final controller = Get.find<FungiController>();
+
+  await SmartDialog.show(
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Delete Peer'),
+        content: Text(
+          'Delete ${peer.alias.isNotEmpty ? peer.alias : peer.peerId} from Peers?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: SmartDialog.dismiss,
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              try {
+                await controller.deletePeer(peer.peerId);
+                SmartDialog.dismiss();
+              } catch (_) {
+                SmartDialog.dismiss();
+              }
+            },
+            child: const Text('Delete'),
           ),
         ],
       );
