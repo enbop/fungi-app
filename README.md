@@ -9,7 +9,14 @@ The official graphical user interface for [Fungi](https://github.com/enbop/fungi
 
 ## Architecture
 
-Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app manages the lifecycle of the daemon process.
+Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app can start and stop an app-managed daemon, or connect to a compatible daemon that was already started by the user.
+
+## Versioning
+
+Fungi App currently tracks the `fungi` core release line directly.
+
+- The app version should match the compatible core daemon version, for example `0.6.1`.
+- UI-only repackaging or platform-specific release increments should use build metadata, for example `0.6.1+2`.
 
 ## Development
 

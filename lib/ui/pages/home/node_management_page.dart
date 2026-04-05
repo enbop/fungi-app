@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
+import 'package:fungi_app/ui/widgets/help_tooltip.dart';
+import 'package:fungi_app/ui/widgets/node_management_dialogs.dart';
 import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:get/get.dart';
 
@@ -20,20 +22,28 @@ class NodeManagementPage extends GetView<FungiController> {
             Row(
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
                       Text(
                         'Node Management',
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Known peers from the address book, plus connection state and published catalog services.',
-                        style: Theme.of(context).textTheme.bodySmall,
+                      const SizedBox(width: 6),
+                      const HelpTooltip(
+                        title: 'Node Management',
+                        message:
+                            'Shows peers from the address book, their connection state, and the services they publish.',
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  onPressed: () => showNodeEditorDialog(),
+                  icon: const Icon(Icons.add),
+                ),
+                IconButton(
+                  onPressed: controller.openDocumentation,
+                  icon: const Icon(Icons.open_in_new),
                 ),
                 IconButton(
                   onPressed: controller.nodeManagementLoading.value
@@ -52,10 +62,7 @@ class NodeManagementPage extends GetView<FungiController> {
                 ),
               )
             else if (peers.isEmpty)
-              Text(
-                'No known nodes yet.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              )
+              const _NodeEmptyState()
             else
               ...peers.map((peer) => _PeerCard(peer: peer)),
           ],
@@ -84,6 +91,23 @@ class _PeerCard extends GetView<FungiController> {
       child: EnhancedCard(
         child: ExpansionTile(
           title: Text(title),
+          trailing: Wrap(
+            spacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              IconButton(
+                tooltip: 'Edit node',
+                onPressed: () => showNodeEditorDialog(initialPeer: peer),
+                icon: const Icon(Icons.edit_outlined),
+              ),
+              IconButton(
+                tooltip: 'Try add service',
+                onPressed: () => showRemoteServicePullDialog(peer: peer),
+                icon: const Icon(Icons.add_box_outlined),
+              ),
+              const Icon(Icons.expand_more),
+            ],
+          ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -206,6 +230,55 @@ class _PeerCard extends GetView<FungiController> {
                 ),
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NodeEmptyState extends GetView<FungiController> {
+  const _NodeEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return EnhancedCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'No known nodes yet.',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Add a peer manually or discover one with mDNS. Once a node is saved, you can inspect its catalog and try adding a service manifest to it.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                FilledButton.icon(
+                  onPressed: () => showNodeEditorDialog(),
+                  icon: const Icon(Icons.add_link),
+                  label: const Text('Add Node'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => showNodeEditorDialog(),
+                  icon: const Icon(Icons.devices),
+                  label: const Text('Discover via mDNS'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: controller.openDocumentation,
+                  icon: const Icon(Icons.open_in_new),
+                  label: const Text('Open Docs'),
+                ),
+              ],
+            ),
           ],
         ),
       ),

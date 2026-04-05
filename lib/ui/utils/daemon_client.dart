@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 
 final _logger = Logger('DaemonClient');
 
-String _getFungiExecutablePath() {
+String getBundledFungiExecutablePath() {
   final executablePath = Platform.resolvedExecutable;
 
   if (Platform.isMacOS) {
@@ -23,28 +23,54 @@ String _getFungiExecutablePath() {
   }
 }
 
+Future<String> getFungiExecutablePathForCurrentPlatform() async {
+  if (Platform.isAndroid) {
+    final appDocumentsDir = await getApplicationDocumentsDirectory();
+    final fungiDir = p.join(appDocumentsDir.absolute.path, 'fungi');
+    final fungiExecutable = await getAndroidFungiBinaryPath() ?? '';
+    if (fungiExecutable.isEmpty) {
+      throw FileSystemException('Fungi executable not found on Android');
+    }
+    final directory = Directory(fungiDir);
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    return fungiExecutable;
+  }
+
+  final fungiExecutable = getBundledFungiExecutablePath();
+  final file = File(fungiExecutable);
+  if (!await file.exists()) {
+    throw FileSystemException('Fungi executable not found', fungiExecutable);
+  }
+  return fungiExecutable;
+}
+
+Future<List<String>> buildFungiCliArgs(List<String> args) async {
+  if (Platform.isAndroid) {
+    final appDocumentsDir = await getApplicationDocumentsDirectory();
+    final fungiDir = p.join(appDocumentsDir.absolute.path, 'fungi');
+    return ['--default-device-name', 'null', '--fungi-dir', fungiDir, ...args];
+  }
+
+  return args;
+}
+
+Future<ProcessResult> runFungiCommand(List<String> args) async {
+  final executable = await getFungiExecutablePathForCurrentPlatform();
+  final fullArgs = await buildFungiCliArgs(args);
+  return Process.run(executable, fullArgs);
+}
+
 Future<String> readRpcAddress() async {
   String fungiExecutable;
   List<String> args = ['info', 'rpc-address'];
 
   if (Platform.isAndroid) {
-    final appDocumentsDir = await getApplicationDocumentsDirectory();
-    final fungiDir = p.join(appDocumentsDir.absolute.path, 'fungi');
-
-    fungiExecutable = await getAndroidFungiBinaryPath() ?? '';
-    if (fungiExecutable.isEmpty) {
-      throw FileSystemException('Fungi executable not found on Android');
-    }
-
-    // --default-device-name no need here
-    args = ['--default-device-name', 'null', '--fungi-dir', fungiDir, ...args];
+    fungiExecutable = await getFungiExecutablePathForCurrentPlatform();
+    args = await buildFungiCliArgs(args);
   } else {
-    fungiExecutable = _getFungiExecutablePath();
-    final file = File(fungiExecutable);
-
-    if (!await file.exists()) {
-      throw FileSystemException('Fungi executable not found', fungiExecutable);
-    }
+    fungiExecutable = await getFungiExecutablePathForCurrentPlatform();
   }
 
   final result = await Process.run(fungiExecutable, args);
@@ -107,5 +133,13 @@ Future<FungiDaemonClient> getFungiClient() async {
   } catch (e) {
     _logger.severe('Failed to connect to daemon: $e');
     throw Exception('Daemon not available. Please ensure daemon is running.');
+  }
+}
+
+Future<FungiDaemonClient?> tryGetFungiClient() async {
+  try {
+    return await getFungiClient();
+  } catch (_) {
+    return null;
   }
 }

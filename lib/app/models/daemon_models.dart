@@ -253,6 +253,103 @@ class PeerServicesSectionView {
   final List<RemoteServiceListEntryView> services;
 }
 
+class RelayEffectiveAddressView {
+  const RelayEffectiveAddressView({
+    required this.address,
+    required this.source,
+  });
+
+  final String address;
+  final String source;
+}
+
+class RelayConfigView {
+  const RelayConfigView({
+    required this.relayEnabled,
+    required this.useCommunityRelays,
+    required this.customRelayAddresses,
+    required this.effectiveRelayAddresses,
+  });
+
+  final bool relayEnabled;
+  final bool useCommunityRelays;
+  final List<String> customRelayAddresses;
+  final List<RelayEffectiveAddressView> effectiveRelayAddresses;
+
+  const RelayConfigView.empty()
+    : relayEnabled = true,
+      useCommunityRelays = true,
+      customRelayAddresses = const [],
+      effectiveRelayAddresses = const [];
+
+  factory RelayConfigView.fromCliShowOutput(String output) {
+    bool relayEnabled = true;
+    bool useCommunityRelays = true;
+    final customRelayAddresses = <String>[];
+    final effectiveRelayAddresses = <RelayEffectiveAddressView>[];
+    String? section;
+
+    for (final rawLine in output.split('\n')) {
+      final line = rawLine.trimRight();
+      final trimmed = line.trim();
+      if (trimmed.isEmpty) {
+        continue;
+      }
+
+      if (trimmed.startsWith('relay_enabled:')) {
+        relayEnabled = trimmed.split(':').last.trim().toLowerCase() == 'true';
+        section = null;
+        continue;
+      }
+      if (trimmed.startsWith('use_community_relays:')) {
+        useCommunityRelays =
+            trimmed.split(':').last.trim().toLowerCase() == 'true';
+        section = null;
+        continue;
+      }
+      if (trimmed == 'custom_relay_addresses:') {
+        section = 'custom';
+        continue;
+      }
+      if (trimmed == 'effective_relay_addresses:') {
+        section = 'effective';
+        continue;
+      }
+      if (trimmed == '<none>') {
+        continue;
+      }
+
+      if (section == 'custom') {
+        customRelayAddresses.add(trimmed);
+        continue;
+      }
+
+      if (section == 'effective') {
+        final match = RegExp(r'^\[([^\]]+)\]\s+(.+)$').firstMatch(trimmed);
+        if (match != null) {
+          effectiveRelayAddresses.add(
+            RelayEffectiveAddressView(
+              source: match.group(1) ?? 'unknown',
+              address: match.group(2) ?? trimmed,
+            ),
+          );
+        } else {
+          effectiveRelayAddresses.add(
+            RelayEffectiveAddressView(source: 'unknown', address: trimmed),
+          );
+        }
+      }
+    }
+
+    return RelayConfigView(
+      relayEnabled: relayEnabled,
+      useCommunityRelays: useCommunityRelays,
+      customRelayAddresses: customRelayAddresses,
+      effectiveRelayAddresses: effectiveRelayAddresses,
+    );
+  }
+}
+
 List<T> decodeJsonList<T>(
   Object? source,
   T Function(Map<String, dynamic>) mapper,

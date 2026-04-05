@@ -127,7 +127,9 @@ class HomeHeader extends GetView<FungiController> {
                           width: 120,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Service state',
+                            controller.daemonManagedExternally.value
+                                ? 'Daemon session'
+                                : 'Service state',
                             style: TextStyle(
                               fontSize: 12,
                               color: colorScheme.surfaceTint,
@@ -145,9 +147,14 @@ class HomeHeader extends GetView<FungiController> {
                         ),
                         if (!controller.daemonConnectionState.value.isDisabled)
                           Text(
-                            controller.daemonConnectionState.value.isConnected
-                                ? "ON"
-                                : "OFF",
+                            controller.daemonManagedExternally.value
+                                ? 'CONNECTED'
+                                : (controller
+                                          .daemonConnectionState
+                                          .value
+                                          .isConnected
+                                      ? 'ON'
+                                      : 'OFF'),
                             style: TextStyle(
                               fontSize: 12,
                               color:
@@ -160,21 +167,41 @@ class HomeHeader extends GetView<FungiController> {
                             ),
                           ),
                         const SizedBox(width: 8),
-                        SizedBox(
-                          height: 18,
-                          child: FittedBox(
-                            fit: BoxFit.fill,
-                            child: Switch(
-                              value: controller.isDaemonEnabled.value,
-                              onChanged: (value) async {
-                                await controller.toggleDaemon();
-                              },
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              padding: EdgeInsets.zero,
+                        if (controller.daemonManagedExternally.value)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surface.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              'External',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        else
+                          SizedBox(
+                            height: 18,
+                            child: FittedBox(
+                              fit: BoxFit.fill,
+                              child: Switch(
+                                value: controller.isDaemonEnabled.value,
+                                onChanged: (value) async {
+                                  await controller.toggleDaemon();
+                                },
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                padding: EdgeInsets.zero,
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 4),

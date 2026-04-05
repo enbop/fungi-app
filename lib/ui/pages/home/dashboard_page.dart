@@ -4,6 +4,8 @@ import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/ui/pages/home/available_services_page.dart';
 import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
+import 'package:fungi_app/ui/widgets/help_tooltip.dart';
+import 'package:fungi_app/ui/widgets/node_management_dialogs.dart';
 import 'package:fungi_app/ui/widgets/service_icon.dart';
 import 'package:get/get.dart';
 
@@ -55,16 +57,6 @@ class DashboardPage extends GetView<FungiController> {
         return left.service.displayName.compareTo(right.service.displayName);
       });
 
-      final connectedPeers = controller.addressBook
-          .where(
-            (peer) => controller.connectionsForPeer(peer.peerId).isNotEmpty,
-          )
-          .length;
-      final attachedCount = sections
-          .expand((section) => section.services)
-          .where((service) => service.accessAttached)
-          .length;
-
       return RefreshIndicator(
         onRefresh: () async {
           await controller.refreshNodeManagementData();
@@ -73,44 +65,25 @@ class DashboardPage extends GetView<FungiController> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Home', style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 6),
-            Text(
-              'Quick access to published services from known peers. Web services can open directly in the browser, and TCP services can expose local access endpoints.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            Row(
               children: [
-                _SummaryChip(
-                  label: 'Peers',
-                  value: controller.addressBook.length,
-                ),
-                _SummaryChip(label: 'Connected', value: connectedPeers),
-                _SummaryChip(
-                  label: 'Catalog',
-                  value: sections.fold(
-                    0,
-                    (sum, section) => sum + section.services.length,
-                  ),
-                ),
-                _SummaryChip(label: 'Attached', value: attachedCount),
-                _SummaryChip(
-                  label: 'Local',
-                  value: controller.localServices.length,
+                Text('Home', style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(width: 6),
+                const HelpTooltip(
+                  title: 'Home',
+                  message:
+                      'Home focuses on quick access to remote services. Web services can open in the browser, and TCP services can create local access endpoints.',
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             _SectionHeader(
               title: 'Quick Access',
-              subtitle:
-                  'Use the same list for direct web opening and TCP access attachment. The available action depends on the published service type.',
+              helpMessage:
+                  'Use this list for the most common service actions. Web services can open directly, and TCP services can attach local access.',
             ),
             if (quickEntries.isEmpty)
-              const _EmptyPanel(message: 'No published services available yet.')
+              _HomeOnboardingPanel(hasPeers: controller.addressBook.isNotEmpty)
             else
               ...quickEntries
                   .take(12)
@@ -118,8 +91,8 @@ class DashboardPage extends GetView<FungiController> {
             const SizedBox(height: 20),
             _SectionHeader(
               title: 'Catalog',
-              subtitle:
-                  'Open the full remote catalog when you need configuration details, endpoint information, and attach or detach controls.',
+              helpMessage:
+                  'Open the full remote catalog when you need service details, published endpoints, and attach or detach controls.',
             ),
             _CatalogEntryCard(
               onOpen: () => _showCatalogDialog(context),
@@ -131,8 +104,8 @@ class DashboardPage extends GetView<FungiController> {
             const SizedBox(height: 20),
             const _SectionHeader(
               title: 'Client Data Tunnel',
-              subtitle:
-                  'Create raw client-side forwarding rules for cases that are not modeled as services yet.',
+              helpMessage:
+                  'Create raw client-side forwarding rules for destinations that are not modeled as catalog services yet.',
             ),
             const ClientDataTunnelSection(showTitle: false),
           ],
@@ -156,8 +129,7 @@ class DashboardPage extends GetView<FungiController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
                           Text(
                             'Catalog',
@@ -166,9 +138,11 @@ class DashboardPage extends GetView<FungiController> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Browse published services from known peers and manage local access entries.',
+                          SizedBox(width: 6),
+                          HelpTooltip(
+                            title: 'Catalog',
+                            message:
+                                'Browse published services from known peers and manage local access for each service.',
                           ),
                         ],
                       ),
@@ -207,23 +181,11 @@ class _DashboardCatalogEntry {
   final RemoteServiceListEntryView service;
 }
 
-class _SummaryChip extends StatelessWidget {
-  const _SummaryChip({required this.label, required this.value});
-
-  final String label;
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(label: Text('$label $value'));
-  }
-}
-
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.subtitle});
+  const _SectionHeader({required this.title, this.helpMessage});
 
   final String title;
-  final String subtitle;
+  final String? helpMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -232,26 +194,71 @@ class _SectionHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 4),
-          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+          Row(
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              if (helpMessage != null) ...[
+                const SizedBox(width: 6),
+                HelpTooltip(title: title, message: helpMessage!),
+              ],
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _EmptyPanel extends StatelessWidget {
-  const _EmptyPanel({required this.message});
+class _HomeOnboardingPanel extends GetView<FungiController> {
+  const _HomeOnboardingPanel({required this.hasPeers});
 
-  final String message;
+  final bool hasPeers;
 
   @override
   Widget build(BuildContext context) {
     return EnhancedCard(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              hasPeers
+                  ? 'No quick-access services yet.'
+                  : 'Add a node to get started.',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              hasPeers
+                  ? 'Your nodes are saved, but none of them currently expose Web or TCP services in the catalog.'
+                  : 'Save a node manually or discover one on the local network, then try pulling a service manifest to it.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                FilledButton.icon(
+                  onPressed: () => showNodeEditorDialog(),
+                  icon: const Icon(Icons.add_link),
+                  label: const Text('Add Node'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => showNodeEditorDialog(),
+                  icon: const Icon(Icons.devices),
+                  label: const Text('Discover via mDNS'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: controller.openDocumentation,
+                  icon: const Icon(Icons.open_in_new),
+                  label: const Text('Open Docs'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -443,7 +450,7 @@ class _CatalogEntryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '$serviceCount published services are currently available across known peers.',
+                    '$serviceCount services available.',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

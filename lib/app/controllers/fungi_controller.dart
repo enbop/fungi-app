@@ -6,11 +6,14 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/foreground_task.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pbgrpc.dart';
+import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:grpc/grpc.dart' as grpc;
 import 'package:fungi_app/ui/utils/daemon_client.dart';
 import 'package:fungi_app/ui/utils/daemon_service_manager.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -58,22 +61,53 @@ class FileTransferServerState {
   FileTransferServerState({required this.enabled, this.error, this.rootDir});
 }
 
+enum StartupPrivacyNoticeAction { continueLaunch, openRelaySettings }
+
+class ExistingDaemonCheckResult {
+  const ExistingDaemonCheckResult._({
+    required this.isFound,
+    required this.isCompatible,
+    this.version = '',
+  });
+
+  const ExistingDaemonCheckResult.absent()
+    : this._(isFound: false, isCompatible: false);
+
+  const ExistingDaemonCheckResult.compatible(String version)
+    : this._(isFound: true, isCompatible: true, version: version);
+
+  const ExistingDaemonCheckResult.incompatible(String version)
+    : this._(isFound: true, isCompatible: false, version: version);
+
+  final bool isFound;
+  final bool isCompatible;
+  final String version;
+}
+
 class FungiController extends GetxController {
+  static const documentationUrl = 'https://fungi.rs/docs/intro';
+
   FungiDaemonClient fungiClient;
   late final DaemonServiceManager daemonManager;
 
   final daemonConnectionState = DaemonConnectionState.disabled.obs;
   final daemonError = ''.obs;
+  final connectedDaemonVersion = ''.obs;
+  final appVersion = '0.6.1'.obs;
 
   final peerId = ''.obs;
   final hostname = ''.obs;
   final configFilePath = ''.obs;
   final logDirPath = ''.obs;
   final isDaemonEnabled = false.obs;
+  final daemonManagedExternally = false.obs;
 
   final _storage = GetStorage();
   final _themeKey = 'theme_option';
   final _daemonDisabledKey = 'daemon_disabled';
+  final _startupNoticeVersionKey = 'startup_notice_version';
+  static const _startupNoticeCurrentVersion = 'relay-privacy-v1';
+  static const _defaultAppVersion = '0.6.1';
 
   final currentTheme = ThemeOption.system.obs;
   final preventClose = false.obs;
@@ -96,6 +130,10 @@ class FungiController extends GetxController {
 
   final localServicesError = ''.obs;
   final availableServicesError = ''.obs;
+  final relayConfig = const RelayConfigView.empty().obs;
+  final relayConfigLoading = false.obs;
+  final relayConfigError = ''.obs;
+  final relayConfigNotice = ''.obs;
 
   final ftpProxy = FtpProxyResponse(enabled: false, host: "", port: 0).obs;
   final webdavProxy = WebdavProxyResponse().obs;
@@ -116,7 +154,12 @@ class FungiController extends GetxController {
       setDesktopDaemonProcessExitCallback(_onDaemonProcessExit);
     }
 
-    _initializeAndStartDaemon();
+    _initializeAppVersionAndDaemon();
+  }
+
+  Future<void> _initializeAppVersionAndDaemon() async {
+    await _loadAppVersion();
+    await _initializeAndStartDaemon();
   }
 
   Future<void> _initializeAndStartDaemon() async {
@@ -126,6 +169,8 @@ class FungiController extends GetxController {
       await startDaemon();
     } else if (isDaemonEnabled.value) {
       await initFungi();
+    } else {
+      await refreshRelayConfig();
     }
   }
 
@@ -165,14 +210,50 @@ class FungiController extends GetxController {
 
   Future<void> toggleDaemon() async {
     if (isDaemonEnabled.value) {
+      if (daemonManagedExternally.value) {
+        await disconnectDaemonSession();
+        return;
+      }
       await stopDaemon();
     } else {
-      await startDaemon();
+      await startDaemon(showPrivacyNotice: true);
     }
   }
 
-  Future<void> startDaemon() async {
+  Future<void> startDaemon({bool showPrivacyNotice = false}) async {
     try {
+      daemonError.value = '';
+
+      final existingDaemon = await _checkExistingDaemonCompatibility();
+      if (existingDaemon.isCompatible) {
+        isDaemonEnabled.value = true;
+        saveDaemonEnabledState(true);
+        daemonManagedExternally.value = true;
+        connectedDaemonVersion.value = existingDaemon.version;
+        await initFungi();
+        return;
+      }
+
+      if (existingDaemon.isFound) {
+        final message = _buildIncompatibleDaemonMessage(existingDaemon.version);
+        isDaemonEnabled.value = false;
+        saveDaemonEnabledState(false);
+        daemonManagedExternally.value = false;
+        daemonConnectionState.value = DaemonConnectionState.disabled;
+        daemonError.value = message;
+        if (showPrivacyNotice) {
+          await _showIncompatibleDaemonDialog(existingDaemon.version);
+        }
+        return;
+      }
+
+      if (showPrivacyNotice) {
+        final shouldContinue = await _maybeShowStartupPrivacyNotice();
+        if (!shouldContinue) {
+          return;
+        }
+      }
+
       // For Android, check notification permission before starting
       if (Platform.isAndroid) {
         final hasPermission = await _checkAndRequestNotificationPermission();
@@ -184,6 +265,7 @@ class FungiController extends GetxController {
 
       final success = await daemonManager.start();
       isDaemonEnabled.value = success;
+      daemonManagedExternally.value = false;
       saveDaemonEnabledState(success);
 
       if (success) {
@@ -253,23 +335,94 @@ class FungiController extends GetxController {
 
   Future<void> stopDaemon() async {
     try {
+      if (daemonManagedExternally.value) {
+        await disconnectDaemonSession();
+        return;
+      }
+
       await daemonManager.stop();
       isDaemonEnabled.value = false;
       saveDaemonEnabledState(false);
+      daemonManagedExternally.value = false;
       _clearDaemonState();
+      await refreshRelayConfig();
     } catch (e) {
       debugPrint('Failed to stop daemon: $e');
     }
   }
 
+  Future<void> disconnectDaemonSession() async {
+    isDaemonEnabled.value = false;
+    saveDaemonEnabledState(false);
+    daemonManagedExternally.value = false;
+    _clearDaemonState();
+    await refreshRelayConfig();
+  }
+
+  Future<void> restartDaemon() async {
+    if (daemonManagedExternally.value) {
+      Get.snackbar(
+        'Restart required',
+        'Connected daemon is managed outside the app. Please restart it manually.',
+      );
+      return;
+    }
+
+    final wasEnabled = isDaemonEnabled.value;
+    if (!wasEnabled) {
+      return;
+    }
+
+    await stopDaemon();
+    isDaemonEnabled.value = true;
+    saveDaemonEnabledState(true);
+    await startDaemon();
+  }
+
   void _clearDaemonState() {
     daemonConnectionState.value = DaemonConnectionState.disabled;
     daemonError.value = '';
+    connectedDaemonVersion.value = '';
     peerId.value = '';
     hostname.value = '';
     configFilePath.value = '';
     logDirPath.value = '';
   }
+
+  String get daemonLifecycleLabel {
+    if (!isDaemonEnabled.value || daemonConnectionState.value.isDisabled) {
+      return 'Disconnected';
+    }
+    return daemonManagedExternally.value
+        ? 'User-managed daemon'
+        : 'App-managed daemon';
+  }
+
+  String get daemonSessionSummary {
+    if (daemonManagedExternally.value) {
+      final version = connectedDaemonVersion.value.trim();
+      return version.isEmpty
+          ? 'Connected to a daemon started outside the app.'
+          : 'Connected to an external daemon ($version).';
+    }
+
+    return 'The app starts and stops this daemon session.';
+  }
+
+  String get minimumCompatibleDaemonVersion {
+    final version = appVersion.value.trim();
+    if (version.isEmpty) {
+      return _defaultAppVersion;
+    }
+
+    return version.split('+').first;
+  }
+
+  bool get canStopDaemon =>
+      isDaemonEnabled.value && !daemonManagedExternally.value;
+
+  bool get canDisconnectDaemonSession =>
+      isDaemonEnabled.value && daemonManagedExternally.value;
 
   String _deriveLogDirPath(String configPath) {
     if (configPath.isEmpty) {
@@ -354,6 +507,16 @@ class FungiController extends GetxController {
     await updateAddressBook();
   }
 
+  Future<void> saveAddressBookPeer(PeerInfo peerInfo) async {
+    try {
+      await updateAddressBookPeer(peerInfo);
+      await refreshNodeManagementData();
+      Get.snackbar('Success', 'Node saved');
+    } catch (e) {
+      Get.snackbar('Save failed', '$e');
+    }
+  }
+
   Future<PeerInfo?> getAddressBookPeer(String peerId) async {
     return (await fungiClient.getAddressBookPeer(
       GetAddressBookPeerRequest()..peerId = peerId,
@@ -365,6 +528,11 @@ class FungiController extends GetxController {
       RemoveAddressBookPeerRequest()..peerId = peerId,
     );
     await updateAddressBook();
+  }
+
+  Future<List<PeerInfo>> listMdnsPeers() async {
+    final response = await fungiClient.listMdnsDevices(Empty());
+    return response.peers;
   }
 
   Future<void> startFileTransferServer(String rootDir) async {
@@ -478,6 +646,11 @@ class FungiController extends GetxController {
     for (int i = 0; i < 5; i++) {
       try {
         fungiClient = await getFungiClient();
+        final daemonVersion = (await fungiClient.version(Empty())).version;
+        if (!_isCompatibleDaemonVersion(daemonVersion)) {
+          throw StateError(_buildIncompatibleDaemonMessage(daemonVersion));
+        }
+        connectedDaemonVersion.value = daemonVersion;
         daemonConnectionState.value = DaemonConnectionState.connected;
         break;
       } catch (e) {
@@ -544,6 +717,7 @@ class FungiController extends GetxController {
       }
       await updateIncomingAllowedPeers();
       await updateAddressBook();
+      await refreshRelayConfig();
       // Load TCP tunneling config
       await refreshTcpTunnelingConfig();
       await Future.wait([
@@ -558,6 +732,324 @@ class FungiController extends GetxController {
       peerId.value = 'error';
       debugPrint('Failed to init, error: $e');
     }
+  }
+
+  Future<void> refreshRelayConfig() async {
+    relayConfigLoading.value = true;
+    relayConfigError.value = '';
+    relayConfigNotice.value = '';
+
+    try {
+      if (daemonConnectionState.value.isConnected) {
+        try {
+          final response = await fungiClient.getRelayConfig(Empty());
+          relayConfig.value = RelayConfigView(
+            relayEnabled: response.relayEnabled,
+            useCommunityRelays: response.useCommunityRelays,
+            customRelayAddresses: response.customRelayAddresses.toList(
+              growable: false,
+            ),
+            effectiveRelayAddresses: response.effectiveRelayAddresses
+                .map(
+                  (entry) => RelayEffectiveAddressView(
+                    address: entry.address,
+                    source: entry.source,
+                  ),
+                )
+                .toList(growable: false),
+          );
+        } catch (error) {
+          if (!_isUnimplementedGrpcError(error)) {
+            rethrow;
+          }
+
+          relayConfig.value = await _readRelayConfigFromCli();
+          relayConfigNotice.value =
+              'This daemon does not expose relay settings over gRPC yet. Showing local config only.';
+        }
+      } else {
+        relayConfig.value = await _readRelayConfigFromCli();
+      }
+    } catch (e) {
+      relayConfigError.value = _friendlyRelayFailureMessage(e);
+      debugPrint(relayConfigError.value);
+    } finally {
+      relayConfigLoading.value = false;
+    }
+  }
+
+  Future<void> setRelayEnabled(bool enabled) async {
+    await _applyRelayConfigChange(
+      onlineAction: () =>
+          fungiClient.setRelayEnabled(RelayEnabledRequest()..enabled = enabled),
+      offlineArgs: [
+        enabled ? 'relay' : 'relay',
+        enabled ? 'enable' : 'disable',
+      ],
+      successMessage: enabled ? 'Relay enabled' : 'Relay disabled',
+    );
+  }
+
+  Future<void> setUseCommunityRelays(bool enabled) async {
+    await _applyRelayConfigChange(
+      onlineAction: () => fungiClient.setUseCommunityRelays(
+        UseCommunityRelaysRequest()..enabled = enabled,
+      ),
+      offlineArgs: ['relay', 'use-community', enabled ? 'on' : 'off'],
+      successMessage: enabled
+          ? 'Community relay enabled'
+          : 'Community relay disabled',
+    );
+  }
+
+  Future<void> addCustomRelayAddress(String address) async {
+    await _applyRelayConfigChange(
+      onlineAction: () => fungiClient.addCustomRelayAddress(
+        RelayAddressRequest()..address = address,
+      ),
+      offlineArgs: ['relay', 'add', address],
+      successMessage: 'Custom relay added',
+    );
+  }
+
+  Future<void> removeCustomRelayAddress(String address) async {
+    await _applyRelayConfigChange(
+      onlineAction: () => fungiClient.removeCustomRelayAddress(
+        RelayAddressRequest()..address = address,
+      ),
+      offlineArgs: ['relay', 'remove', address],
+      successMessage: 'Custom relay removed',
+    );
+  }
+
+  Future<void> _applyRelayConfigChange({
+    required Future<dynamic> Function() onlineAction,
+    required List<String> offlineArgs,
+    required String successMessage,
+  }) async {
+    try {
+      var usedCliFallback = false;
+      if (daemonConnectionState.value.isConnected) {
+        try {
+          await onlineAction();
+        } catch (error) {
+          if (!_isUnimplementedGrpcError(error)) {
+            rethrow;
+          }
+
+          usedCliFallback = true;
+          await _runRelayCliCommand(offlineArgs);
+        }
+      } else {
+        await _runRelayCliCommand(offlineArgs);
+      }
+      await refreshRelayConfig();
+      Get.snackbar(
+        successMessage,
+        usedCliFallback
+            ? 'Relay config saved through the local config file. Restart the daemon to apply changes.'
+            : 'Relay config updated. Restart daemon to fully apply changes.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.snackbar('Relay update failed', _friendlyRelayFailureMessage(e));
+    }
+  }
+
+  Future<void> openRelaySettingsDialog() async {
+    await refreshRelayConfig();
+  }
+
+  Future<ExistingDaemonCheckResult> _checkExistingDaemonCompatibility() async {
+    final client = await tryGetFungiClient();
+    if (client == null) {
+      return const ExistingDaemonCheckResult.absent();
+    }
+
+    try {
+      final version = (await client.version(Empty())).version;
+      if (_isCompatibleDaemonVersion(version)) {
+        return ExistingDaemonCheckResult.compatible(version);
+      }
+
+      return ExistingDaemonCheckResult.incompatible(version);
+    } catch (_) {
+      return const ExistingDaemonCheckResult.absent();
+    }
+  }
+
+  Future<bool> _maybeShowStartupPrivacyNotice() async {
+    final shownVersion = _storage.read(_startupNoticeVersionKey) as String?;
+    if (shownVersion == _startupNoticeCurrentVersion) {
+      return true;
+    }
+
+    final completer = Completer<bool>();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final action = await Get.dialog<StartupPrivacyNoticeAction>(
+        AlertDialog(
+          title: const Text('Network Relay Notice'),
+          content: const Text(
+            'Fungi may use community relay servers to improve connectivity across NATs and restricted networks. Relay operators may observe your connection source address and basic network metadata. You can change this later in Settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(
+                result: StartupPrivacyNoticeAction.openRelaySettings,
+              ),
+              child: const Text('Open Relay Settings'),
+            ),
+            FilledButton(
+              onPressed: () =>
+                  Get.back(result: StartupPrivacyNoticeAction.continueLaunch),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+        barrierDismissible: true,
+      );
+
+      _storage.write(_startupNoticeVersionKey, _startupNoticeCurrentVersion);
+
+      if (action == StartupPrivacyNoticeAction.openRelaySettings) {
+        await openRelaySettingsDialog();
+        final context = Get.context;
+        if (context != null && context.mounted) {
+          await showRelaySettingsDialog(context);
+        }
+        completer.complete(false);
+        return;
+      }
+
+      await refreshRelayConfig();
+      completer.complete(true);
+    });
+
+    return completer.future;
+  }
+
+  Future<void> resetStartupPrivacyNoticeForDebug() async {
+    await _storage.remove(_startupNoticeVersionKey);
+    Get.snackbar(
+      'Startup notice reset',
+      'The relay notice will appear again the next time you manually start the daemon.',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final version = packageInfo.version.trim();
+      if (version.isNotEmpty) {
+        appVersion.value = version;
+      }
+    } catch (error) {
+      debugPrint('Failed to load app version: $error');
+      appVersion.value = _defaultAppVersion;
+    }
+  }
+
+  bool _isCompatibleDaemonVersion(String version) {
+    return _compareSemver(version, minimumCompatibleDaemonVersion) >= 0;
+  }
+
+  int _compareSemver(String left, String right) {
+    final leftParts = _parseSemver(left);
+    final rightParts = _parseSemver(right);
+    if (leftParts == null || rightParts == null) {
+      return left.trim() == right.trim() ? 0 : -1;
+    }
+
+    for (var index = 0; index < 3; index++) {
+      final comparison = leftParts[index].compareTo(rightParts[index]);
+      if (comparison != 0) {
+        return comparison;
+      }
+    }
+
+    return 0;
+  }
+
+  List<int>? _parseSemver(String version) {
+    final match = RegExp(r'(\d+)\.(\d+)\.(\d+)').firstMatch(version);
+    if (match == null) {
+      return null;
+    }
+
+    return [
+      int.parse(match.group(1)!),
+      int.parse(match.group(2)!),
+      int.parse(match.group(3)!),
+    ];
+  }
+
+  String _buildIncompatibleDaemonMessage(String version) {
+    final detectedVersion = version.trim().isEmpty ? 'unknown' : version.trim();
+    return 'Detected daemon $detectedVersion, but this app requires daemon $minimumCompatibleDaemonVersion or newer. Stop the old daemon or upgrade it before connecting.';
+  }
+
+  bool _isUnimplementedGrpcError(Object error) {
+    return error is grpc.GrpcError &&
+        error.code == grpc.StatusCode.unimplemented;
+  }
+
+  String _friendlyRelayFailureMessage(Object error) {
+    if (_isUnimplementedGrpcError(error)) {
+      return 'This daemon does not support relay settings yet. Upgrade the daemon to $minimumCompatibleDaemonVersion or newer.';
+    }
+
+    if (error is ProcessException) {
+      final stderr = error.message.trim();
+      return stderr.isEmpty ? 'Failed to update relay config.' : stderr;
+    }
+
+    return 'Failed to load relay config: $error';
+  }
+
+  Future<RelayConfigView> _readRelayConfigFromCli() async {
+    final result = await runFungiCommand(['relay', 'show']);
+    if (result.exitCode != 0) {
+      throw ProcessException(
+        result.stderr?.toString() ?? 'fungi relay show',
+        const ['relay', 'show'],
+        result.stderr.toString(),
+        result.exitCode,
+      );
+    }
+
+    return RelayConfigView.fromCliShowOutput(result.stdout.toString());
+  }
+
+  Future<void> _runRelayCliCommand(List<String> args) async {
+    final result = await runFungiCommand(args);
+    if (result.exitCode != 0) {
+      throw ProcessException(
+        args.first,
+        args,
+        result.stderr.toString(),
+        result.exitCode,
+      );
+    }
+  }
+
+  Future<void> _showIncompatibleDaemonDialog(String version) async {
+    final detectedVersion = version.trim().isEmpty ? 'unknown' : version.trim();
+    await Get.dialog<void>(
+      AlertDialog(
+        title: const Text('Daemon Upgrade Required'),
+        content: Text(
+          'An older fungi daemon is already running on this device ($detectedVersion). This app requires daemon $minimumCompatibleDaemonVersion or newer. Stop the old daemon or upgrade it, then try again.',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Get.back<void>(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+      barrierDismissible: true,
+    );
   }
 
   Future<void> _handleStartupFailureAndStopService(String error) async {
@@ -947,6 +1439,38 @@ class FungiController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Open failed', '$e');
+    }
+  }
+
+  Future<void> pullRemoteServiceFromPath({
+    required String peerId,
+    required String manifestPath,
+  }) async {
+    try {
+      final file = File(manifestPath);
+      if (!await file.exists()) {
+        throw Exception('Manifest file not found: $manifestPath');
+      }
+
+      final manifestYaml = await file.readAsString();
+      await fungiClient.remotePullService(
+        RemotePullServiceRequest()
+          ..peerId = peerId
+          ..manifestYaml = manifestYaml,
+      );
+      await refreshNodeManagementData();
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Remote service pull requested');
+    } catch (e) {
+      Get.snackbar('Remote pull failed', '$e');
+    }
+  }
+
+  Future<void> openDocumentation() async {
+    final uri = Uri.parse(documentationUrl);
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched) {
+      Get.snackbar('Open failed', 'Could not open documentation');
     }
   }
 

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/controllers/log_viewer_controller.dart';
 import 'package:fungi_app/ui/pages/home/drive_page.dart';
+import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:fungi_app/ui/pages/settings/log_viewer_dialog.dart';
+import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -25,6 +28,14 @@ class Settings extends GetView<FungiController> {
                 leading: Icon(Icons.language),
                 title: Text('Language'),
                 value: Text('English'),
+              ),
+              SettingsTile.navigation(
+                leading: Icon(Icons.menu_book),
+                title: Text('Documentation'),
+                value: Text('fungi.rs/docs'),
+                onPressed: (context) async {
+                  await controller.openDocumentation();
+                },
               ),
               SettingsTile.navigation(
                 leading: Icon(Icons.format_paint),
@@ -60,6 +71,29 @@ class Settings extends GetView<FungiController> {
                   );
                   SmartDialog.showToast('Path copied to clipboard');
                 },
+              ),
+              SettingsTile.navigation(
+                leading: Icon(Icons.memory),
+                title: Text('Daemon session'),
+                value: Obx(() => Text(controller.daemonLifecycleLabel)),
+                description: Obx(() => Text(controller.daemonSessionSummary)),
+                trailing: Obx(() {
+                  if (controller.canDisconnectDaemonSession) {
+                    return TextButton(
+                      onPressed: controller.disconnectDaemonSession,
+                      child: const Text('Disconnect'),
+                    );
+                  }
+
+                  if (controller.canStopDaemon) {
+                    return TextButton(
+                      onPressed: controller.stopDaemon,
+                      child: const Text('Stop'),
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                }),
               ),
               SettingsTile.navigation(
                 leading: Icon(Icons.article),
@@ -104,8 +138,44 @@ class Settings extends GetView<FungiController> {
                   showAllowedPeersList();
                 },
               ),
+              SettingsTile.navigation(
+                leading: Icon(Icons.hub),
+                title: Text('Relay Configuration'),
+                value: Text('Relay and custom addresses'),
+                description: Row(
+                  children: const [
+                    Expanded(child: Text('Restart after changes')),
+                    SizedBox(width: 6),
+                    HelpTooltip(
+                      title: 'Relay Configuration',
+                      message:
+                          'Configure relay usage and custom relay addresses. Changes are saved immediately, but the daemon must restart before new relay settings take effect.',
+                    ),
+                  ],
+                ),
+                onPressed: (context) async {
+                  await controller.openRelaySettingsDialog();
+                  if (context.mounted) {
+                    await showRelaySettingsDialog(context);
+                  }
+                },
+              ),
             ],
           ),
+          if (kDebugMode)
+            SettingsSection(
+              title: Text('Debug'),
+              tiles: <SettingsTile>[
+                SettingsTile.navigation(
+                  leading: Icon(Icons.refresh),
+                  title: Text('Reset startup relay notice'),
+                  value: Text('Show first-run prompt again'),
+                  onPressed: (context) async {
+                    await controller.resetStartupPrivacyNoticeForDebug();
+                  },
+                ),
+              ],
+            ),
           SettingsSection(
             title: Text('Legacy'),
             tiles: <SettingsTile>[
