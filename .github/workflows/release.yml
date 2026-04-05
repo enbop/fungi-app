@@ -20,11 +20,6 @@ jobs:
             platform-name: linux-x86_64
             fungi-artifact: fungi-linux-x86_64.tar.gz
             flutter-target-platform: linux-x64
-          - os: ubuntu-24.04-arm
-            target: linux
-            platform-name: linux-aarch64
-            fungi-artifact: fungi-linux-aarch64.tar.gz
-            flutter-target-platform: linux-arm64
           - os: macos-latest
             target: macos
             platform-name: macos-aarch64
