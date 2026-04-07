@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -6,6 +7,8 @@ import 'package:get/get.dart';
 
 const String kMenuItemKeyShowWindow = 'show_window';
 const String kMenuItemKeyExitApp = 'exit_app';
+const MethodChannel _macosDockChannel =
+    MethodChannel('fungi_app/macos_dock_visibility');
 
 class AppTrayManager extends GetxService with TrayListener, WindowListener {
   static AppTrayManager get instance => Get.find<AppTrayManager>();
@@ -69,6 +72,8 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
 
   Future<void> showWindow() async {
     try {
+      await _showDockIconIfNeeded();
+
       bool isMinimized = await windowManager.isMinimized();
       bool isVisible = await windowManager.isVisible();
 
@@ -96,8 +101,33 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
   Future<void> hideWindow() async {
     try {
       await windowManager.hide();
+      await _hideDockIconIfNeeded();
     } catch (e) {
       debugPrint('Failed to hide window: $e');
+    }
+  }
+
+  Future<void> _showDockIconIfNeeded() async {
+    if (!Platform.isMacOS) {
+      return;
+    }
+
+    try {
+      await _macosDockChannel.invokeMethod<void>('showDockIcon');
+    } catch (e) {
+      debugPrint('Failed to show Dock icon: $e');
+    }
+  }
+
+  Future<void> _hideDockIconIfNeeded() async {
+    if (!Platform.isMacOS) {
+      return;
+    }
+
+    try {
+      await _macosDockChannel.invokeMethod<void>('hideDockIcon');
+    } catch (e) {
+      debugPrint('Failed to hide Dock icon: $e');
     }
   }
 
