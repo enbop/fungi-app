@@ -91,8 +91,7 @@ class DashboardPage extends GetView<FungiController> {
             const _SectionDivider(),
             const _SectionHeader(
               title: 'Port Forwarding',
-              helpMessage:
-                  'Create raw client-side port forwarding rules for destinations that are not modeled as catalog services yet.',
+              helpMessage: 'Create raw client-side port forwarding rules.',
             ),
             const ClientDataTunnelSection(showTitle: false),
           ],

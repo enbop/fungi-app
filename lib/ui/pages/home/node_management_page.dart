@@ -49,7 +49,7 @@ class _NodeManagementPageState extends State<NodeManagementPage>
                 const HelpTooltip(
                   title: 'Peers',
                   message:
-                      'Shows peers from the address book, their connection state, and the services they can run or publish.',
+                      'Shows peers from the address book, their connection state, and manage their services.',
                 ),
               ],
             ),

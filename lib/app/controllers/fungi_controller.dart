@@ -919,7 +919,7 @@ class FungiController extends GetxController {
         AlertDialog(
           title: const Text('Network Relay Notice'),
           content: const Text(
-            'Fungi may use community relay servers to improve connectivity across NATs and restricted networks. Relay operators may observe your connection source address and basic network metadata. You can change this later in Settings.',
+            'Fungi may use community relay servers to improve connectivity across NATs and restricted networks. \n\nRelay servers may observe your local addresses and network metadata. \n\nYou can change this in Settings.',
           ),
           actions: [
             TextButton(

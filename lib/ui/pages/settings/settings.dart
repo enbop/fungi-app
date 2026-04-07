@@ -132,18 +132,6 @@ class Settings extends GetView<FungiController> {
               SettingsTile.navigation(
                 leading: Icon(Icons.hub),
                 title: Text('Relay Configuration'),
-                value: Text('Relay and custom addresses'),
-                description: Row(
-                  children: const [
-                    Expanded(child: Text('Restart after changes')),
-                    SizedBox(width: 6),
-                    HelpTooltip(
-                      title: 'Relay Configuration',
-                      message:
-                          'Configure relay usage and custom relay addresses. Changes are saved immediately, but the daemon must restart before new relay settings take effect.',
-                    ),
-                  ],
-                ),
                 onPressed: (context) async {
                   await controller.openRelaySettingsDialog();
                   if (context.mounted) {
@@ -215,7 +203,7 @@ class Settings extends GetView<FungiController> {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'This is the previous file transfer UI. It remains available temporarily while the main navigation is simplified.',
+                            'This module is deprecated and will be removed in a future release.',
                           ),
                         ],
                       ),

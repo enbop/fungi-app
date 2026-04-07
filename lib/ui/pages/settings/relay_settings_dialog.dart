@@ -76,15 +76,6 @@ class _RelaySettingsDialog extends GetView<FungiController> {
                           message: controller.relayConfigNotice.value,
                         ),
                       ),
-                    if (controller.daemonManagedExternally.value)
-                      const _InfoBanner(
-                        message:
-                            'External daemon. Restart it manually after changes.',
-                      )
-                    else
-                      const _InfoBanner(
-                        message: 'Restart the daemon after relay changes.',
-                      ),
                     const SizedBox(height: 16),
                     Text(
                       'Relay Behavior',
