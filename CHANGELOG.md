@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.6.1] - 2026-04-07
+
+### Changed
+- Support for fungi daemon v0.6.1, including the new service management and relay configuration.
+- Refactored the main tabs into `Home`, `Peers`, `Local`, and `Settings`.
+- Marked old file transfer module as deprecated.
+
 ## [0.5.1] - 2026-03-04
 
 ### Added

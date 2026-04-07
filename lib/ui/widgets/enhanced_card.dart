@@ -11,7 +11,7 @@ class EnhancedCard extends StatelessWidget {
     super.key,
     required this.child,
     this.accentColor,
-    this.elevation = 2,
+    this.elevation = 4,
     this.borderRadius = 8,
     this.borderWidth = 1,
   });
@@ -26,7 +26,7 @@ class EnhancedCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       color: Theme.of(context).colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      shadowColor: effectiveAccentColor.withValues(alpha: 0.12),
+      shadowColor: effectiveAccentColor.withValues(alpha: 0.2),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
         side: BorderSide(
