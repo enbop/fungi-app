@@ -12,12 +12,9 @@ class AvailableServicesPage extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      return RefreshIndicator(
-        onRefresh: controller.refreshAvailableServicesData,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: const [PublishedServicesSection()],
-        ),
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: const [PublishedServicesSection()],
       );
     });
   }

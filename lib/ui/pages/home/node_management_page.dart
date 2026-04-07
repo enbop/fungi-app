@@ -36,61 +36,71 @@ class _NodeManagementPageState extends State<NodeManagementPage>
     super.build(context);
     return Obx(() {
       final peers = controller.addressBook;
-      return RefreshIndicator(
-        onRefresh: controller.refreshNodeManagementData,
-        child: ListView(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(
-              children: [
-                Text('Peers', style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(width: 6),
-                const HelpTooltip(
-                  title: 'Peers',
-                  message:
-                      'Shows peers from the address book, their connection state, and manage their services.',
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: () => showNodeEditorDialog(),
-                icon: const Icon(Icons.add_circle),
-                label: const Text('Add Peer'),
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (controller.nodeManagementLoading.value)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            else if (peers.isEmpty)
-              const _NodeEmptyState()
-            else
-              ...peers.map(
-                (peer) => _PeerCard(
-                  key: ValueKey(peer.peerId),
-                  peer: peer,
-                  expanded: _expandedPeerIds.contains(peer.peerId),
-                  onExpansionChanged: (expanded) {
-                    setState(() {
-                      if (expanded) {
-                        _expandedPeerIds.add(peer.peerId);
-                      } else {
-                        _expandedPeerIds.remove(peer.peerId);
-                      }
-                    });
-                  },
+      return ListView(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Text('Peers', style: Theme.of(context).textTheme.headlineSmall),
+                    const SizedBox(width: 6),
+                    const HelpTooltip(
+                      title: 'Peers',
+                      message:
+                          'Shows peers from the address book, their connection state, and manage their services.',
+                    ),
+                  ],
                 ),
               ),
-          ],
-        ),
+              IconButton(
+                onPressed: controller.nodeManagementLoading.value
+                    ? null
+                    : controller.refreshNodeManagementData,
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Refresh',
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => showNodeEditorDialog(),
+              icon: const Icon(Icons.add_circle),
+              label: const Text('Add Peer'),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (controller.nodeManagementLoading.value)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (peers.isEmpty)
+            const _NodeEmptyState()
+          else
+            ...peers.map(
+              (peer) => _PeerCard(
+                key: ValueKey(peer.peerId),
+                peer: peer,
+                expanded: _expandedPeerIds.contains(peer.peerId),
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    if (expanded) {
+                      _expandedPeerIds.add(peer.peerId);
+                    } else {
+                      _expandedPeerIds.remove(peer.peerId);
+                    }
+                  });
+                },
+              ),
+            ),
+        ],
       );
     });
   }

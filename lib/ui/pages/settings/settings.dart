@@ -6,7 +6,6 @@ import 'package:fungi_app/app/controllers/log_viewer_controller.dart';
 import 'package:fungi_app/ui/pages/home/drive_page.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:fungi_app/ui/pages/settings/log_viewer_dialog.dart';
-import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';

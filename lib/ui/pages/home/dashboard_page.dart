@@ -56,46 +56,48 @@ class DashboardPage extends GetView<FungiController> {
         return left.service.displayName.compareTo(right.service.displayName);
       });
 
-      return RefreshIndicator(
-        onRefresh: () async {
-          await controller.refreshNodeManagementData();
-          await controller.refreshAvailableServicesData();
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _SectionHeader(
-              title: 'Quick Access',
-              helpMessage:
-                  'Use this list for the most common service actions. Web services can open directly.',
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _SectionHeader(
+            title: 'Quick Access',
+            helpMessage:
+                'Use this list for the most common service actions. Web services can open directly.',
+            trailing: IconButton(
+              onPressed: () async {
+                await controller.refreshNodeManagementData();
+                await controller.refreshAvailableServicesData();
+              },
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh',
             ),
-            if (quickEntries.isEmpty)
-              _HomeOnboardingPanel(hasPeers: controller.addressBook.isNotEmpty)
-            else
-              ...quickEntries
-                  .take(12)
-                  .map((entry) => _QuickServiceCard(entry: entry)),
-            const _SectionDivider(),
-            _SectionHeader(
-              title: 'Catalog',
-              helpMessage:
-                  'Open the full remote catalog when you need service details, published endpoints, and attach or detach controls.',
+          ),
+          if (quickEntries.isEmpty)
+            _HomeOnboardingPanel(hasPeers: controller.addressBook.isNotEmpty)
+          else
+            ...quickEntries
+                .take(12)
+                .map((entry) => _QuickServiceCard(entry: entry)),
+          const _SectionDivider(),
+          _SectionHeader(
+            title: 'Catalog',
+            helpMessage:
+                'Open the full remote catalog when you need service details, published endpoints, and attach or detach controls.',
+          ),
+          _CatalogEntryCard(
+            onOpen: () => _showCatalogDialog(context),
+            serviceCount: sections.fold(
+              0,
+              (sum, section) => sum + section.services.length,
             ),
-            _CatalogEntryCard(
-              onOpen: () => _showCatalogDialog(context),
-              serviceCount: sections.fold(
-                0,
-                (sum, section) => sum + section.services.length,
-              ),
-            ),
-            const _SectionDivider(),
-            const _SectionHeader(
-              title: 'Port Forwarding',
-              helpMessage: 'Create raw client-side port forwarding rules.',
-            ),
-            const ClientDataTunnelSection(showTitle: false),
-          ],
-        ),
+          ),
+          const _SectionDivider(),
+          const _SectionHeader(
+            title: 'Port Forwarding',
+            helpMessage: 'Create raw client-side port forwarding rules.',
+          ),
+          const ClientDataTunnelSection(showTitle: false),
+        ],
       );
     });
   }
@@ -134,6 +136,13 @@ class DashboardPage extends GetView<FungiController> {
                       ),
                     ),
                     IconButton(
+                      onPressed: controller.availableServicesLoading.value
+                          ? null
+                          : controller.refreshAvailableServicesData,
+                      icon: const Icon(Icons.refresh),
+                      tooltip: 'Refresh',
+                    ),
+                    IconButton(
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close),
                     ),
@@ -168,10 +177,11 @@ class _DashboardCatalogEntry {
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.helpMessage});
+  const _SectionHeader({required this.title, this.helpMessage, this.trailing});
 
   final String title;
   final String? helpMessage;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -182,11 +192,18 @@ class _SectionHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge),
-              if (helpMessage != null) ...[
-                const SizedBox(width: 6),
-                HelpTooltip(title: title, message: helpMessage!),
-              ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(title, style: Theme.of(context).textTheme.titleLarge),
+                    if (helpMessage != null) ...[
+                      const SizedBox(width: 6),
+                      HelpTooltip(title: title, message: helpMessage!),
+                    ],
+                  ],
+                ),
+              ),
+              if (trailing != null) trailing!,
             ],
           ),
         ],
