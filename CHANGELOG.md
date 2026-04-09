@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.6.1+2] - 2026-04-09
+
+### Fixed
+- Improved macOS window restore behavior when reopening from the Dock or tray after hiding or minimizing the main window.
+
+### Changed
+- Added release workflow support to trigger Homebrew tap updates after tagged releases.
+
 ## [0.6.1] - 2026-04-07
 
 ### Changed
