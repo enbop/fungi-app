@@ -4,6 +4,43 @@ import FlutterMacOS
 class MainFlutterWindow: NSWindow {
   private let dockChannelName = "fungi_app/macos_dock_visibility"
 
+  func restoreAndActivate() {
+    let showWindow = {
+      NSApp.setActivationPolicy(.regular)
+
+      if self.isMiniaturized {
+        self.deminiaturize(nil)
+      }
+
+      if !self.isVisible {
+        self.setIsVisible(true)
+      }
+
+      self.makeKeyAndOrderFront(nil)
+      self.orderFrontRegardless()
+      NSApp.activate(ignoringOtherApps: true)
+    }
+
+    if Thread.isMainThread {
+      showWindow()
+    } else {
+      DispatchQueue.main.async(execute: showWindow)
+    }
+  }
+
+  func hideToTray() {
+    let hideWindow = {
+      self.orderOut(nil)
+      NSApp.setActivationPolicy(.accessory)
+    }
+
+    if Thread.isMainThread {
+      hideWindow()
+    } else {
+      DispatchQueue.main.async(execute: hideWindow)
+    }
+  }
+
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController()
     let windowFrame = self.frame
@@ -24,12 +61,11 @@ class MainFlutterWindow: NSWindow {
 
     dockChannel.setMethodCallHandler { call, result in
       switch call.method {
-      case "showDockIcon":
-        NSApp.setActivationPolicy(.regular)
-        NSApp.activate(ignoringOtherApps: true)
+      case "showDockIcon", "showMainWindow":
+        self.restoreAndActivate()
         result(nil)
-      case "hideDockIcon":
-        NSApp.setActivationPolicy(.accessory)
+      case "hideDockIcon", "hideMainWindow":
+        self.hideToTray()
         result(nil)
       default:
         result(FlutterMethodNotImplemented)

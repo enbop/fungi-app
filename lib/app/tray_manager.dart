@@ -15,6 +15,7 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
 
   final RxBool _isInitialized = false.obs;
   bool get isInitialized => _isInitialized.value;
+  bool _isTransitioningWindowVisibility = false;
 
   @override
   void onInit() {
@@ -72,7 +73,15 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
 
   Future<void> showWindow() async {
     try {
-      await _showDockIconIfNeeded();
+      if (_isTransitioningWindowVisibility) {
+        return;
+      }
+      _isTransitioningWindowVisibility = true;
+
+      if (Platform.isMacOS) {
+        await _macosDockChannel.invokeMethod<void>('showMainWindow');
+        return;
+      }
 
       bool isMinimized = await windowManager.isMinimized();
       bool isVisible = await windowManager.isVisible();
@@ -95,39 +104,28 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
       }
     } catch (e) {
       debugPrint('Failed to show window: $e');
+    } finally {
+      _isTransitioningWindowVisibility = false;
     }
   }
 
   Future<void> hideWindow() async {
     try {
+      if (_isTransitioningWindowVisibility) {
+        return;
+      }
+      _isTransitioningWindowVisibility = true;
+
+      if (Platform.isMacOS) {
+        await _macosDockChannel.invokeMethod<void>('hideMainWindow');
+        return;
+      }
+
       await windowManager.hide();
-      await _hideDockIconIfNeeded();
     } catch (e) {
       debugPrint('Failed to hide window: $e');
-    }
-  }
-
-  Future<void> _showDockIconIfNeeded() async {
-    if (!Platform.isMacOS) {
-      return;
-    }
-
-    try {
-      await _macosDockChannel.invokeMethod<void>('showDockIcon');
-    } catch (e) {
-      debugPrint('Failed to show Dock icon: $e');
-    }
-  }
-
-  Future<void> _hideDockIconIfNeeded() async {
-    if (!Platform.isMacOS) {
-      return;
-    }
-
-    try {
-      await _macosDockChannel.invokeMethod<void>('hideDockIcon');
-    } catch (e) {
-      debugPrint('Failed to hide Dock icon: $e');
+    } finally {
+      _isTransitioningWindowVisibility = false;
     }
   }
 
