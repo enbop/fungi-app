@@ -17,7 +17,7 @@ class Settings extends GetView<FungiController> {
   Widget build(BuildContext context) {
     return Obx(
       () => SettingsList(
-        platform: DevicePlatform.android,
+        platform: _settingsPlatform,
         sections: [
           SettingsSection(
             title: Text('Common'),
@@ -140,6 +140,24 @@ class Settings extends GetView<FungiController> {
               ),
             ],
           ),
+          if (_supportsDesktopLaunchAtLogin)
+            SettingsSection(
+              title: Text('Desktop'),
+              tiles: <SettingsTile>[
+                SettingsTile.switchTile(
+                  initialValue: controller.launchAtLoginEnabled.value,
+                  enabled:
+                      controller.launchAtLoginSupported.value &&
+                      !controller.launchAtLoginLoading.value,
+                  leading: Icon(Icons.power_settings_new),
+                  title: Text('Launch at login'),
+                  description: Text(_launchAtLoginDescription),
+                  onToggle: (value) async {
+                    await controller.setLaunchAtLoginEnabled(value);
+                  },
+                ),
+              ],
+            ),
           if (kDebugMode)
             SettingsSection(
               title: Text('Debug'),
@@ -173,6 +191,43 @@ class Settings extends GetView<FungiController> {
         ],
       ),
     );
+  }
+
+  DevicePlatform get _settingsPlatform {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.iOS:
+        return DevicePlatform.iOS;
+      case TargetPlatform.macOS:
+        return DevicePlatform.macOS;
+      case TargetPlatform.windows:
+        return DevicePlatform.windows;
+      case TargetPlatform.linux:
+        return DevicePlatform.linux;
+      case TargetPlatform.android:
+        return DevicePlatform.android;
+      case TargetPlatform.fuchsia:
+        return DevicePlatform.fuchsia;
+    }
+  }
+
+  bool get _supportsDesktopLaunchAtLogin =>
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.windows;
+
+  String get _launchAtLoginDescription {
+    if (controller.launchAtLoginLoading.value) {
+      return 'Checking startup preference...';
+    }
+
+    if (!controller.launchAtLoginSupported.value) {
+      return 'This platform does not currently support launch at login.';
+    }
+
+    if (controller.launchAtLoginRequiresApproval.value) {
+      return 'Enabled, but macOS still needs approval in System Settings > General > Login Items.';
+    }
+
+    return 'Start Fungi App automatically when you sign in.';
   }
 
   void _showLegacyFileTransferDialog(BuildContext context) {

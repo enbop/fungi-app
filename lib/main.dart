@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
+import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/routes/app_pages.dart';
 import 'package:fungi_app/app/tray_manager.dart';
 import 'package:fungi_app/ui/pages/theme/app_theme.dart';
@@ -31,17 +32,25 @@ void main() async {
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     await windowManager.ensureInitialized();
+    final launchToTrayOnStartup =
+        await LaunchAtLoginManager.shouldLaunchToTrayOnStartup();
 
     Get.put(AppTrayManager());
 
     WindowOptions windowOptions = WindowOptions(
       size: Size(600, 720),
       center: true,
-      skipTaskbar: false,
+      skipTaskbar: launchToTrayOnStartup && Platform.isWindows,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
       await windowManager.setPreventClose(true);
+
+      if (launchToTrayOnStartup) {
+        await AppTrayManager.instance.hideWindow();
+        return;
+      }
+
+      await windowManager.show();
     });
   }
 

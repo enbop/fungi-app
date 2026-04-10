@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/foreground_task.dart';
+import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pbgrpc.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
@@ -111,6 +112,10 @@ class FungiController extends GetxController {
 
   final currentTheme = ThemeOption.system.obs;
   final preventClose = false.obs;
+  final launchAtLoginSupported = false.obs;
+  final launchAtLoginEnabled = false.obs;
+  final launchAtLoginRequiresApproval = false.obs;
+  final launchAtLoginLoading = false.obs;
   final incomingAllowedPeers = <PeerInfo>[].obs;
   final addressBook = <PeerInfo>[].obs;
   final fileTransferServerState = FileTransferServerState(enabled: false).obs;
@@ -157,6 +162,7 @@ class FungiController extends GetxController {
     }
 
     _initializeAppVersionAndDaemon();
+    unawaited(loadLaunchAtLoginStatus());
   }
 
   Future<void> _initializeAppVersionAndDaemon() async {
@@ -472,6 +478,58 @@ class FungiController extends GetxController {
     currentTheme.value = option;
     Get.changeThemeMode(option.themeMode);
     _storage.write(_themeKey, option.index);
+  }
+
+  Future<void> loadLaunchAtLoginStatus() async {
+    if (!LaunchAtLoginManager.isSupportedPlatform) {
+      launchAtLoginSupported.value = false;
+      launchAtLoginEnabled.value = false;
+      launchAtLoginRequiresApproval.value = false;
+      return;
+    }
+
+    launchAtLoginLoading.value = true;
+
+    try {
+      final status = await LaunchAtLoginManager.getStatus();
+      launchAtLoginSupported.value = status.supported;
+      launchAtLoginEnabled.value = status.enabled;
+      launchAtLoginRequiresApproval.value = status.requiresApproval;
+    } catch (e) {
+      launchAtLoginSupported.value = false;
+      launchAtLoginEnabled.value = false;
+      launchAtLoginRequiresApproval.value = false;
+      debugPrint('Failed to load launch-at-login status: $e');
+    } finally {
+      launchAtLoginLoading.value = false;
+    }
+  }
+
+  Future<void> setLaunchAtLoginEnabled(bool enabled) async {
+    if (!LaunchAtLoginManager.isSupportedPlatform || launchAtLoginLoading.value) {
+      return;
+    }
+
+    launchAtLoginLoading.value = true;
+
+    try {
+      final status = await LaunchAtLoginManager.setEnabled(enabled);
+      launchAtLoginSupported.value = status.supported;
+      launchAtLoginEnabled.value = status.enabled;
+      launchAtLoginRequiresApproval.value = status.requiresApproval;
+
+      if (enabled && status.requiresApproval) {
+        SmartDialog.showToast(
+          'macOS requires approval in System Settings > General > Login Items.',
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to update launch-at-login status: $e');
+      SmartDialog.showToast('Failed to update launch at login: $e');
+      await loadLaunchAtLoginStatus();
+    } finally {
+      launchAtLoginLoading.value = false;
+    }
   }
 
   Future<void> updateIncomingAllowedPeers() async {

@@ -83,6 +83,10 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
         return;
       }
 
+      if (Platform.isWindows) {
+        await windowManager.setSkipTaskbar(false);
+      }
+
       bool isMinimized = await windowManager.isMinimized();
       bool isVisible = await windowManager.isVisible();
 
@@ -119,6 +123,10 @@ class AppTrayManager extends GetxService with TrayListener, WindowListener {
       if (Platform.isMacOS) {
         await _macosDockChannel.invokeMethod<void>('hideMainWindow');
         return;
+      }
+
+      if (Platform.isWindows) {
+        await windowManager.setSkipTaskbar(true);
       }
 
       await windowManager.hide();

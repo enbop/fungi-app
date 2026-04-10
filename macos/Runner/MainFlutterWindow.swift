@@ -1,8 +1,10 @@
 import Cocoa
 import FlutterMacOS
+import ServiceManagement
 
 class MainFlutterWindow: NSWindow {
   private let dockChannelName = "fungi_app/macos_dock_visibility"
+  private let launchAtLoginChannelName = "fungi_app/launch_at_login"
 
   func restoreAndActivate() {
     let showWindow = {
@@ -49,6 +51,7 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     configureDockChannel(with: flutterViewController)
+    configureLaunchAtLoginChannel(with: flutterViewController)
 
     super.awakeFromNib()
   }
@@ -71,5 +74,105 @@ class MainFlutterWindow: NSWindow {
         result(FlutterMethodNotImplemented)
       }
     }
+  }
+
+  private func configureLaunchAtLoginChannel(with controller: FlutterViewController) {
+    let launchAtLoginChannel = FlutterMethodChannel(
+      name: launchAtLoginChannelName,
+      binaryMessenger: controller.engine.binaryMessenger
+    )
+
+    launchAtLoginChannel.setMethodCallHandler { call, result in
+      switch call.method {
+      case "getStatus":
+        result(self.makeLaunchAtLoginStatus())
+      case "shouldLaunchToTrayOnStartup":
+        result(self.shouldLaunchToTrayOnStartup())
+      case "setEnabled":
+        guard
+          let arguments = call.arguments as? [String: Any],
+          let enabled = arguments["enabled"] as? Bool
+        else {
+          result(
+            FlutterError(
+              code: "invalid_args",
+              message: "Missing enabled flag.",
+              details: nil
+            )
+          )
+          return
+        }
+
+        self.setLaunchAtLoginEnabled(enabled, result: result)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private func makeLaunchAtLoginStatus() -> [String: Any] {
+    if #available(macOS 13.0, *) {
+      let status = SMAppService.mainApp.status
+      return [
+        "supported": true,
+        "enabled": status == .enabled,
+        "requiresApproval": status == .requiresApproval,
+      ]
+    }
+
+    return [
+      "supported": false,
+      "enabled": false,
+      "requiresApproval": false,
+    ]
+  }
+
+  private func setLaunchAtLoginEnabled(
+    _ enabled: Bool,
+    result: @escaping FlutterResult
+  ) {
+    guard #available(macOS 13.0, *) else {
+      result(makeLaunchAtLoginStatus())
+      return
+    }
+
+    do {
+      if enabled {
+        try SMAppService.mainApp.register()
+      } else {
+        try SMAppService.mainApp.unregister()
+      }
+
+      result(makeLaunchAtLoginStatus())
+    } catch {
+      result(
+        FlutterError(
+          code: "launch_at_login_error",
+          message: error.localizedDescription,
+          details: nil
+        )
+      )
+    }
+  }
+
+  private func shouldLaunchToTrayOnStartup() -> Bool {
+    guard #available(macOS 13.0, *) else {
+      return false
+    }
+
+    guard SMAppService.mainApp.status == .enabled || SMAppService.mainApp.status == .requiresApproval else {
+      return false
+    }
+
+    guard let event = NSAppleEventManager.shared().currentAppleEvent else {
+      return false
+    }
+
+    guard event.eventID == AEEventID(kAEOpenApplication) else {
+      return false
+    }
+
+    return event.paramDescriptor(forKeyword: AEKeyword(keyAEPropData))?.enumCodeValue ==
+      AEEventID(keyAELaunchedAsLogInItem)
   }
 }
