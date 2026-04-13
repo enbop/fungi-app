@@ -45,7 +45,10 @@ class _NodeManagementPageState extends State<NodeManagementPage>
               Expanded(
                 child: Row(
                   children: [
-                    Text('Peers', style: Theme.of(context).textTheme.headlineSmall),
+                    Text(
+                      'Peers',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
                     const SizedBox(width: 6),
                     const HelpTooltip(
                       title: 'Peers',
@@ -74,7 +77,7 @@ class _NodeManagementPageState extends State<NodeManagementPage>
             ),
           ),
           const SizedBox(height: 16),
-          if (controller.nodeManagementLoading.value)
+          if (controller.nodeManagementLoading.value && peers.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 32),
@@ -123,6 +126,8 @@ class _PeerCard extends GetView<FungiController> {
     return Obx(() {
       final connections = controller.connectionsForPeer(peer.peerId);
       final managedServices = controller.managedServicesForPeer(peer.peerId);
+      final isRefreshing = controller.isPeerManagedServicesLoading(peer.peerId);
+      final refreshError = controller.peerManagedServicesError(peer.peerId);
       final latency = controller.bestLatencyForPeer(peer.peerId);
       final title = peer.alias.isNotEmpty
           ? peer.alias
@@ -144,6 +149,20 @@ class _PeerCard extends GetView<FungiController> {
                   tooltip: 'Edit peer',
                   onPressed: () => showNodeEditorDialog(initialPeer: peer),
                   icon: const Icon(Icons.edit_outlined),
+                ),
+                IconButton(
+                  tooltip: 'Refresh peer',
+                  onPressed: isRefreshing
+                      ? null
+                      : () => controller.refreshPeerManagedServicesData(
+                          peerId: peer.peerId,
+                        ),
+                  icon: isRefreshing
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh),
                 ),
                 const Icon(Icons.expand_more),
               ],
@@ -168,12 +187,32 @@ class _PeerCard extends GetView<FungiController> {
                     Chip(label: Text('${connections.length} connections')),
                     Chip(label: Text('${managedServices.length} services')),
                     if (latency != null) Chip(label: Text('$latency ms')),
+                    if (isRefreshing) const Chip(label: Text('refreshing')),
+                    if (refreshError.isNotEmpty)
+                      Chip(
+                        avatar: const Icon(Icons.error_outline, size: 18),
+                        label: const Text('refresh failed'),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.errorContainer,
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                        ),
+                      ),
                   ],
                 ),
               ],
             ),
             childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
+              if (isRefreshing) ...[
+                const LinearProgressIndicator(),
+                const SizedBox(height: 12),
+              ],
+              if (refreshError.isNotEmpty) ...[
+                _PeerRefreshError(message: refreshError),
+                const SizedBox(height: 12),
+              ],
               Align(
                 alignment: Alignment.centerLeft,
                 child: Wrap(
@@ -278,6 +317,32 @@ class _PeerCard extends GetView<FungiController> {
         ),
       );
     });
+  }
+}
+
+class _PeerRefreshError extends StatelessWidget {
+  const _PeerRefreshError({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        message,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: colorScheme.onErrorContainer),
+      ),
+    );
   }
 }
 

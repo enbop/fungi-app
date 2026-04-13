@@ -130,6 +130,8 @@ class FungiController extends GetxController {
   final localServices = <LocalServiceView>[].obs;
   final peerCatalogServices = <String, List<RemoteServiceListEntryView>>{}.obs;
   final peerManagedServices = <String, List<LocalServiceView>>{}.obs;
+  final peerManagedServicesLoading = <String, bool>{}.obs;
+  final peerManagedServicesErrors = <String, String>{}.obs;
   final peerConnections = <String, List<ConnectionSnapshot>>{}.obs;
 
   final localServicesLoading = false.obs;
@@ -625,6 +627,16 @@ class FungiController extends GetxController {
         peerManagedServices,
       )..remove(peerId);
       peerManagedServices.value = nextManagedServices;
+
+      final nextManagedServicesLoading = Map<String, bool>.from(
+        peerManagedServicesLoading,
+      )..remove(peerId);
+      peerManagedServicesLoading.value = nextManagedServicesLoading;
+
+      final nextManagedServicesErrors = Map<String, String>.from(
+        peerManagedServicesErrors,
+      )..remove(peerId);
+      peerManagedServicesErrors.value = nextManagedServicesErrors;
 
       final nextConnections = Map<String, List<ConnectionSnapshot>>.from(
         peerConnections,
@@ -1435,10 +1447,7 @@ class FungiController extends GetxController {
         grouped.putIfAbsent(connection.peerId, () => []).add(connection);
       }
       peerConnections.value = grouped;
-      await Future.wait([
-        refreshPeerManagedServicesData(),
-        refreshAvailableServicesData(),
-      ]);
+      await refreshPeerManagedServicesData();
     } catch (e) {
       debugPrint('Failed to refresh node management data: $e');
     } finally {
@@ -1447,28 +1456,59 @@ class FungiController extends GetxController {
   }
 
   Future<void> refreshPeerManagedServicesData({String? peerId}) async {
-    final next = Map<String, List<LocalServiceView>>.from(peerManagedServices);
     final peers = peerId == null
         ? addressBook.map((peer) => peer.peerId).toList(growable: false)
         : <String>[peerId];
 
-    for (final currentPeerId in peers) {
-      try {
-        final response = await fungiClient.remoteListServices(
-          RemotePeerRequest()..peerId = currentPeerId,
-        );
-        final services = decodeJsonStringList(
-          response.servicesJson,
-          LocalServiceView.fromJson,
-        )..sort((left, right) => left.name.compareTo(right.name));
-        next[currentPeerId] = services;
-      } catch (e) {
-        debugPrint('Failed to load managed services for $currentPeerId: $e');
-        next[currentPeerId] = const [];
-      }
-    }
+    await Future.wait(peers.map(_refreshPeerManagedServicesForPeer));
+  }
 
+  Future<void> _refreshPeerManagedServicesForPeer(String peerId) async {
+    _setPeerManagedServicesLoading(peerId, true);
+    _setPeerManagedServicesError(peerId, '');
+
+    try {
+      final response = await fungiClient.remoteListServices(
+        RemotePeerRequest()..peerId = peerId,
+      );
+      final services = decodeJsonStringList(
+        response.servicesJson,
+        LocalServiceView.fromJson,
+      )..sort((left, right) => left.name.compareTo(right.name));
+      _setPeerManagedServices(peerId, services);
+    } catch (e) {
+      debugPrint('Failed to load managed services for $peerId: $e');
+      _setPeerManagedServices(peerId, const []);
+      _setPeerManagedServicesError(peerId, e.toString());
+    } finally {
+      _setPeerManagedServicesLoading(peerId, false);
+    }
+  }
+
+  void _setPeerManagedServices(String peerId, List<LocalServiceView> services) {
+    final next = Map<String, List<LocalServiceView>>.from(peerManagedServices);
+    next[peerId] = services;
     peerManagedServices.value = next;
+  }
+
+  void _setPeerManagedServicesLoading(String peerId, bool loading) {
+    final next = Map<String, bool>.from(peerManagedServicesLoading);
+    if (loading) {
+      next[peerId] = true;
+    } else {
+      next.remove(peerId);
+    }
+    peerManagedServicesLoading.value = next;
+  }
+
+  void _setPeerManagedServicesError(String peerId, String error) {
+    final next = Map<String, String>.from(peerManagedServicesErrors);
+    if (error.isEmpty) {
+      next.remove(peerId);
+    } else {
+      next[peerId] = error;
+    }
+    peerManagedServicesErrors.value = next;
   }
 
   List<PeerServicesSectionView> get availableServiceSections {
@@ -1487,6 +1527,14 @@ class FungiController extends GetxController {
 
   List<LocalServiceView> managedServicesForPeer(String peerId) {
     return peerManagedServices[peerId] ?? const [];
+  }
+
+  bool isPeerManagedServicesLoading(String peerId) {
+    return peerManagedServicesLoading[peerId] ?? false;
+  }
+
+  String peerManagedServicesError(String peerId) {
+    return peerManagedServicesErrors[peerId] ?? '';
   }
 
   RemoteServiceListEntryView? catalogServiceForPeer(
