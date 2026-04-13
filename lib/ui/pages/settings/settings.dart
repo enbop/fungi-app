@@ -18,6 +18,8 @@ class Settings extends GetView<FungiController> {
     return Obx(
       () => SettingsList(
         platform: _settingsPlatform,
+        lightTheme: _settingsTheme(context),
+        darkTheme: _settingsTheme(context),
         sections: [
           SettingsSection(
             title: Text('Common'),
@@ -156,6 +158,21 @@ class Settings extends GetView<FungiController> {
                     await controller.setLaunchAtLoginEnabled(value);
                   },
                 ),
+                if (controller.launchAtLoginEnabled.value)
+                  SettingsTile.switchTile(
+                    initialValue: controller.launchAtLoginHideToTray.value,
+                    enabled:
+                        controller.launchAtLoginSupported.value &&
+                        !controller.launchAtLoginLoading.value,
+                    leading: Icon(Icons.visibility_off),
+                    title: Text('Hide app after launch at login'),
+                    description: Text(
+                      'Start in the tray after login instead of keeping the main window open.',
+                    ),
+                    onToggle: (value) async {
+                      await controller.setLaunchAtLoginHideToTray(value);
+                    },
+                  ),
               ],
             ),
           if (kDebugMode)
@@ -228,6 +245,27 @@ class Settings extends GetView<FungiController> {
     }
 
     return 'Start Fungi App automatically when you sign in.';
+  }
+
+  SettingsThemeData _settingsTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return SettingsThemeData(
+      settingsListBackground: theme.scaffoldBackgroundColor,
+      settingsSectionBackground: colorScheme.surface,
+      tileHighlightColor: colorScheme.primary.withValues(alpha: 0.08),
+      titleTextColor: colorScheme.onSurfaceVariant,
+      settingsTileTextColor: colorScheme.onSurface,
+      tileDescriptionTextColor: colorScheme.onSurfaceVariant,
+      leadingIconsColor: colorScheme.onSurfaceVariant,
+      trailingTextColor: colorScheme.onSurfaceVariant,
+      dividerColor: colorScheme.outlineVariant,
+      inactiveTitleColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+      inactiveSubtitleColor: colorScheme.onSurfaceVariant.withValues(
+        alpha: 0.45,
+      ),
+    );
   }
 
   void _showLegacyFileTransferDialog(BuildContext context) {

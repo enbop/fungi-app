@@ -156,6 +156,10 @@ class MainFlutterWindow: NSWindow {
   }
 
   private func shouldLaunchToTrayOnStartup() -> Bool {
+    if CommandLine.arguments.contains("--launch-to-tray") {
+      return true
+    }
+
     guard #available(macOS 13.0, *) else {
       return false
     }

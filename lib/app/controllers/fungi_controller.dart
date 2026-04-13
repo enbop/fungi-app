@@ -87,6 +87,7 @@ class ExistingDaemonCheckResult {
 
 class FungiController extends GetxController {
   static const documentationUrl = 'https://fungi.rs/docs/intro';
+  static const daemonDisabledStorageKey = 'daemon_disabled';
 
   FungiDaemonClient fungiClient;
   late final DaemonServiceManager daemonManager;
@@ -105,7 +106,8 @@ class FungiController extends GetxController {
 
   final _storage = GetStorage();
   final _themeKey = 'theme_option';
-  final _daemonDisabledKey = 'daemon_disabled';
+  final _daemonDisabledKey = daemonDisabledStorageKey;
+  final _launchAtLoginHideToTrayKey = LaunchAtLoginManager.hideToTrayStorageKey;
   final _startupNoticeVersionKey = 'startup_notice_version';
   static const _startupNoticeCurrentVersion = 'relay-privacy-v1';
   static const _defaultAppVersion = '0.6.1';
@@ -115,6 +117,7 @@ class FungiController extends GetxController {
   final launchAtLoginSupported = false.obs;
   final launchAtLoginEnabled = false.obs;
   final launchAtLoginRequiresApproval = false.obs;
+  final launchAtLoginHideToTray = true.obs;
   final launchAtLoginLoading = false.obs;
   final incomingAllowedPeers = <PeerInfo>[].obs;
   final addressBook = <PeerInfo>[].obs;
@@ -153,6 +156,7 @@ class FungiController extends GetxController {
   void onInit() {
     super.onInit();
     loadThemeOption();
+    loadLaunchAtLoginHideToTray();
 
     if (Platform.isAndroid) {
       FlutterForegroundTask.addTaskDataCallback(onReceiveTaskData);
@@ -480,6 +484,20 @@ class FungiController extends GetxController {
     _storage.write(_themeKey, option.index);
   }
 
+  void loadLaunchAtLoginHideToTray() {
+    final saved = _storage.read(_launchAtLoginHideToTrayKey);
+    launchAtLoginHideToTray.value = saved is bool ? saved : true;
+  }
+
+  Future<void> setLaunchAtLoginHideToTray(bool enabled) async {
+    launchAtLoginHideToTray.value = enabled;
+    await _storage.write(_launchAtLoginHideToTrayKey, enabled);
+
+    if (Platform.isWindows && launchAtLoginEnabled.value) {
+      await setLaunchAtLoginEnabled(true);
+    }
+  }
+
   Future<void> loadLaunchAtLoginStatus() async {
     if (!LaunchAtLoginManager.isSupportedPlatform) {
       launchAtLoginSupported.value = false;
@@ -506,14 +524,18 @@ class FungiController extends GetxController {
   }
 
   Future<void> setLaunchAtLoginEnabled(bool enabled) async {
-    if (!LaunchAtLoginManager.isSupportedPlatform || launchAtLoginLoading.value) {
+    if (!LaunchAtLoginManager.isSupportedPlatform ||
+        launchAtLoginLoading.value) {
       return;
     }
 
     launchAtLoginLoading.value = true;
 
     try {
-      final status = await LaunchAtLoginManager.setEnabled(enabled);
+      final status = await LaunchAtLoginManager.setEnabled(
+        enabled,
+        hideToTray: launchAtLoginHideToTray.value,
+      );
       launchAtLoginSupported.value = status.supported;
       launchAtLoginEnabled.value = status.enabled;
       launchAtLoginRequiresApproval.value = status.requiresApproval;

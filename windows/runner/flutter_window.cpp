@@ -23,7 +23,7 @@ flutter::EncodableMap MakeLaunchAtLoginStatus(bool enabled) {
   return status;
 }
 
-std::wstring GetExecutableCommandLine() {
+std::wstring GetExecutableCommandLine(bool hide_to_tray) {
   std::wstring executable_path(MAX_PATH, L'\0');
   DWORD length = ::GetModuleFileNameW(nullptr, executable_path.data(),
                                       static_cast<DWORD>(executable_path.size()));
@@ -35,7 +35,11 @@ std::wstring GetExecutableCommandLine() {
   }
 
   executable_path.resize(length);
-  return L"\"" + executable_path + L"\" --launch-to-tray";
+  std::wstring command_line = L"\"" + executable_path + L"\"";
+  if (hide_to_tray) {
+    command_line += L" --launch-to-tray";
+  }
+  return command_line;
 }
 
 bool IsLaunchAtLoginEnabled() {
@@ -52,7 +56,7 @@ bool IsLaunchAtLoginEnabled() {
   return result == ERROR_SUCCESS;
 }
 
-LONG SetLaunchAtLoginEnabled(bool enabled) {
+LONG SetLaunchAtLoginEnabled(bool enabled, bool hide_to_tray) {
   HKEY key = nullptr;
   LONG open_result =
       ::RegCreateKeyExW(HKEY_CURRENT_USER, kLaunchAtLoginRegistryPath, 0, nullptr,
@@ -64,7 +68,7 @@ LONG SetLaunchAtLoginEnabled(bool enabled) {
 
   LONG result = ERROR_SUCCESS;
   if (enabled) {
-    const std::wstring value = GetExecutableCommandLine();
+    const std::wstring value = GetExecutableCommandLine(hide_to_tray);
     result = ::RegSetValueExW(
         key, kLaunchAtLoginValueName, 0, REG_SZ,
         reinterpret_cast<const BYTE*>(value.c_str()),
@@ -154,7 +158,22 @@ void FlutterWindow::RegisterLaunchAtLoginChannel() {
             return;
           }
 
-          const LONG registry_result = SetLaunchAtLoginEnabled(*enabled);
+          bool hide_to_tray = true;
+          const auto hide_to_tray_it =
+              arguments->find(flutter::EncodableValue("hideToTray"));
+          if (hide_to_tray_it != arguments->end()) {
+            const auto* hide_to_tray_value =
+                std::get_if<bool>(&hide_to_tray_it->second);
+            if (hide_to_tray_value == nullptr) {
+              result->Error("invalid_args",
+                            "Hide-to-tray flag must be a boolean.");
+              return;
+            }
+            hide_to_tray = *hide_to_tray_value;
+          }
+
+          const LONG registry_result =
+              SetLaunchAtLoginEnabled(*enabled, hide_to_tray);
           if (registry_result != ERROR_SUCCESS) {
             result->Error("launch_at_login_error",
                           "Failed to update startup registration.",

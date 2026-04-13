@@ -14,7 +14,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'dart:io';
 
-void main() async {
+void main(List<String> args) async {
   Logger.root.level = Level.FINE;
   Logger.root.onRecord.listen((record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
@@ -32,8 +32,17 @@ void main() async {
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     await windowManager.ensureInitialized();
+    final hideToTrayOnLaunchAtLogin =
+        GetStorage().read(LaunchAtLoginManager.hideToTrayStorageKey) as bool? ??
+        true;
     final launchToTrayOnStartup =
-        await LaunchAtLoginManager.shouldLaunchToTrayOnStartup();
+        await LaunchAtLoginManager.shouldLaunchToTrayOnStartup(
+          args,
+          hideToTrayOnLaunchAtLogin,
+        );
+    if (launchToTrayOnStartup) {
+      GetStorage().write(FungiController.daemonDisabledStorageKey, false);
+    }
 
     Get.put(AppTrayManager());
 
