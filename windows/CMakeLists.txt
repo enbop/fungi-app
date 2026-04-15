@@ -2,9 +2,19 @@
 cmake_minimum_required(VERSION 3.14)
 project(fungi_app LANGUAGES CXX)
 
-# The name of the executable created for the application. Change this to change
-# the on-disk name of your application.
-set(BINARY_NAME "fungi_app")
+set(FUNGI_APP_CHANNEL "$ENV{FUNGI_APP_CHANNEL}")
+if("${FUNGI_APP_CHANNEL}" STREQUAL "")
+  set(FUNGI_APP_CHANNEL "nightly")
+endif()
+
+if("${FUNGI_APP_CHANNEL}" STREQUAL "release" OR "${FUNGI_APP_CHANNEL}" STREQUAL "stable")
+  set(BINARY_NAME "fungi_app")
+  set(FUNGI_APP_DISPLAY_NAME "Fungi")
+else()
+  set(BINARY_NAME "fungi_app_nightly")
+  set(FUNGI_APP_DISPLAY_NAME "Fungi Dev")
+  set(FUNGI_APP_NIGHTLY "1")
+endif()
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.

@@ -26,6 +26,11 @@ target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_MAJOR=${FLUTT
 target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_MINOR=${FLUTTER_VERSION_MINOR}")
 target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_PATCH=${FLUTTER_VERSION_PATCH}")
 target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_BUILD=${FLUTTER_VERSION_BUILD}")
+target_compile_definitions(${BINARY_NAME} PRIVATE "FUNGI_APP_DISPLAY_NAME=\"${FUNGI_APP_DISPLAY_NAME}\"")
+target_compile_definitions(${BINARY_NAME} PRIVATE "FUNGI_APP_BINARY_NAME=\"${BINARY_NAME}\"")
+if(FUNGI_APP_NIGHTLY)
+  target_compile_definitions(${BINARY_NAME} PRIVATE "FUNGI_APP_NIGHTLY=1")
+endif()
 
 # Disable Windows macros that collide with C++ standard library functions.
 target_compile_definitions(${BINARY_NAME} PRIVATE "NOMINMAX")

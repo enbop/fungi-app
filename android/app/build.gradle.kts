@@ -35,7 +35,7 @@ tasks.register<Copy>("copyRustBinary") {
 }
 
 tasks.whenTaskAdded {
-    if (name == "mergeDebugNativeLibs" || name == "mergeReleaseNativeLibs" || name == "mergeDebugJniLibFolders" || name == "mergeReleaseJniLibFolders") {
+    if (name.startsWith("merge") && (name.endsWith("NativeLibs") || name.endsWith("JniLibFolders"))) {
         dependsOn("copyRustBinary")
     }
 }
@@ -61,14 +61,24 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "rs.fungi.fungi_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    flavorDimensions += "channel"
+    productFlavors {
+        create("nightly") {
+            dimension = "channel"
+            applicationIdSuffix = ".nightly"
+            resValue("string", "app_name", "Fungi Dev")
+        }
+        create("stable") {
+            dimension = "channel"
+            resValue("string", "app_name", "Fungi")
+        }
     }
 
     signingConfigs {

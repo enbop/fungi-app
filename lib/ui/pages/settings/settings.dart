@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/controllers/log_viewer_controller.dart';
 import 'package:fungi_app/ui/pages/home/drive_page.dart';
@@ -43,6 +44,14 @@ class Settings extends GetView<FungiController> {
                 value: Obx(() => Text(controller.currentTheme.value.name)),
                 onPressed: (context) {
                   _showThemeDialog();
+                },
+              ),
+              SettingsTile.navigation(
+                leading: Icon(Icons.info_outline),
+                title: Text('App version'),
+                value: Text(controller.appBuildVersion.value),
+                onPressed: (context) {
+                  _showAppVersionDialog(context);
                 },
               ),
               SettingsTile.navigation(
@@ -244,7 +253,7 @@ class Settings extends GetView<FungiController> {
       return 'Enabled, but macOS still needs approval in System Settings > General > Login Items.';
     }
 
-    return 'Start Fungi App automatically when you sign in.';
+    return 'Start ${AppBuildInfo.appName} automatically when you sign in.';
   }
 
   SettingsThemeData _settingsTheme(BuildContext context) {
@@ -264,6 +273,31 @@ class Settings extends GetView<FungiController> {
       inactiveTitleColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
       inactiveSubtitleColor: colorScheme.onSurfaceVariant.withValues(
         alpha: 0.45,
+      ),
+    );
+  }
+
+  void _showAppVersionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('App version'),
+        content: SelectableText(controller.appBuildDetails.value),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(
+                ClipboardData(text: controller.appBuildDetails.value),
+              );
+              SmartDialog.showToast('Version details copied to clipboard');
+            },
+            child: const Text('Copy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }

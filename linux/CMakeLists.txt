@@ -2,12 +2,22 @@
 cmake_minimum_required(VERSION 3.13)
 project(runner LANGUAGES CXX)
 
-# The name of the executable created for the application. Change this to change
-# the on-disk name of your application.
-set(BINARY_NAME "fungi_app")
-# The unique GTK application identifier for this application. See:
-# https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "rs.fungi.fungi_app")
+set(FUNGI_APP_CHANNEL "$ENV{FUNGI_APP_CHANNEL}")
+if("${FUNGI_APP_CHANNEL}" STREQUAL "")
+  set(FUNGI_APP_CHANNEL "nightly")
+endif()
+
+if("${FUNGI_APP_CHANNEL}" STREQUAL "release" OR "${FUNGI_APP_CHANNEL}" STREQUAL "stable")
+  set(BINARY_NAME "fungi_app")
+  set(APPLICATION_ID "rs.fungi.fungi_app")
+  set(FUNGI_APP_DISPLAY_NAME "Fungi")
+  set(FUNGI_APP_ICON_FILE "app_icon.png")
+else()
+  set(BINARY_NAME "fungi_app_nightly")
+  set(APPLICATION_ID "rs.fungi.fungi_app.nightly")
+  set(FUNGI_APP_DISPLAY_NAME "Fungi Dev")
+  set(FUNGI_APP_ICON_FILE "app_icon_nightly.png")
+endif()
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -90,11 +100,16 @@ install(CODE "
 
 set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(INSTALL_BUNDLE_ICON_DIR "${INSTALL_BUNDLE_DATA_DIR}/icons")
 
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
 install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
+  COMPONENT Runtime)
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/"
+  DESTINATION "${INSTALL_BUNDLE_ICON_DIR}"
   COMPONENT Runtime)
 
 install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"

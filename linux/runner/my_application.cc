@@ -15,12 +15,36 @@ struct _MyApplication
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
+static void my_application_set_window_icon(GtkWindow *window)
+{
+  g_autofree gchar *executable_path = g_file_read_link("/proc/self/exe", nullptr);
+  if (executable_path != nullptr)
+  {
+    g_autofree gchar *executable_dir = g_path_get_dirname(executable_path);
+    g_autofree gchar *installed_icon_path =
+        g_build_filename(executable_dir, "data", "icons", FUNGI_APP_ICON_FILE, nullptr);
+    if (g_file_test(installed_icon_path, G_FILE_TEST_EXISTS))
+    {
+      gtk_window_set_icon_from_file(window, installed_icon_path, nullptr);
+      return;
+    }
+  }
+
+  g_autofree gchar *source_icon_path =
+      g_build_filename(FUNGI_APP_SOURCE_DIR, "runner", "resources", FUNGI_APP_ICON_FILE, nullptr);
+  if (g_file_test(source_icon_path, G_FILE_TEST_EXISTS))
+  {
+    gtk_window_set_icon_from_file(window, source_icon_path, nullptr);
+  }
+}
+
 // Implements GApplication::activate.
 static void my_application_activate(GApplication *application)
 {
   MyApplication *self = MY_APPLICATION(application);
   GtkWindow *window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
+  my_application_set_window_icon(window);
 
   // Use a header bar when running in GNOME as this is the common style used
   // by applications and is the setup most users will be using (e.g. Ubuntu
@@ -45,13 +69,13 @@ static void my_application_activate(GApplication *application)
   {
     GtkHeaderBar *header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "Fungi App");
+    gtk_header_bar_set_title(header_bar, FUNGI_APP_DISPLAY_NAME);
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   }
   else
   {
-    gtk_window_set_title(window, "Fungi App");
+    gtk_window_set_title(window, FUNGI_APP_DISPLAY_NAME);
   }
 
   gtk_window_set_default_size(window, 1280, 720);

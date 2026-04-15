@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/routes/app_pages.dart';
@@ -74,7 +75,7 @@ class FungiApp extends GetView<FungiController> {
   Widget build(BuildContext context) {
     return Obx(
       () => GetMaterialApp(
-        title: 'Fungi App',
+        title: AppBuildInfo.appName,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: controller.currentTheme.value.themeMode,

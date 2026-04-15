@@ -12,3 +12,6 @@ PRODUCT_BUNDLE_IDENTIFIER = rs.fungi.FungiApp
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2025 rs.fungi. All rights reserved.
+
+#include? "Channel.xcconfig"
+#include? "LocalChannel.xcconfig"

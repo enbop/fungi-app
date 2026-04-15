@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/foreground_task.dart';
 import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
@@ -96,6 +97,8 @@ class FungiController extends GetxController {
   final daemonError = ''.obs;
   final connectedDaemonVersion = ''.obs;
   final appVersion = '0.6.1'.obs;
+  final appBuildVersion = ''.obs;
+  final appBuildDetails = ''.obs;
 
   final peerId = ''.obs;
   final hostname = ''.obs;
@@ -1065,10 +1068,48 @@ class FungiController extends GetxController {
       if (version.isNotEmpty) {
         appVersion.value = version;
       }
+      appBuildVersion.value = _buildAppVersionLabel(packageInfo);
+      appBuildDetails.value = _buildAppDetailsLabel(packageInfo);
     } catch (error) {
       debugPrint('Failed to load app version: $error');
       appVersion.value = _defaultAppVersion;
+      appBuildVersion.value =
+          '${AppBuildInfo.channelLabel} $_defaultAppVersion';
+      appBuildDetails.value =
+          'Channel: ${AppBuildInfo.channelLabel}\n'
+          'Version: $_defaultAppVersion\n'
+          'Commit: ${AppBuildInfo.commitLabel}\n'
+          'Built: ${AppBuildInfo.buildTimeLabel}';
     }
+  }
+
+  String _buildAppVersionLabel(PackageInfo packageInfo) {
+    final version = packageInfo.version.trim().isEmpty
+        ? _defaultAppVersion
+        : packageInfo.version.trim();
+    final buildNumber = packageInfo.buildNumber.trim();
+    final versionWithBuild = buildNumber.isEmpty
+        ? version
+        : '$version+$buildNumber';
+    return '${AppBuildInfo.channelLabel} $versionWithBuild';
+  }
+
+  String _buildAppDetailsLabel(PackageInfo packageInfo) {
+    final version = packageInfo.version.trim().isEmpty
+        ? _defaultAppVersion
+        : packageInfo.version.trim();
+    final buildNumber = packageInfo.buildNumber.trim();
+    final packageName = packageInfo.packageName.trim();
+
+    return [
+      'App: ${AppBuildInfo.appName}',
+      'Channel: ${AppBuildInfo.channelLabel}',
+      'Version: $version',
+      if (buildNumber.isNotEmpty) 'Build: $buildNumber',
+      if (packageName.isNotEmpty) 'Package: $packageName',
+      'Commit: ${AppBuildInfo.commitLabel}',
+      'Built: ${AppBuildInfo.buildTimeLabel}',
+    ].join('\n');
   }
 
   bool _isCompatibleDaemonVersion(String version) {

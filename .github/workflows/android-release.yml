@@ -79,6 +79,20 @@ jobs:
       - name: Install Pub Dependencies
         run: flutter pub get
 
+      - name: Configure app channel
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
+            DIST_CHANNEL="nightly"
+            ANDROID_FLAVOR="nightly"
+          else
+            DIST_CHANNEL="stable"
+            ANDROID_FLAVOR="stable"
+          fi
+
+          echo "DIST_CHANNEL=$DIST_CHANNEL" >> "$GITHUB_ENV"
+          echo "ANDROID_FLAVOR=$ANDROID_FLAVOR" >> "$GITHUB_ENV"
+
       - name: Setup Android signing
         run: |
           echo "${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
@@ -88,9 +102,18 @@ jobs:
           echo "storeFile=upload-keystore.jks" >> android/key.properties
 
       - name: Build Android
+        shell: bash
         run: |
-          flutter build apk --release --target-platform android-arm64
-          cp build/app/outputs/flutter-apk/app-release.apk fungi-app-android-aarch64.apk
+          scripts/build_android_dist.sh --channel "$DIST_CHANNEL" --target-platform android-arm64
+
+          APK_PATH="$(find build/app/outputs/flutter-apk -maxdepth 1 -name "*${ANDROID_FLAVOR}*release*.apk" | head -n 1)"
+          if [ -z "$APK_PATH" ]; then
+            echo "::error::Android APK not found for flavor $ANDROID_FLAVOR"
+            find build/app/outputs/flutter-apk -maxdepth 1 -type f -print
+            exit 1
+          fi
+
+          cp "$APK_PATH" fungi-app-android-aarch64.apk
 
       - name: GH publish
         shell: bash

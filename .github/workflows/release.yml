@@ -98,12 +98,26 @@ jobs:
       - name: Install Pub Dependencies
         run: flutter pub get
 
+      - name: Configure app channel
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
+            DIST_CHANNEL="nightly"
+            FUNGI_APP_NAME="Fungi Dev"
+          else
+            DIST_CHANNEL="stable"
+            FUNGI_APP_NAME="Fungi"
+          fi
+
+          echo "DIST_CHANNEL=$DIST_CHANNEL" >> "$GITHUB_ENV"
+          echo "FUNGI_APP_NAME=$FUNGI_APP_NAME" >> "$GITHUB_ENV"
+
       - name: Build Linux
         if: matrix.target == 'linux'
         shell: bash
         run: |
           flutter config --enable-linux-desktop
-          flutter build linux --release --target-platform ${{ matrix.flutter-target-platform }}
+          scripts/build_linux_dist.sh --channel "$DIST_CHANNEL" --target-platform ${{ matrix.flutter-target-platform }}
 
           BUNDLE_DIR=$(find build/linux -type d -path '*/release/bundle' | head -n 1)
           if [ -z "$BUNDLE_DIR" ]; then
@@ -117,15 +131,15 @@ jobs:
         if: matrix.target == 'macos' && matrix.macos-build-arch == 'arm64'
         run: |
           flutter config --enable-macos-desktop
-          flutter build macos --release
-          tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/macos/Build/Products/Release "Fungi App.app"
+          scripts/build_macos_dist.sh --channel "$DIST_CHANNEL"
+          tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/macos/Build/Products/Release "$FUNGI_APP_NAME.app"
 
       - name: Build macOS x86_64
         if: matrix.target == 'macos' && matrix.macos-build-arch == 'x86_64'
         shell: bash
         run: |
           flutter config --enable-macos-desktop
-          flutter build macos --release --config-only
+          scripts/build_macos_dist.sh --channel "$DIST_CHANNEL" --config-only
           cd macos
           pod install
           cd ..
@@ -142,14 +156,14 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-          tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/macos-x86_64/Build/Products/Release "Fungi App.app"
+          tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/macos-x86_64/Build/Products/Release "$FUNGI_APP_NAME.app"
 
       - name: Build Windows
         if: matrix.target == 'windows'
         shell: bash
         run: |
           flutter config --enable-windows-desktop
-          flutter build windows --release
+          scripts/build_windows_dist.sh --channel "$DIST_CHANNEL"
           tar -czf fungi-app-${{ matrix.platform-name }}.tar.gz -C build/windows/x64/runner/Release .
 
       - name: Update nightly release notes

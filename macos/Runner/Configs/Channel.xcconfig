@@ -1,0 +1,5 @@
+FUNGI_APP_CHANNEL = nightly
+PRODUCT_NAME = Fungi Dev
+PRODUCT_BUNDLE_IDENTIFIER = rs.fungi.FungiApp.nightly
+FUNGI_APP_ICON_NAME = AppIconNightly
+FUNGI_APP_DISPLAY_NAME = Fungi Dev

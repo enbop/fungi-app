@@ -68,3 +68,12 @@ protoc --dart_out=grpc:lib/src/grpc/generated -Ifungi-artifacts fungi-artifacts/
 flutter pub get
 flutter run
 ```
+
+### Distribution Build
+
+```bash
+scripts/build_macos_dist.sh --channel stable
+scripts/build_linux_dist.sh --channel stable
+scripts/build_windows_dist.sh --channel stable
+scripts/build_android_dist.sh --channel stable
+```

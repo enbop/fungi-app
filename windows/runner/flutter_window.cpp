@@ -7,11 +7,14 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+#define WIDEN2(x) L##x
+#define WIDEN(x) WIDEN2(x)
+
 namespace {
 
 constexpr wchar_t kLaunchAtLoginRegistryPath[] =
     L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-constexpr wchar_t kLaunchAtLoginValueName[] = L"Fungi App";
+constexpr wchar_t kLaunchAtLoginValueName[] = WIDEN(FUNGI_APP_DISPLAY_NAME);
 constexpr char kLaunchAtLoginChannelName[] = "fungi_app/launch_at_login";
 
 flutter::EncodableMap MakeLaunchAtLoginStatus(bool enabled) {
