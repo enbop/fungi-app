@@ -17,23 +17,27 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: linux
+            core-platform: linux
+            core-arch: x86_64
             platform-name: linux-x86_64
-            fungi-artifact: fungi-linux-x86_64.tar.gz
             flutter-target-platform: linux-x64
           - os: macos-latest
             target: macos
+            core-platform: macos
+            core-arch: aarch64
             platform-name: macos-aarch64
-            fungi-artifact: fungi-macos-aarch64.tar.gz
             macos-build-arch: arm64
           - os: macos-latest
             target: macos
+            core-platform: macos
+            core-arch: x86_64
             platform-name: macos-x86_64
-            fungi-artifact: fungi-macos-x86_64.tar.gz
             macos-build-arch: x86_64
           - os: windows-latest
             target: windows
+            core-platform: windows
+            core-arch: x86_64
             platform-name: windows-x86_64
-            fungi-artifact: fungi-windows-x86_64.tar.gz
     permissions:
       contents: write
     steps:
@@ -46,31 +50,26 @@ jobs:
           FUNGI_VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
             FUNGI_RELEASE_TAG="nightly"
+            DIST_CHANNEL="nightly"
           else
             FUNGI_RELEASE_TAG="$FUNGI_VERSION"
+            DIST_CHANNEL="stable"
           fi
 
           echo "FUNGI_VERSION=$FUNGI_VERSION" >> $GITHUB_ENV
           echo "FUNGI_RELEASE_TAG=$FUNGI_RELEASE_TAG" >> $GITHUB_ENV
+          echo "DIST_CHANNEL=$DIST_CHANNEL" >> "$GITHUB_ENV"
           echo "Using Fungi version: $FUNGI_VERSION"
           echo "Downloading artifacts from release tag: $FUNGI_RELEASE_TAG"
 
       - name: Download Fungi Artifacts
         shell: bash
         run: |
-          mkdir -p fungi-artifacts
-          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.FUNGI_RELEASE_TAG }}"
-          
-          # Download binary artifact
-          curl -fL -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
-          
-          # Download proto file
-          curl -fL -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
-          
-          # Extract binary
-          cd fungi-artifacts
-          tar -xzf ${{ matrix.fungi-artifact }}
-          rm ${{ matrix.fungi-artifact }}
+          scripts/fetch_core_artifacts.sh \
+            --channel "$DIST_CHANNEL" \
+            --tag "$FUNGI_RELEASE_TAG" \
+            --platform "${{ matrix.core-platform }}" \
+            --arch "${{ matrix.core-arch }}"
 
       - name: Install Linux Dependencies
         if: matrix.target == 'linux'
@@ -101,15 +100,12 @@ jobs:
       - name: Configure app channel
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
-            DIST_CHANNEL="nightly"
+          if [ "$DIST_CHANNEL" = "nightly" ]; then
             FUNGI_APP_NAME="Fungi Dev"
           else
-            DIST_CHANNEL="stable"
             FUNGI_APP_NAME="Fungi"
           fi
 
-          echo "DIST_CHANNEL=$DIST_CHANNEL" >> "$GITHUB_ENV"
           echo "FUNGI_APP_NAME=$FUNGI_APP_NAME" >> "$GITHUB_ENV"
 
       - name: Build Linux

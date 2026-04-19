@@ -24,11 +24,9 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
+fungi_app_dist_channel="${fungi_app_dist_channel:-nightly}"
+
 case "$fungi_app_dist_channel" in
-  "")
-    echo "Usage: $0 --channel stable|nightly [flutter build args...]" >&2
-    exit 64
-    ;;
   stable | release)
     fungi_app_dist_channel="stable"
     fungi_app_display_name="Fungi"
@@ -44,7 +42,7 @@ case "$fungi_app_dist_channel" in
     ;;
   *)
     echo "Unknown channel: $fungi_app_dist_channel" >&2
-    echo "Usage: --channel stable|nightly" >&2
+    echo "Usage: $0 [--channel stable|nightly] [flutter build args...]" >&2
     exit 64
     ;;
 esac

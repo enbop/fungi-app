@@ -1,21 +1,50 @@
 param(
     [string]$Configuration = "Debug",
-    [string]$DestDir = ""
+    [string]$DestDir = "",
+    [string]$Channel = "",
+    [string]$Arch = ""
 )
 
 Write-Host "========== Copying Rust Binary =========="
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-# The fungi-artifacts directory is located at the root of the Flutter project (fungi-app)
-# Relative path from script: ..\..\fungi-artifacts\fungi.exe
-$RustBinaryPath = Join-Path $ScriptDir "..\..\fungi-artifacts\fungi.exe"
+$ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..") | Select-Object -ExpandProperty Path
+
+if ([string]::IsNullOrEmpty($Channel)) {
+    if ($env:FUNGI_APP_CHANNEL) {
+        $Channel = $env:FUNGI_APP_CHANNEL
+    } else {
+        $Channel = "nightly"
+    }
+}
+
+if ([string]::IsNullOrEmpty($Arch)) {
+    if ($env:FUNGI_CORE_ARCH) {
+        $Arch = $env:FUNGI_CORE_ARCH
+    } elseif ($env:PROCESSOR_ARCHITECTURE) {
+        $Arch = $env:PROCESSOR_ARCHITECTURE
+    } else {
+        $Arch = "x86_64"
+    }
+}
+
+switch ($Arch) {
+    "AMD64" { $CoreArch = "x86_64" }
+    "x64" { $CoreArch = "x86_64" }
+    "x86_64" { $CoreArch = "x86_64" }
+    "ARM64" { $CoreArch = "aarch64" }
+    "arm64" { $CoreArch = "aarch64" }
+    "aarch64" { $CoreArch = "aarch64" }
+    default { $CoreArch = $Arch }
+}
+
+$RustBinaryPath = Join-Path $ProjectRoot "fungi-artifacts\$Channel\windows\$CoreArch\fungi.exe"
 
 if ([string]::IsNullOrEmpty($DestDir)) {
     if ($env:CMAKE_BINARY_DIR) {
         $CMakeBinaryDir = $env:CMAKE_BINARY_DIR
     } else {
         # Fallback for when running script manually or outside CMake
-        $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..\..\..") | Select-Object -ExpandProperty Path
         $CMakeBinaryDir = Join-Path $ProjectRoot "flutter_app\build\windows\x64\runner"
     }
     $DestDir = Join-Path $CMakeBinaryDir $Configuration
@@ -28,7 +57,7 @@ Write-Host "Destination: $DestBinary"
 
 if (-not (Test-Path $RustBinaryPath)) {
     Write-Host "Error: Rust binary not found at $RustBinaryPath" -ForegroundColor Red
-    Write-Host "Please ensure 'fungi-artifacts\fungi.exe' exists in the project root." -ForegroundColor Yellow
+    Write-Host "Please ensure 'fungi-artifacts\$Channel\windows\$CoreArch\fungi.exe' exists in the project root." -ForegroundColor Yellow
     exit 1
 }
 

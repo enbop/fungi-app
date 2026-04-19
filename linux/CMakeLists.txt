@@ -145,7 +145,7 @@ endif()
 # Copy Rust binary to bundle
 install(CODE "
   execute_process(
-    COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/copy_rust_binary.sh\" \"${CMAKE_INSTALL_PREFIX}\" \"${CMAKE_BUILD_TYPE}\"
+    COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/copy_rust_binary.sh\" \"${CMAKE_INSTALL_PREFIX}\" \"${CMAKE_BUILD_TYPE}\" \"${FUNGI_APP_CHANNEL}\" \"${CMAKE_SYSTEM_PROCESSOR}\"
     RESULT_VARIABLE RESULT
   )
   if(NOT RESULT EQUAL 0)

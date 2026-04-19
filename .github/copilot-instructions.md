@@ -16,7 +16,7 @@
 
 ## Build and Test
 
-- Prereqs: Flutter SDK + `fungi-artifacts` directory containing `fungi`/`fungi.exe` and `fungi_daemon.proto` ([README.md](../README.md)).
+- Prereqs: Flutter SDK + `fungi-artifacts` directory containing channel/platform/arch core binaries and `fungi_daemon.proto` ([README.md](../README.md)).
 - Install deps: `flutter pub get`.
 - Run app: `flutter run`.
 - Generate Dart gRPC code after proto changes:
@@ -29,7 +29,7 @@
 
 - Do not edit generated files in [lib/src/grpc/generated](../lib/src/grpc/generated) by hand; regenerate from proto.
 - Keep daemon lifecycle changes centralized in process/service utilities, not scattered across widgets ([lib/ui/utils/daemon_service_manager.dart](../lib/ui/utils/daemon_service_manager.dart), [lib/app/foreground_task.dart](../lib/app/foreground_task.dart)).
-- Preserve cross-platform binary packaging hooks that copy `fungi` from `fungi-artifacts` into app bundles ([linux/CMakeLists.txt](../linux/CMakeLists.txt), [windows/scripts/copy_rust_binary.ps1](../windows/scripts/copy_rust_binary.ps1), [macos/Runner.xcodeproj/project.pbxproj](../macos/Runner.xcodeproj/project.pbxproj)).
+- Preserve cross-platform binary packaging hooks that copy `fungi` from `fungi-artifacts/<channel>/<platform>/<arch>` into app bundles ([linux/CMakeLists.txt](../linux/CMakeLists.txt), [windows/scripts/copy_rust_binary.ps1](../windows/scripts/copy_rust_binary.ps1), [macos/Runner.xcodeproj/project.pbxproj](../macos/Runner.xcodeproj/project.pbxproj)).
 
 ## Integration Points
 

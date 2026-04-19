@@ -18,41 +18,24 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: linux
-            fungi-artifact: fungi-linux-x86_64.tar.gz
+            core-platform: linux
+            core-arch: x86_64
           - os: macos-latest
             target: macos
-            fungi-artifact: fungi-macos-aarch64.tar.gz
+            core-platform: macos
+            core-arch: aarch64
           - os: windows-latest
             target: windows
-            fungi-artifact: fungi-windows-x86_64.tar.gz
+            core-platform: windows
+            core-arch: x86_64
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Read Fungi Version
-        id: fungi_version
-        shell: bash
-        run: |
-          VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Using Fungi Version: $VERSION"
-
       - name: Download Fungi Artifacts
         shell: bash
         run: |
-          mkdir -p fungi-artifacts
-          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.VERSION }}"
-          
-          # Download binary artifact
-          curl -fL -o fungi-artifacts/${{ matrix.fungi-artifact }} "$BASE_URL/${{ matrix.fungi-artifact }}"
-          
-          # Download proto file
-          curl -fL -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
-          
-          # Extract binary
-          cd fungi-artifacts
-          tar -xzf ${{ matrix.fungi-artifact }}
-          rm ${{ matrix.fungi-artifact }}
+          scripts/fetch_core_artifacts.sh --platform "${{ matrix.core-platform }}" --arch "${{ matrix.core-arch }}"
 
       - name: Install Linux Dependencies
         if: matrix.target == 'linux'

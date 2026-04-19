@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
-    env:
-      fungi-artifact: fungi-android-aarch64.tar.gz
     steps:
       - uses: actions/checkout@v4
 
@@ -25,35 +23,26 @@ jobs:
           FUNGI_VERSION=$(cat FUNGI_VERSION | tr -d '[:space:]')
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
             FUNGI_RELEASE_TAG="nightly"
+            DIST_CHANNEL="nightly"
           else
             FUNGI_RELEASE_TAG="$FUNGI_VERSION"
+            DIST_CHANNEL="stable"
           fi
 
           echo "FUNGI_VERSION=$FUNGI_VERSION" >> $GITHUB_ENV
           echo "FUNGI_RELEASE_TAG=$FUNGI_RELEASE_TAG" >> $GITHUB_ENV
+          echo "DIST_CHANNEL=$DIST_CHANNEL" >> "$GITHUB_ENV"
           echo "Using Fungi version: $FUNGI_VERSION"
           echo "Downloading artifacts from release tag: $FUNGI_RELEASE_TAG"
 
       - name: Download Fungi Artifacts
         shell: bash
         run: |
-          mkdir -p fungi-artifacts
-          BASE_URL="https://github.com/enbop/fungi/releases/download/${{ env.FUNGI_RELEASE_TAG }}"
-          
-          # Download binary artifact
-          curl -fL -o fungi-artifacts/${{ env.fungi-artifact }} "$BASE_URL/${{ env.fungi-artifact }}"
-          
-          # Download proto file
-          curl -fL -o fungi-artifacts/fungi_daemon.proto "$BASE_URL/fungi_daemon.proto"
-          
-          # Extract binary
-          cd fungi-artifacts
-          tar -xzf ${{ env.fungi-artifact }}
-          rm ${{ env.fungi-artifact }}
-          
-          # Organize for Android
-          mkdir -p android/arm64-v8a
-          mv libfungi.so android/arm64-v8a/
+          scripts/fetch_core_artifacts.sh \
+            --channel "$DIST_CHANNEL" \
+            --tag "$FUNGI_RELEASE_TAG" \
+            --platform android \
+            --arch arm64-v8a
 
       - name: Install Android Dependencies
         run: |
@@ -82,15 +71,12 @@ jobs:
       - name: Configure app channel
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.ref_name }}" = "nightly" ]; then
-            DIST_CHANNEL="nightly"
+          if [ "$DIST_CHANNEL" = "nightly" ]; then
             ANDROID_FLAVOR="nightly"
           else
-            DIST_CHANNEL="stable"
             ANDROID_FLAVOR="stable"
           fi
 
-          echo "DIST_CHANNEL=$DIST_CHANNEL" >> "$GITHUB_ENV"
           echo "ANDROID_FLAVOR=$ANDROID_FLAVOR" >> "$GITHUB_ENV"
 
       - name: Setup Android signing

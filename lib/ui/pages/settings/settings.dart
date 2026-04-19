@@ -278,16 +278,17 @@ class Settings extends GetView<FungiController> {
   }
 
   void _showAppVersionDialog(BuildContext context) {
+    final details = controller.versionDetails;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('App version'),
-        content: SelectableText(controller.appBuildDetails.value),
+        content: SelectableText(details),
         actions: [
           TextButton(
             onPressed: () {
               Clipboard.setData(
-                ClipboardData(text: controller.appBuildDetails.value),
+                ClipboardData(text: details),
               );
               SmartDialog.showToast('Version details copied to clipboard');
             },

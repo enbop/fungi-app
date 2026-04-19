@@ -53,10 +53,30 @@ class Empty extends $pb.GeneratedMessage {
 class VersionResponse extends $pb.GeneratedMessage {
   factory VersionResponse({
     $core.String? version,
+    $core.String? channel,
+    $core.String? commit,
+    $core.String? buildTime,
+    $core.String? defaultFungiDir,
+    $core.String? defaultRpcAddress,
   }) {
     final $result = create();
     if (version != null) {
       $result.version = version;
+    }
+    if (channel != null) {
+      $result.channel = channel;
+    }
+    if (commit != null) {
+      $result.commit = commit;
+    }
+    if (buildTime != null) {
+      $result.buildTime = buildTime;
+    }
+    if (defaultFungiDir != null) {
+      $result.defaultFungiDir = defaultFungiDir;
+    }
+    if (defaultRpcAddress != null) {
+      $result.defaultRpcAddress = defaultRpcAddress;
     }
     return $result;
   }
@@ -66,6 +86,11 @@ class VersionResponse extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VersionResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'version')
+    ..aOS(2, _omitFieldNames ? '' : 'channel')
+    ..aOS(3, _omitFieldNames ? '' : 'commit')
+    ..aOS(4, _omitFieldNames ? '' : 'buildTime')
+    ..aOS(5, _omitFieldNames ? '' : 'defaultFungiDir')
+    ..aOS(6, _omitFieldNames ? '' : 'defaultRpcAddress')
     ..hasRequiredFields = false
   ;
 
@@ -98,6 +123,51 @@ class VersionResponse extends $pb.GeneratedMessage {
   $core.bool hasVersion() => $_has(0);
   @$pb.TagNumber(1)
   void clearVersion() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get channel => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set channel($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasChannel() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearChannel() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get commit => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set commit($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCommit() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCommit() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get buildTime => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set buildTime($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasBuildTime() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearBuildTime() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get defaultFungiDir => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set defaultFungiDir($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasDefaultFungiDir() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDefaultFungiDir() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get defaultRpcAddress => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set defaultRpcAddress($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasDefaultRpcAddress() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearDefaultRpcAddress() => clearField(6);
 }
 
 class HostnameResponse extends $pb.GeneratedMessage {
@@ -534,6 +604,8 @@ class RelayAddressRequest extends $pb.GeneratedMessage {
   static RelayAddressRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RelayAddressRequest>(create);
   static RelayAddressRequest? _defaultInstance;
 
+  /// One relay multiaddr. TCP entries carry relay reservations/circuits; UDP/QUIC
+  /// entries are observer-only for pre-hole-punch UDP address discovery.
   @$pb.TagNumber(1)
   $core.String get address => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -681,9 +753,13 @@ class RelayConfigResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearUseCommunityRelays() => clearField(2);
 
+  /// User-facing relay list. The daemon keeps one list in config and separates
+  /// TCP relay carriers from UDP/QUIC observers internally.
   @$pb.TagNumber(3)
   $core.List<$core.String> get customRelayAddresses => $_getList(2);
 
+  /// Community plus custom relay addresses after config resolution, with the
+  /// same TCP-carrier / UDP-observer semantics as custom_relay_addresses.
   @$pb.TagNumber(4)
   $core.List<EffectiveRelayAddress> get effectiveRelayAddresses => $_getList(3);
 }
@@ -3761,6 +3837,10 @@ class ConnectionSnapshot extends $pb.GeneratedMessage {
     $fixnum.Int64? lastPingUnixMs,
     $fixnum.Int64? activeStreamsTotal,
     $core.Iterable<ProtocolStreamCountSnapshot>? activeStreamsByProtocol,
+    $core.String? policyState,
+    $core.String? policyReason,
+    $core.String? peerAlias,
+    $core.String? peerRole,
   }) {
     final $result = create();
     if (peerId != null) {
@@ -3790,6 +3870,18 @@ class ConnectionSnapshot extends $pb.GeneratedMessage {
     if (activeStreamsByProtocol != null) {
       $result.activeStreamsByProtocol.addAll(activeStreamsByProtocol);
     }
+    if (policyState != null) {
+      $result.policyState = policyState;
+    }
+    if (policyReason != null) {
+      $result.policyReason = policyReason;
+    }
+    if (peerAlias != null) {
+      $result.peerAlias = peerAlias;
+    }
+    if (peerRole != null) {
+      $result.peerRole = peerRole;
+    }
     return $result;
   }
   ConnectionSnapshot._() : super();
@@ -3806,6 +3898,10 @@ class ConnectionSnapshot extends $pb.GeneratedMessage {
     ..aInt64(7, _omitFieldNames ? '' : 'lastPingUnixMs')
     ..a<$fixnum.Int64>(8, _omitFieldNames ? '' : 'activeStreamsTotal', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
     ..pc<ProtocolStreamCountSnapshot>(9, _omitFieldNames ? '' : 'activeStreamsByProtocol', $pb.PbFieldType.PM, subBuilder: ProtocolStreamCountSnapshot.create)
+    ..aOS(10, _omitFieldNames ? '' : 'policyState')
+    ..aOS(11, _omitFieldNames ? '' : 'policyReason')
+    ..aOS(12, _omitFieldNames ? '' : 'peerAlias')
+    ..aOS(13, _omitFieldNames ? '' : 'peerRole')
     ..hasRequiredFields = false
   ;
 
@@ -3905,6 +4001,42 @@ class ConnectionSnapshot extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(9)
   $core.List<ProtocolStreamCountSnapshot> get activeStreamsByProtocol => $_getList(8);
+
+  @$pb.TagNumber(10)
+  $core.String get policyState => $_getSZ(9);
+  @$pb.TagNumber(10)
+  set policyState($core.String v) { $_setString(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasPolicyState() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearPolicyState() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.String get policyReason => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set policyReason($core.String v) { $_setString(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasPolicyReason() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearPolicyReason() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.String get peerAlias => $_getSZ(11);
+  @$pb.TagNumber(12)
+  set peerAlias($core.String v) { $_setString(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasPeerAlias() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearPeerAlias() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.String get peerRole => $_getSZ(12);
+  @$pb.TagNumber(13)
+  set peerRole($core.String v) { $_setString(12, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasPeerRole() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearPeerRole() => clearField(13);
 }
 
 class ProtocolStreamCountSnapshot extends $pb.GeneratedMessage {
@@ -4230,6 +4362,702 @@ class ListActiveStreamsResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<ActiveStreamSnapshot> get streams => $_getList(0);
+}
+
+class ExternalAddressSnapshot extends $pb.GeneratedMessage {
+  factory ExternalAddressSnapshot({
+    $core.String? address,
+    $core.String? transport,
+    $core.String? freshness,
+    $core.bool? recommendRefreshBeforeDcutr,
+    $fixnum.Int64? firstObservedAtUnixMs,
+    $fixnum.Int64? lastObservedAtUnixMs,
+    $fixnum.Int64? confirmedAtUnixMs,
+    $fixnum.Int64? expiredAtUnixMs,
+    $fixnum.Int64? observationCount,
+    $core.Iterable<$core.String>? sources,
+  }) {
+    final $result = create();
+    if (address != null) {
+      $result.address = address;
+    }
+    if (transport != null) {
+      $result.transport = transport;
+    }
+    if (freshness != null) {
+      $result.freshness = freshness;
+    }
+    if (recommendRefreshBeforeDcutr != null) {
+      $result.recommendRefreshBeforeDcutr = recommendRefreshBeforeDcutr;
+    }
+    if (firstObservedAtUnixMs != null) {
+      $result.firstObservedAtUnixMs = firstObservedAtUnixMs;
+    }
+    if (lastObservedAtUnixMs != null) {
+      $result.lastObservedAtUnixMs = lastObservedAtUnixMs;
+    }
+    if (confirmedAtUnixMs != null) {
+      $result.confirmedAtUnixMs = confirmedAtUnixMs;
+    }
+    if (expiredAtUnixMs != null) {
+      $result.expiredAtUnixMs = expiredAtUnixMs;
+    }
+    if (observationCount != null) {
+      $result.observationCount = observationCount;
+    }
+    if (sources != null) {
+      $result.sources.addAll(sources);
+    }
+    return $result;
+  }
+  ExternalAddressSnapshot._() : super();
+  factory ExternalAddressSnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ExternalAddressSnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ExternalAddressSnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'address')
+    ..aOS(2, _omitFieldNames ? '' : 'transport')
+    ..aOS(3, _omitFieldNames ? '' : 'freshness')
+    ..aOB(4, _omitFieldNames ? '' : 'recommendRefreshBeforeDcutr')
+    ..aInt64(5, _omitFieldNames ? '' : 'firstObservedAtUnixMs')
+    ..aInt64(6, _omitFieldNames ? '' : 'lastObservedAtUnixMs')
+    ..aInt64(7, _omitFieldNames ? '' : 'confirmedAtUnixMs')
+    ..aInt64(8, _omitFieldNames ? '' : 'expiredAtUnixMs')
+    ..a<$fixnum.Int64>(9, _omitFieldNames ? '' : 'observationCount', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..pPS(10, _omitFieldNames ? '' : 'sources')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ExternalAddressSnapshot clone() => ExternalAddressSnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ExternalAddressSnapshot copyWith(void Function(ExternalAddressSnapshot) updates) => super.copyWith((message) => updates(message as ExternalAddressSnapshot)) as ExternalAddressSnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExternalAddressSnapshot create() => ExternalAddressSnapshot._();
+  ExternalAddressSnapshot createEmptyInstance() => create();
+  static $pb.PbList<ExternalAddressSnapshot> createRepeated() => $pb.PbList<ExternalAddressSnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static ExternalAddressSnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ExternalAddressSnapshot>(create);
+  static ExternalAddressSnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get address => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set address($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasAddress() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAddress() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get transport => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set transport($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTransport() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTransport() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get freshness => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set freshness($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFreshness() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFreshness() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get recommendRefreshBeforeDcutr => $_getBF(3);
+  @$pb.TagNumber(4)
+  set recommendRefreshBeforeDcutr($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRecommendRefreshBeforeDcutr() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRecommendRefreshBeforeDcutr() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get firstObservedAtUnixMs => $_getI64(4);
+  @$pb.TagNumber(5)
+  set firstObservedAtUnixMs($fixnum.Int64 v) { $_setInt64(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasFirstObservedAtUnixMs() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFirstObservedAtUnixMs() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $fixnum.Int64 get lastObservedAtUnixMs => $_getI64(5);
+  @$pb.TagNumber(6)
+  set lastObservedAtUnixMs($fixnum.Int64 v) { $_setInt64(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasLastObservedAtUnixMs() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearLastObservedAtUnixMs() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get confirmedAtUnixMs => $_getI64(6);
+  @$pb.TagNumber(7)
+  set confirmedAtUnixMs($fixnum.Int64 v) { $_setInt64(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasConfirmedAtUnixMs() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearConfirmedAtUnixMs() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get expiredAtUnixMs => $_getI64(7);
+  @$pb.TagNumber(8)
+  set expiredAtUnixMs($fixnum.Int64 v) { $_setInt64(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasExpiredAtUnixMs() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearExpiredAtUnixMs() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $fixnum.Int64 get observationCount => $_getI64(8);
+  @$pb.TagNumber(9)
+  set observationCount($fixnum.Int64 v) { $_setInt64(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasObservationCount() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearObservationCount() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.List<$core.String> get sources => $_getList(9);
+}
+
+class ListExternalAddressCandidatesResponse extends $pb.GeneratedMessage {
+  factory ListExternalAddressCandidatesResponse({
+    $core.Iterable<ExternalAddressSnapshot>? candidates,
+  }) {
+    final $result = create();
+    if (candidates != null) {
+      $result.candidates.addAll(candidates);
+    }
+    return $result;
+  }
+  ListExternalAddressCandidatesResponse._() : super();
+  factory ListExternalAddressCandidatesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListExternalAddressCandidatesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListExternalAddressCandidatesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..pc<ExternalAddressSnapshot>(1, _omitFieldNames ? '' : 'candidates', $pb.PbFieldType.PM, subBuilder: ExternalAddressSnapshot.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListExternalAddressCandidatesResponse clone() => ListExternalAddressCandidatesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListExternalAddressCandidatesResponse copyWith(void Function(ListExternalAddressCandidatesResponse) updates) => super.copyWith((message) => updates(message as ListExternalAddressCandidatesResponse)) as ListExternalAddressCandidatesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListExternalAddressCandidatesResponse create() => ListExternalAddressCandidatesResponse._();
+  ListExternalAddressCandidatesResponse createEmptyInstance() => create();
+  static $pb.PbList<ListExternalAddressCandidatesResponse> createRepeated() => $pb.PbList<ListExternalAddressCandidatesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListExternalAddressCandidatesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListExternalAddressCandidatesResponse>(create);
+  static ListExternalAddressCandidatesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<ExternalAddressSnapshot> get candidates => $_getList(0);
+}
+
+class RelayEndpointStatusSnapshot extends $pb.GeneratedMessage {
+  factory RelayEndpointStatusSnapshot({
+    $core.String? relayAddr,
+    $core.String? relayPeerId,
+    $core.String? transport,
+    $core.bool? listenerRegistered,
+    $core.bool? taskRunning,
+    $core.String? currentDirectConnectionId,
+    $fixnum.Int64? lastListenerSeenAtUnixMs,
+    $fixnum.Int64? lastListenerMissingAtUnixMs,
+    $fixnum.Int64? lastReservationAcceptedAtUnixMs,
+    $fixnum.Int64? lastReservationEstablishedAtUnixMs,
+    $fixnum.Int64? lastReservationRenewedAtUnixMs,
+    $fixnum.Int64? lastDirectConnectionClosedAtUnixMs,
+    $core.String? lastManagementAction,
+    $core.String? lastError,
+  }) {
+    final $result = create();
+    if (relayAddr != null) {
+      $result.relayAddr = relayAddr;
+    }
+    if (relayPeerId != null) {
+      $result.relayPeerId = relayPeerId;
+    }
+    if (transport != null) {
+      $result.transport = transport;
+    }
+    if (listenerRegistered != null) {
+      $result.listenerRegistered = listenerRegistered;
+    }
+    if (taskRunning != null) {
+      $result.taskRunning = taskRunning;
+    }
+    if (currentDirectConnectionId != null) {
+      $result.currentDirectConnectionId = currentDirectConnectionId;
+    }
+    if (lastListenerSeenAtUnixMs != null) {
+      $result.lastListenerSeenAtUnixMs = lastListenerSeenAtUnixMs;
+    }
+    if (lastListenerMissingAtUnixMs != null) {
+      $result.lastListenerMissingAtUnixMs = lastListenerMissingAtUnixMs;
+    }
+    if (lastReservationAcceptedAtUnixMs != null) {
+      $result.lastReservationAcceptedAtUnixMs = lastReservationAcceptedAtUnixMs;
+    }
+    if (lastReservationEstablishedAtUnixMs != null) {
+      $result.lastReservationEstablishedAtUnixMs = lastReservationEstablishedAtUnixMs;
+    }
+    if (lastReservationRenewedAtUnixMs != null) {
+      $result.lastReservationRenewedAtUnixMs = lastReservationRenewedAtUnixMs;
+    }
+    if (lastDirectConnectionClosedAtUnixMs != null) {
+      $result.lastDirectConnectionClosedAtUnixMs = lastDirectConnectionClosedAtUnixMs;
+    }
+    if (lastManagementAction != null) {
+      $result.lastManagementAction = lastManagementAction;
+    }
+    if (lastError != null) {
+      $result.lastError = lastError;
+    }
+    return $result;
+  }
+  RelayEndpointStatusSnapshot._() : super();
+  factory RelayEndpointStatusSnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RelayEndpointStatusSnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RelayEndpointStatusSnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'relayAddr')
+    ..aOS(2, _omitFieldNames ? '' : 'relayPeerId')
+    ..aOS(3, _omitFieldNames ? '' : 'transport')
+    ..aOB(4, _omitFieldNames ? '' : 'listenerRegistered')
+    ..aOB(5, _omitFieldNames ? '' : 'taskRunning')
+    ..aOS(6, _omitFieldNames ? '' : 'currentDirectConnectionId')
+    ..aInt64(7, _omitFieldNames ? '' : 'lastListenerSeenAtUnixMs')
+    ..aInt64(8, _omitFieldNames ? '' : 'lastListenerMissingAtUnixMs')
+    ..aInt64(9, _omitFieldNames ? '' : 'lastReservationAcceptedAtUnixMs')
+    ..aInt64(10, _omitFieldNames ? '' : 'lastReservationEstablishedAtUnixMs')
+    ..aInt64(11, _omitFieldNames ? '' : 'lastReservationRenewedAtUnixMs')
+    ..aInt64(12, _omitFieldNames ? '' : 'lastDirectConnectionClosedAtUnixMs')
+    ..aOS(13, _omitFieldNames ? '' : 'lastManagementAction')
+    ..aOS(14, _omitFieldNames ? '' : 'lastError')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RelayEndpointStatusSnapshot clone() => RelayEndpointStatusSnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RelayEndpointStatusSnapshot copyWith(void Function(RelayEndpointStatusSnapshot) updates) => super.copyWith((message) => updates(message as RelayEndpointStatusSnapshot)) as RelayEndpointStatusSnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RelayEndpointStatusSnapshot create() => RelayEndpointStatusSnapshot._();
+  RelayEndpointStatusSnapshot createEmptyInstance() => create();
+  static $pb.PbList<RelayEndpointStatusSnapshot> createRepeated() => $pb.PbList<RelayEndpointStatusSnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static RelayEndpointStatusSnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RelayEndpointStatusSnapshot>(create);
+  static RelayEndpointStatusSnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get relayAddr => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set relayAddr($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRelayAddr() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRelayAddr() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get relayPeerId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set relayPeerId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRelayPeerId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRelayPeerId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get transport => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set transport($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTransport() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTransport() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get listenerRegistered => $_getBF(3);
+  @$pb.TagNumber(4)
+  set listenerRegistered($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasListenerRegistered() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearListenerRegistered() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.bool get taskRunning => $_getBF(4);
+  @$pb.TagNumber(5)
+  set taskRunning($core.bool v) { $_setBool(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasTaskRunning() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTaskRunning() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get currentDirectConnectionId => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set currentDirectConnectionId($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasCurrentDirectConnectionId() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearCurrentDirectConnectionId() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get lastListenerSeenAtUnixMs => $_getI64(6);
+  @$pb.TagNumber(7)
+  set lastListenerSeenAtUnixMs($fixnum.Int64 v) { $_setInt64(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasLastListenerSeenAtUnixMs() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearLastListenerSeenAtUnixMs() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get lastListenerMissingAtUnixMs => $_getI64(7);
+  @$pb.TagNumber(8)
+  set lastListenerMissingAtUnixMs($fixnum.Int64 v) { $_setInt64(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasLastListenerMissingAtUnixMs() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearLastListenerMissingAtUnixMs() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $fixnum.Int64 get lastReservationAcceptedAtUnixMs => $_getI64(8);
+  @$pb.TagNumber(9)
+  set lastReservationAcceptedAtUnixMs($fixnum.Int64 v) { $_setInt64(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasLastReservationAcceptedAtUnixMs() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearLastReservationAcceptedAtUnixMs() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $fixnum.Int64 get lastReservationEstablishedAtUnixMs => $_getI64(9);
+  @$pb.TagNumber(10)
+  set lastReservationEstablishedAtUnixMs($fixnum.Int64 v) { $_setInt64(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasLastReservationEstablishedAtUnixMs() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearLastReservationEstablishedAtUnixMs() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $fixnum.Int64 get lastReservationRenewedAtUnixMs => $_getI64(10);
+  @$pb.TagNumber(11)
+  set lastReservationRenewedAtUnixMs($fixnum.Int64 v) { $_setInt64(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasLastReservationRenewedAtUnixMs() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearLastReservationRenewedAtUnixMs() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $fixnum.Int64 get lastDirectConnectionClosedAtUnixMs => $_getI64(11);
+  @$pb.TagNumber(12)
+  set lastDirectConnectionClosedAtUnixMs($fixnum.Int64 v) { $_setInt64(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasLastDirectConnectionClosedAtUnixMs() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearLastDirectConnectionClosedAtUnixMs() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.String get lastManagementAction => $_getSZ(12);
+  @$pb.TagNumber(13)
+  set lastManagementAction($core.String v) { $_setString(12, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasLastManagementAction() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearLastManagementAction() => clearField(13);
+
+  @$pb.TagNumber(14)
+  $core.String get lastError => $_getSZ(13);
+  @$pb.TagNumber(14)
+  set lastError($core.String v) { $_setString(13, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasLastError() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearLastError() => clearField(14);
+}
+
+class ListRelayEndpointStatusesResponse extends $pb.GeneratedMessage {
+  factory ListRelayEndpointStatusesResponse({
+    $core.Iterable<RelayEndpointStatusSnapshot>? statuses,
+  }) {
+    final $result = create();
+    if (statuses != null) {
+      $result.statuses.addAll(statuses);
+    }
+    return $result;
+  }
+  ListRelayEndpointStatusesResponse._() : super();
+  factory ListRelayEndpointStatusesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListRelayEndpointStatusesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListRelayEndpointStatusesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..pc<RelayEndpointStatusSnapshot>(1, _omitFieldNames ? '' : 'statuses', $pb.PbFieldType.PM, subBuilder: RelayEndpointStatusSnapshot.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListRelayEndpointStatusesResponse clone() => ListRelayEndpointStatusesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListRelayEndpointStatusesResponse copyWith(void Function(ListRelayEndpointStatusesResponse) updates) => super.copyWith((message) => updates(message as ListRelayEndpointStatusesResponse)) as ListRelayEndpointStatusesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListRelayEndpointStatusesResponse create() => ListRelayEndpointStatusesResponse._();
+  ListRelayEndpointStatusesResponse createEmptyInstance() => create();
+  static $pb.PbList<ListRelayEndpointStatusesResponse> createRepeated() => $pb.PbList<ListRelayEndpointStatusesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListRelayEndpointStatusesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListRelayEndpointStatusesResponse>(create);
+  static ListRelayEndpointStatusesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<RelayEndpointStatusSnapshot> get statuses => $_getList(0);
+}
+
+class PeerAddressSnapshot extends $pb.GeneratedMessage {
+  factory PeerAddressSnapshot({
+    $core.String? peerId,
+    $core.String? address,
+    $core.String? transport,
+    $core.String? source,
+    $fixnum.Int64? firstObservedAtUnixMs,
+    $fixnum.Int64? lastObservedAtUnixMs,
+    $fixnum.Int64? observationCount,
+    $core.String? freshness,
+    $fixnum.Int64? expiredAtUnixMs,
+  }) {
+    final $result = create();
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (address != null) {
+      $result.address = address;
+    }
+    if (transport != null) {
+      $result.transport = transport;
+    }
+    if (source != null) {
+      $result.source = source;
+    }
+    if (firstObservedAtUnixMs != null) {
+      $result.firstObservedAtUnixMs = firstObservedAtUnixMs;
+    }
+    if (lastObservedAtUnixMs != null) {
+      $result.lastObservedAtUnixMs = lastObservedAtUnixMs;
+    }
+    if (observationCount != null) {
+      $result.observationCount = observationCount;
+    }
+    if (freshness != null) {
+      $result.freshness = freshness;
+    }
+    if (expiredAtUnixMs != null) {
+      $result.expiredAtUnixMs = expiredAtUnixMs;
+    }
+    return $result;
+  }
+  PeerAddressSnapshot._() : super();
+  factory PeerAddressSnapshot.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PeerAddressSnapshot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PeerAddressSnapshot', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'peerId')
+    ..aOS(2, _omitFieldNames ? '' : 'address')
+    ..aOS(3, _omitFieldNames ? '' : 'transport')
+    ..aOS(4, _omitFieldNames ? '' : 'source')
+    ..aInt64(5, _omitFieldNames ? '' : 'firstObservedAtUnixMs')
+    ..aInt64(6, _omitFieldNames ? '' : 'lastObservedAtUnixMs')
+    ..a<$fixnum.Int64>(7, _omitFieldNames ? '' : 'observationCount', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aOS(8, _omitFieldNames ? '' : 'freshness')
+    ..aInt64(9, _omitFieldNames ? '' : 'expiredAtUnixMs')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PeerAddressSnapshot clone() => PeerAddressSnapshot()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PeerAddressSnapshot copyWith(void Function(PeerAddressSnapshot) updates) => super.copyWith((message) => updates(message as PeerAddressSnapshot)) as PeerAddressSnapshot;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PeerAddressSnapshot create() => PeerAddressSnapshot._();
+  PeerAddressSnapshot createEmptyInstance() => create();
+  static $pb.PbList<PeerAddressSnapshot> createRepeated() => $pb.PbList<PeerAddressSnapshot>();
+  @$core.pragma('dart2js:noInline')
+  static PeerAddressSnapshot getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PeerAddressSnapshot>(create);
+  static PeerAddressSnapshot? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get peerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set peerId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPeerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPeerId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get address => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set address($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasAddress() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAddress() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get transport => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set transport($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTransport() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTransport() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get source => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set source($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasSource() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearSource() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get firstObservedAtUnixMs => $_getI64(4);
+  @$pb.TagNumber(5)
+  set firstObservedAtUnixMs($fixnum.Int64 v) { $_setInt64(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasFirstObservedAtUnixMs() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFirstObservedAtUnixMs() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $fixnum.Int64 get lastObservedAtUnixMs => $_getI64(5);
+  @$pb.TagNumber(6)
+  set lastObservedAtUnixMs($fixnum.Int64 v) { $_setInt64(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasLastObservedAtUnixMs() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearLastObservedAtUnixMs() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get observationCount => $_getI64(6);
+  @$pb.TagNumber(7)
+  set observationCount($fixnum.Int64 v) { $_setInt64(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasObservationCount() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearObservationCount() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get freshness => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set freshness($core.String v) { $_setString(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasFreshness() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearFreshness() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $fixnum.Int64 get expiredAtUnixMs => $_getI64(8);
+  @$pb.TagNumber(9)
+  set expiredAtUnixMs($fixnum.Int64 v) { $_setInt64(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasExpiredAtUnixMs() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearExpiredAtUnixMs() => clearField(9);
+}
+
+class ListPeerAddressesResponse extends $pb.GeneratedMessage {
+  factory ListPeerAddressesResponse({
+    $core.Iterable<PeerAddressSnapshot>? addresses,
+  }) {
+    final $result = create();
+    if (addresses != null) {
+      $result.addresses.addAll(addresses);
+    }
+    return $result;
+  }
+  ListPeerAddressesResponse._() : super();
+  factory ListPeerAddressesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListPeerAddressesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListPeerAddressesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..pc<PeerAddressSnapshot>(1, _omitFieldNames ? '' : 'addresses', $pb.PbFieldType.PM, subBuilder: PeerAddressSnapshot.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListPeerAddressesResponse clone() => ListPeerAddressesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListPeerAddressesResponse copyWith(void Function(ListPeerAddressesResponse) updates) => super.copyWith((message) => updates(message as ListPeerAddressesResponse)) as ListPeerAddressesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListPeerAddressesResponse create() => ListPeerAddressesResponse._();
+  ListPeerAddressesResponse createEmptyInstance() => create();
+  static $pb.PbList<ListPeerAddressesResponse> createRepeated() => $pb.PbList<ListPeerAddressesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListPeerAddressesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListPeerAddressesResponse>(create);
+  static ListPeerAddressesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<PeerAddressSnapshot> get addresses => $_getList(0);
 }
 
 class PullServiceRequest extends $pb.GeneratedMessage {

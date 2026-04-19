@@ -96,6 +96,7 @@ class FungiController extends GetxController {
   final daemonConnectionState = DaemonConnectionState.disabled.obs;
   final daemonError = ''.obs;
   final connectedDaemonVersion = ''.obs;
+  final connectedDaemonBuildDetails = ''.obs;
   final appVersion = '0.6.1'.obs;
   final appBuildVersion = ''.obs;
   final appBuildDetails = ''.obs;
@@ -400,6 +401,7 @@ class FungiController extends GetxController {
     daemonConnectionState.value = DaemonConnectionState.disabled;
     daemonError.value = '';
     connectedDaemonVersion.value = '';
+    connectedDaemonBuildDetails.value = '';
     peerId.value = '';
     hostname.value = '';
     configFilePath.value = '';
@@ -770,11 +772,15 @@ class FungiController extends GetxController {
     for (int i = 0; i < 5; i++) {
       try {
         fungiClient = await getFungiClient();
-        final daemonVersion = (await fungiClient.version(Empty())).version;
+        final daemonVersionResponse = await fungiClient.version(Empty());
+        final daemonVersion = daemonVersionResponse.version;
         if (!_isCompatibleDaemonVersion(daemonVersion)) {
           throw StateError(_buildIncompatibleDaemonMessage(daemonVersion));
         }
         connectedDaemonVersion.value = daemonVersion;
+        connectedDaemonBuildDetails.value = _buildDaemonDetailsLabel(
+          daemonVersionResponse,
+        );
         daemonConnectionState.value = DaemonConnectionState.connected;
         break;
       } catch (e) {
@@ -1110,6 +1116,32 @@ class FungiController extends GetxController {
       'Commit: ${AppBuildInfo.commitLabel}',
       'Built: ${AppBuildInfo.buildTimeLabel}',
     ].join('\n');
+  }
+
+  String get versionDetails {
+    final daemonDetails = connectedDaemonBuildDetails.value.trim();
+    if (daemonDetails.isEmpty) {
+      return appBuildDetails.value;
+    }
+    return '${appBuildDetails.value}\n\n$daemonDetails';
+  }
+
+  String _buildDaemonDetailsLabel(VersionResponse response) {
+    final values = [
+      'Daemon: fungi',
+      'Channel: ${_buildInfoValue(response.channel)}',
+      'Version: ${_buildInfoValue(response.version)}',
+      'Commit: ${_buildInfoValue(response.commit)}',
+      'Built: ${_buildInfoValue(response.buildTime)}',
+      'Default config: ${_buildInfoValue(response.defaultFungiDir)}',
+      'Default gRPC: ${_buildInfoValue(response.defaultRpcAddress)}',
+    ];
+    return values.join('\n');
+  }
+
+  String _buildInfoValue(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? 'unknown' : trimmed;
   }
 
   bool _isCompatibleDaemonVersion(String version) {

@@ -37,10 +37,11 @@ Fungi App currently tracks the `fungi` core release line directly.
 ### Prerequisites
 
 1.  **Flutter SDK**: Ensure you have the latest Flutter SDK installed.
-2.  **Fungi Artifacts**: This project requires pre-built `fungi` binaries and proto files.
-    *   Create a `fungi-artifacts` directory in the project root.
-    *   Place the `fungi` (or `fungi.exe`) binary for your platform in `fungi-artifacts/`.
-    *   Place `fungi_daemon.proto` in `fungi-artifacts/`.
+2.  **Fungi Artifacts**: download the matching core binary and proto:
+    ```bash
+    scripts/fetch_core_artifacts.sh
+    ```
+    Use `--platform android` for Android, or `--platform all` to prepare every packaged target. Artifacts are placed under `fungi-artifacts/<channel>/<platform>/<arch>/`.
 3.  **macOS**: If you're building on macOS, install CocoaPods (required for macOS Flutter plugins):
     ```bash
     brew install cocoapods
@@ -69,11 +70,23 @@ flutter pub get
 flutter run
 ```
 
+For Android development builds, select the nightly flavor:
+
+```bash
+flutter run --flavor nightly
+```
+
 ### Distribution Build
 
 ```bash
+scripts/build_macos_dist.sh
+scripts/build_linux_dist.sh
+scripts/build_windows_dist.sh
+scripts/build_android_dist.sh
+```
+
+Stable builds must opt in explicitly:
+
+```bash
 scripts/build_macos_dist.sh --channel stable
-scripts/build_linux_dist.sh --channel stable
-scripts/build_windows_dist.sh --channel stable
-scripts/build_android_dist.sh --channel stable
 ```

@@ -1,18 +1,21 @@
 #!/bin/bash
 
 # Script to copy or link Rust binary to Flutter Linux build
-# Usage: copy_rust_binary.sh <install_prefix> <build_type>
+# Usage: copy_rust_binary.sh <install_prefix> <build_type> [channel] [arch]
 set -e
 
 echo "========== Copying Rust Binary =========="
 
 INSTALL_PREFIX="$1"
+CHANNEL="${3:-${FUNGI_APP_CHANNEL:-nightly}}"
 
 # Paths
 SCRIPT_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-# The fungi-artifacts directory is located at the root of the Flutter project (fungi-app)
-# Relative path from script: ../../fungi-artifacts/fungi
-RUST_BINARY_PATH="$(realpath "${SCRIPT_DIR}/../../fungi-artifacts/fungi")"
+REPO_ROOT="$(realpath "${SCRIPT_DIR}/../..")"
+source "${REPO_ROOT}/scripts/core_artifacts.sh"
+
+ARCH="${4:-${FUNGI_CORE_ARCH:-$(uname -m)}}"
+RUST_BINARY_PATH="${REPO_ROOT}/$(fungi_core_desktop_binary_path "${CHANNEL}" "linux" "${ARCH}")"
 DEST_DIR="${INSTALL_PREFIX}"
 DEST_BINARY="${DEST_DIR}/fungi"
 
@@ -22,7 +25,7 @@ echo "Destination: ${DEST_BINARY}"
 # Check if Rust binary exists
 if [ ! -f "${RUST_BINARY_PATH}" ]; then
     echo "Error: Rust binary not found at ${RUST_BINARY_PATH}"
-    echo "Please ensure 'fungi-artifacts/fungi' exists in the project root."
+    echo "Please ensure 'fungi-artifacts/${CHANNEL}/linux/$(fungi_core_normalize_arch "${ARCH}")/fungi' exists in the project root."
     exit 1
 fi
 

@@ -7,9 +7,16 @@ echo "========== Copying Rust Binary =========="
 
 # Paths
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# The fungi-artifacts directory is located at the root of the Flutter project (fungi-app)
-# Relative path from script: ../../fungi-artifacts/fungi
-RUST_BINARY_PATH="${SCRIPT_DIR}/../../fungi-artifacts/fungi"
+REPO_ROOT="${SCRIPT_DIR}/../.."
+source "${REPO_ROOT}/scripts/core_artifacts.sh"
+
+CHANNEL="${FUNGI_APP_CHANNEL:-nightly}"
+ARCH="${FUNGI_CORE_ARCH:-${CURRENT_ARCH:-$(uname -m)}}"
+if [ "${ARCH}" = "undefined_arch" ]; then
+    ARCH="$(uname -m)"
+fi
+
+RUST_BINARY_PATH="${REPO_ROOT}/$(fungi_core_desktop_binary_path "${CHANNEL}" "macos" "${ARCH}")"
 DEST_DIR="${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources"
 DEST_BINARY="${DEST_DIR}/fungi"
 
@@ -19,7 +26,7 @@ echo "Destination: ${DEST_BINARY}"
 # Check if Rust binary exists
 if [ ! -f "${RUST_BINARY_PATH}" ]; then
     echo "Error: Rust binary not found at ${RUST_BINARY_PATH}"
-    echo "Please ensure 'fungi-artifacts/fungi' exists in the project root."
+    echo "Please ensure 'fungi-artifacts/${CHANNEL}/macos/$(fungi_core_normalize_arch "${ARCH}")/fungi' exists in the project root."
     exit 1
 fi
 

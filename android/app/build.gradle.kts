@@ -17,29 +17,6 @@ if (keystorePropertiesFile.exists()) {
 val hasReleaseKeystore = listOf("keyAlias", "keyPassword", "storeFile", "storePassword")
     .all { !keystoreProperties.getProperty(it).isNullOrBlank() }
 
-tasks.register<Copy>("copyRustBinary") {
-    val flutterRoot = project.rootProject.projectDir.parentFile
-    val sourceFile = File(flutterRoot, "fungi-artifacts/android/arm64-v8a/libfungi.so")
-    
-    from(sourceFile)
-    into(File(projectDir, "src/main/jniLibs/arm64-v8a"))
-    
-    doFirst {
-        if (!sourceFile.exists()) {
-            throw GradleException(
-                "Rust binary not found at: ${sourceFile.absolutePath}\n" +
-                "Please ensure 'fungi-artifacts/android/arm64-v8a/libfungi.so' exists in the project root."
-            )
-        }
-    }
-}
-
-tasks.whenTaskAdded {
-    if (name.startsWith("merge") && (name.endsWith("NativeLibs") || name.endsWith("JniLibFolders"))) {
-        dependsOn("copyRustBinary")
-    }
-}
-
 android {
     namespace = "rs.fungi.fungi_app"
     compileSdk = flutter.compileSdkVersion
@@ -81,6 +58,15 @@ android {
         }
     }
 
+    sourceSets {
+        getByName("nightly") {
+            jniLibs.srcDir(layout.buildDirectory.dir("generated/fungiJniLibs/nightly"))
+        }
+        getByName("stable") {
+            jniLibs.srcDir(layout.buildDirectory.dir("generated/fungiJniLibs/stable"))
+        }
+    }
+
     signingConfigs {
         if (hasReleaseKeystore) {
             create("release") {
@@ -97,6 +83,49 @@ android {
             if (hasReleaseKeystore) {
                 signingConfig = signingConfigs.getByName("release")
             }
+        }
+    }
+}
+
+fun flavorTaskName(flavor: String): String =
+    flavor.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+
+listOf("nightly", "stable").forEach { flavor ->
+    val capitalizedFlavor = flavorTaskName(flavor)
+    val copyTask = tasks.register<Copy>("copy${capitalizedFlavor}RustBinary") {
+        val flutterRoot = project.rootProject.projectDir.parentFile
+        val sourceDir = File(flutterRoot, "fungi-artifacts/$flavor/android")
+        val outputDir = layout.buildDirectory.dir("generated/fungiJniLibs/$flavor")
+
+        from(sourceDir) {
+            include("**/*.so")
+        }
+        into(outputDir)
+
+        doFirst {
+            val nativeLibraries = if (sourceDir.exists()) {
+                sourceDir.walkTopDown()
+                    .filter { it.isFile && it.name == "libfungi.so" }
+                    .toList()
+            } else {
+                emptyList()
+            }
+
+            if (nativeLibraries.isEmpty()) {
+                throw GradleException(
+                    "Rust binary not found under: ${sourceDir.absolutePath}\n" +
+                        "Please ensure 'fungi-artifacts/$flavor/android/<abi>/libfungi.so' exists in the project root."
+                )
+            }
+        }
+    }
+
+    tasks.configureEach {
+        if (
+            name.startsWith("merge$capitalizedFlavor") &&
+            (name.endsWith("NativeLibs") || name.endsWith("JniLibFolders"))
+        ) {
+            dependsOn(copyTask)
         }
     }
 }

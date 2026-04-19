@@ -201,6 +201,18 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/ListActiveStreams',
       ($0.ListActiveStreamsRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.ListActiveStreamsResponse.fromBuffer(value));
+  static final _$listExternalAddressCandidates = $grpc.ClientMethod<$0.Empty, $0.ListExternalAddressCandidatesResponse>(
+      '/fungi_daemon.FungiDaemon/ListExternalAddressCandidates',
+      ($0.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListExternalAddressCandidatesResponse.fromBuffer(value));
+  static final _$listRelayEndpointStatuses = $grpc.ClientMethod<$0.Empty, $0.ListRelayEndpointStatusesResponse>(
+      '/fungi_daemon.FungiDaemon/ListRelayEndpointStatuses',
+      ($0.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListRelayEndpointStatusesResponse.fromBuffer(value));
+  static final _$listPeerAddresses = $grpc.ClientMethod<$0.Empty, $0.ListPeerAddressesResponse>(
+      '/fungi_daemon.FungiDaemon/ListPeerAddresses',
+      ($0.Empty value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListPeerAddressesResponse.fromBuffer(value));
   static final _$pullService = $grpc.ClientMethod<$0.PullServiceRequest, $0.ServiceInstanceResponse>(
       '/fungi_daemon.FungiDaemon/PullService',
       ($0.PullServiceRequest value) => value.writeToBuffer(),
@@ -454,6 +466,18 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.ListActiveStreamsResponse> listActiveStreams($0.ListActiveStreamsRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$listActiveStreams, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListExternalAddressCandidatesResponse> listExternalAddressCandidates($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listExternalAddressCandidates, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListRelayEndpointStatusesResponse> listRelayEndpointStatuses($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listRelayEndpointStatuses, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListPeerAddressesResponse> listPeerAddresses($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listPeerAddresses, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.ServiceInstanceResponse> pullService($0.PullServiceRequest request, {$grpc.CallOptions? options}) {
@@ -845,6 +869,27 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.ListActiveStreamsRequest.fromBuffer(value),
         ($0.ListActiveStreamsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.ListExternalAddressCandidatesResponse>(
+        'ListExternalAddressCandidates',
+        listExternalAddressCandidates_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
+        ($0.ListExternalAddressCandidatesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.ListRelayEndpointStatusesResponse>(
+        'ListRelayEndpointStatuses',
+        listRelayEndpointStatuses_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
+        ($0.ListRelayEndpointStatusesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.ListPeerAddressesResponse>(
+        'ListPeerAddresses',
+        listPeerAddresses_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
+        ($0.ListPeerAddressesResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.PullServiceRequest, $0.ServiceInstanceResponse>(
         'PullService',
         pullService_Pre,
@@ -1146,6 +1191,18 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return listActiveStreams(call, await request);
   }
 
+  $async.Future<$0.ListExternalAddressCandidatesResponse> listExternalAddressCandidates_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return listExternalAddressCandidates(call, await request);
+  }
+
+  $async.Future<$0.ListRelayEndpointStatusesResponse> listRelayEndpointStatuses_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return listRelayEndpointStatuses(call, await request);
+  }
+
+  $async.Future<$0.ListPeerAddressesResponse> listPeerAddresses_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return listPeerAddresses(call, await request);
+  }
+
   $async.Future<$0.ServiceInstanceResponse> pullService_Pre($grpc.ServiceCall call, $async.Future<$0.PullServiceRequest> request) async {
     return pullService(call, await request);
   }
@@ -1259,6 +1316,9 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Stream<$0.PingPeerEvent> pingPeer($grpc.ServiceCall call, $0.PingPeerRequest request);
   $async.Future<$0.ListConnectionsResponse> listConnections($grpc.ServiceCall call, $0.ListConnectionsRequest request);
   $async.Future<$0.ListActiveStreamsResponse> listActiveStreams($grpc.ServiceCall call, $0.ListActiveStreamsRequest request);
+  $async.Future<$0.ListExternalAddressCandidatesResponse> listExternalAddressCandidates($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.ListRelayEndpointStatusesResponse> listRelayEndpointStatuses($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.ListPeerAddressesResponse> listPeerAddresses($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.ServiceInstanceResponse> pullService($grpc.ServiceCall call, $0.PullServiceRequest request);
   $async.Future<$0.Empty> startService($grpc.ServiceCall call, $0.ServiceNameRequest request);
   $async.Future<$0.Empty> stopService($grpc.ServiceCall call, $0.ServiceNameRequest request);
