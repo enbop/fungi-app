@@ -32,6 +32,8 @@ jobs:
           echo "FUNGI_VERSION=$FUNGI_VERSION" >> $GITHUB_ENV
           echo "FUNGI_RELEASE_TAG=$FUNGI_RELEASE_TAG" >> $GITHUB_ENV
           echo "DIST_CHANNEL=$DIST_CHANNEL" >> "$GITHUB_ENV"
+          echo "FUNGI_APP_COMMIT=${GITHUB_SHA::12}" >> "$GITHUB_ENV"
+          echo "FUNGI_APP_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           echo "Using Fungi version: $FUNGI_VERSION"
           echo "Downloading artifacts from release tag: $FUNGI_RELEASE_TAG"
 

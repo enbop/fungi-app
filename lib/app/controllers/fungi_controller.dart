@@ -1082,6 +1082,8 @@ class FungiController extends GetxController {
       appBuildVersion.value =
           '${AppBuildInfo.channelLabel} $_defaultAppVersion';
       appBuildDetails.value =
+          'App\n'
+          'Name: ${AppBuildInfo.appName}\n'
           'Channel: ${AppBuildInfo.channelLabel}\n'
           'Version: $_defaultAppVersion\n'
           'Commit: ${AppBuildInfo.commitLabel}\n'
@@ -1108,11 +1110,12 @@ class FungiController extends GetxController {
     final packageName = packageInfo.packageName.trim();
 
     return [
-      'App: ${AppBuildInfo.appName}',
+      'App',
+      'Name: ${AppBuildInfo.appName}',
       'Channel: ${AppBuildInfo.channelLabel}',
       'Version: $version',
       if (buildNumber.isNotEmpty) 'Build: $buildNumber',
-      if (packageName.isNotEmpty) 'Package: $packageName',
+      if (packageName.isNotEmpty) 'App ID: $packageName',
       'Commit: ${AppBuildInfo.commitLabel}',
       'Built: ${AppBuildInfo.buildTimeLabel}',
     ].join('\n');
@@ -1121,14 +1124,15 @@ class FungiController extends GetxController {
   String get versionDetails {
     final daemonDetails = connectedDaemonBuildDetails.value.trim();
     if (daemonDetails.isEmpty) {
-      return appBuildDetails.value;
+      return '${appBuildDetails.value}\n\n${_buildDaemonUnavailableLabel()}';
     }
     return '${appBuildDetails.value}\n\n$daemonDetails';
   }
 
   String _buildDaemonDetailsLabel(VersionResponse response) {
     final values = [
-      'Daemon: fungi',
+      'Daemon',
+      'Name: fungi',
       'Channel: ${_buildInfoValue(response.channel)}',
       'Version: ${_buildInfoValue(response.version)}',
       'Commit: ${_buildInfoValue(response.commit)}',
@@ -1137,6 +1141,25 @@ class FungiController extends GetxController {
       'Default gRPC: ${_buildInfoValue(response.defaultRpcAddress)}',
     ];
     return values.join('\n');
+  }
+
+  String _buildDaemonUnavailableLabel() {
+    final state = daemonConnectionState.value;
+    if (state.isDisabled) {
+      return 'Daemon\nStatus: Not connected';
+    }
+    if (state.isConnecting) {
+      return 'Daemon\nStatus: Connecting';
+    }
+    if (state.isFailed) {
+      final error = daemonError.value.trim();
+      return [
+        'Daemon',
+        'Status: Failed',
+        if (error.isNotEmpty) 'Error: $error',
+      ].join('\n');
+    }
+    return 'Daemon\nStatus: Connected\nVersion details: unavailable';
   }
 
   String _buildInfoValue(String value) {

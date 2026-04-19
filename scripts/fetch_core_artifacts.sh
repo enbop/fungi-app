@@ -190,6 +190,53 @@ fetch_desktop_artifact() {
   fi
 
   echo "Installed $dest/$executable"
+  validate_desktop_artifact "$artifact_platform" "$artifact_arch" "$dest/$executable"
+}
+
+validate_desktop_artifact() {
+  local artifact_platform="$1"
+  local artifact_arch="$2"
+  local executable_path="$3"
+
+  if [ "$channel" != "nightly" ]; then
+    return
+  fi
+
+  local host_platform
+  case "$(uname -s)" in
+    Darwin) host_platform="macos" ;;
+    Linux) host_platform="linux" ;;
+    MINGW* | MSYS* | CYGWIN*) host_platform="windows" ;;
+    *) host_platform="" ;;
+  esac
+
+  if [ "$artifact_platform" != "$host_platform" ]; then
+    echo "Skipping channel validation for $artifact_platform/$artifact_arch on host $host_platform"
+    return
+  fi
+
+  if [ "$artifact_arch" != "$(fungi_core_host_arch)" ]; then
+    echo "Skipping channel validation for non-native $artifact_platform/$artifact_arch"
+    return
+  fi
+
+  local build_info
+  if ! build_info="$("$executable_path" info build --json 2>/dev/null)"; then
+    echo "Failed to read build info from $executable_path" >&2
+    echo "Nightly app artifacts must bundle a core binary built with FUNGI_DIST_CHANNEL=nightly." >&2
+    exit 67
+  fi
+
+  case "$build_info" in
+    *'"channel":"nightly"'*) ;;
+    *)
+      echo "Downloaded core artifact is not nightly:" >&2
+      echo "$build_info" >&2
+      exit 67
+      ;;
+  esac
+
+  echo "Validated nightly core artifact: $build_info"
 }
 
 fetch_android_artifact() {
