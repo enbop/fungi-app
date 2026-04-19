@@ -7,7 +7,7 @@ cd "$repo_root"
 source scripts/dist_env.sh "$@"
 
 cleanup_local_channel=1
-for arg in "${fungi_app_build_args[@]}"; do
+for arg in ${fungi_app_build_args[@]+"${fungi_app_build_args[@]}"}; do
   if [ "$arg" = "--config-only" ]; then
     cleanup_local_channel=0
   fi
@@ -25,4 +25,4 @@ if [ "$cleanup_local_channel" = "1" ]; then
   trap 'rm -f macos/Runner/Configs/LocalChannel.xcconfig' EXIT
 fi
 
-flutter build macos --release "${fungi_app_build_args[@]}" "${fungi_app_dart_defines[@]}"
+flutter build macos --release ${fungi_app_build_args[@]+"${fungi_app_build_args[@]}"} "${fungi_app_dart_defines[@]}"

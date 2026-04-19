@@ -6,4 +6,4 @@ cd "$repo_root"
 
 source scripts/dist_env.sh "$@"
 
-flutter build linux --release "${fungi_app_build_args[@]}" "${fungi_app_dart_defines[@]}"
+flutter build linux --release ${fungi_app_build_args[@]+"${fungi_app_build_args[@]}"} "${fungi_app_dart_defines[@]}"
