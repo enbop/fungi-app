@@ -13,8 +13,9 @@ source "${REPO_ROOT}/scripts/core_artifacts.sh"
 CHANNEL="${FUNGI_APP_CHANNEL:-nightly}"
 ARCH="${FUNGI_CORE_ARCH:-${CURRENT_ARCH:-$(uname -m)}}"
 if [ "${ARCH}" = "undefined_arch" ]; then
-    ARCH="$(uname -m)"
+    ARCH="${ARCHS:-$(uname -m)}"
 fi
+ARCH="${ARCH%% *}"
 
 RUST_BINARY_PATH="${REPO_ROOT}/$(fungi_core_desktop_binary_path "${CHANNEL}" "macos" "${ARCH}")"
 DEST_DIR="${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources"
