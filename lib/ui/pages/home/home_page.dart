@@ -112,6 +112,21 @@ class HomeHeader extends GetView<FungiController> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (isDevChannel)
+                      LabeledText(
+                        label: 'Channel',
+                        labelStyle: TextStyle(
+                          fontSize: 12,
+                          color: headerAccentColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        value: 'Dev',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: headerTextColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     if (!controller.daemonConnectionState.value.isDisabled) ...[
                       LabeledText(
                         label: 'Hostname',
