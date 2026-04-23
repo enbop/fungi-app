@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/ui/pages/home/dashboard_page.dart';
 import 'package:fungi_app/ui/pages/home/local_services_page.dart';
 import 'package:fungi_app/ui/pages/home/node_management_page.dart';
@@ -7,6 +8,10 @@ import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:fungi_app/ui/widgets/service_overlay.dart';
 import 'package:get/get.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
+
+const Color _devChromeColor = Color(0xFF5B3FFF);
+const Color _devChromeTextColor = Color(0xFFF4F1FF);
+const Color _devLogoColor = Color(0xFFF0C79D);
 
 class LabeledText extends StatelessWidget {
   final String label;
@@ -62,9 +67,23 @@ class HomeHeader extends GetView<FungiController> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final statusBarHeight = MediaQuery.of(context).viewPadding.top;
+    final isDevChannel = !AppBuildInfo.isStable;
+    final headerColor = isDevChannel
+        ? _devChromeColor
+        : colorScheme.primaryContainer;
+    final headerAccentColor = isDevChannel
+        ? Colors.white
+        : colorScheme.surfaceTint;
+    final headerTextColor = isDevChannel ? _devChromeTextColor : null;
+    final headerPillColor = isDevChannel
+        ? Colors.white.withValues(alpha: 0.16)
+        : colorScheme.surface.withValues(alpha: 0.5);
+    final headerPillTextColor = isDevChannel
+        ? Colors.white
+        : colorScheme.onSurfaceVariant;
 
     return Container(
-      decoration: BoxDecoration(color: colorScheme.primaryContainer),
+      decoration: BoxDecoration(color: headerColor),
       child: Column(
         children: [
           SizedBox(height: statusBarHeight),
@@ -85,7 +104,7 @@ class HomeHeader extends GetView<FungiController> {
                       'assets/images/logo.png',
                       width: 50,
                       height: 50,
-                      color: colorScheme.primary,
+                      color: isDevChannel ? _devLogoColor : colorScheme.primary,
                     ),
                   ),
                 ),
@@ -98,19 +117,19 @@ class HomeHeader extends GetView<FungiController> {
                         label: 'Hostname',
                         labelStyle: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.surfaceTint,
+                          color: headerAccentColor,
                           fontWeight: FontWeight.bold,
                         ),
                         value: controller.hostname.value.isEmpty
                             ? "Unknown"
                             : controller.hostname.value,
-                        style: const TextStyle(fontSize: 12),
+                        style: TextStyle(fontSize: 12, color: headerTextColor),
                       ),
                       LabeledText(
                         label: 'Peer ID',
                         labelStyle: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.surfaceTint,
+                          color: headerAccentColor,
                           fontWeight: FontWeight.bold,
                         ),
                         value: controller.peerId.value.length >= 5
@@ -118,7 +137,10 @@ class HomeHeader extends GetView<FungiController> {
                             : controller.peerId.value,
                         valueWidget: TruncatedId(
                           id: controller.peerId.value,
-                          style: const TextStyle(fontSize: 12),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: headerTextColor,
+                          ),
                         ),
                       ),
                     ],
@@ -136,7 +158,7 @@ class HomeHeader extends GetView<FungiController> {
                                 : 'Service state',
                             style: TextStyle(
                               fontSize: 12,
-                              color: colorScheme.surfaceTint,
+                              color: headerAccentColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -145,7 +167,7 @@ class HomeHeader extends GetView<FungiController> {
                           ':  ',
                           style: TextStyle(
                             fontSize: 12,
-                            color: colorScheme.surfaceTint,
+                            color: headerAccentColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -178,14 +200,14 @@ class HomeHeader extends GetView<FungiController> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: colorScheme.surface.withValues(alpha: 0.5),
+                              color: headerPillColor,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
                               'External',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: colorScheme.onSurfaceVariant,
+                                color: headerPillTextColor,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -226,6 +248,11 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDevChannel = !AppBuildInfo.isStable;
+    final tabBarColor = isDevChannel
+        ? _devChromeColor
+        : colorScheme.primaryContainer;
+    final tabIndicatorColor = isDevChannel ? Colors.white : colorScheme.primary;
 
     return Scaffold(
       body: Column(
@@ -239,7 +266,7 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   children: [
                     Container(
-                      color: colorScheme.primaryContainer,
+                      color: tabBarColor,
                       child: TabBar(
                         tabs: const <Widget>[
                           Tab(text: "Home", height: 30),
@@ -248,7 +275,11 @@ class HomePage extends StatelessWidget {
                           Tab(text: "Settings", height: 30),
                         ],
                         isScrollable: true,
-                        indicatorColor: colorScheme.primary,
+                        indicatorColor: tabIndicatorColor,
+                        labelColor: isDevChannel ? Colors.white : null,
+                        unselectedLabelColor: isDevChannel
+                            ? _devChromeTextColor.withValues(alpha: 0.72)
+                            : null,
                       ),
                     ),
                     Expanded(
