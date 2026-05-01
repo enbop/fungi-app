@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
-import 'package:fungi_app/ui/pages/home/available_services_page.dart';
-import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
+import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:fungi_app/ui/widgets/service_icon.dart';
 import 'package:get/get.dart';
+
+String _dashboardDeviceLabel({
+  required String peerId,
+  String? alias,
+  String? hostname,
+}) {
+  return alias?.isNotEmpty == true
+      ? alias!
+      : (hostname?.isNotEmpty == true ? hostname! : peerId);
+}
+
+String _dashboardRemoteServiceReference({
+  required RemoteServiceListEntryView service,
+  required String deviceLabel,
+}) {
+  return service.qualifiedName(deviceLabel);
+}
 
 class DashboardPage extends GetView<FungiController> {
   const DashboardPage({super.key});
@@ -15,20 +31,28 @@ class DashboardPage extends GetView<FungiController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final sections = controller.availableServiceSections;
-      final quickEntries = <_DashboardCatalogEntry>[];
+      final remoteEntries = <_DashboardCatalogEntry>[];
+      final localServices = controller.localServices.toList(growable: false)
+        ..sort((left, right) {
+          final running = (right.running ? 1 : 0) - (left.running ? 1 : 0);
+          if (running != 0) {
+            return running;
+          }
+          return left.name.compareTo(right.name);
+        });
 
       for (final section in sections) {
-        final peerLabel = section.alias?.isNotEmpty == true
-            ? section.alias!
-            : (section.hostname?.isNotEmpty == true
-                  ? section.hostname!
-                  : section.peerId);
+        final deviceLabel = _dashboardDeviceLabel(
+          peerId: section.peerId,
+          alias: section.alias,
+          hostname: section.hostname,
+        );
         for (final service in section.services) {
           if (service.isWeb || service.isTcp) {
-            quickEntries.add(
+            remoteEntries.add(
               _DashboardCatalogEntry(
                 peerId: section.peerId,
-                peerLabel: peerLabel,
+                deviceLabel: deviceLabel,
                 service: service,
               ),
             );
@@ -36,144 +60,161 @@ class DashboardPage extends GetView<FungiController> {
         }
       }
 
-      quickEntries.sort((left, right) {
-        final webPriority =
-            (right.service.isWeb ? 1 : 0) - (left.service.isWeb ? 1 : 0);
-        if (webPriority != 0) {
-          return webPriority;
-        }
-        final attached =
-            (right.service.accessAttached ? 1 : 0) -
-            (left.service.accessAttached ? 1 : 0);
-        if (attached != 0) {
-          return attached;
-        }
-        final running =
-            (right.service.running ? 1 : 0) - (left.service.running ? 1 : 0);
-        if (running != 0) {
-          return running;
-        }
-        return left.service.displayName.compareTo(right.service.displayName);
-      });
+      final serviceEntries =
+          <_DashboardServiceEntry>[
+            ...localServices.map(
+              (service) => _DashboardServiceEntry.local(service: service),
+            ),
+            ...remoteEntries.map(
+              (entry) => _DashboardServiceEntry.remote(entry: entry),
+            ),
+          ]..sort((left, right) {
+            final activeDelta =
+                (right.isActive ? 1 : 0) - (left.isActive ? 1 : 0);
+            if (activeDelta != 0) {
+              return activeDelta;
+            }
+
+            final kindDelta = (left.isLocal ? 0 : 1) - (right.isLocal ? 0 : 1);
+            if (kindDelta != 0) {
+              return kindDelta;
+            }
+
+            return left.reference.toLowerCase().compareTo(
+              right.reference.toLowerCase(),
+            );
+          });
+
+      final isRefreshingServices =
+          controller.localServicesLoading.value ||
+          controller.availableServicesLoading.value;
+      final showHeaderCreateAction = serviceEntries.isNotEmpty;
 
       return ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _SectionHeader(
-            title: 'Quick Access',
+            title: 'Services',
             helpMessage:
-                'Use this list for the most common service actions. Web services can open directly.',
-            trailing: IconButton(
-              onPressed: () async {
-                await controller.refreshNodeManagementData();
-                await controller.refreshAvailableServicesData();
-              },
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh',
+                'Services on this device keep their plain name. Remote services include @device so you can always see where they live before you open or connect them.',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showHeaderCreateAction) ...[
+                  FilledButton.icon(
+                    onPressed: () => showCreateServiceDialog(context),
+                    icon: const Icon(Icons.add_circle),
+                    label: const Text('Create Service'),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                IconButton(
+                  onPressed: () async {
+                    await Future.wait([
+                      controller.refreshLocalServicesData(),
+                      controller.refreshAvailableServicesData(),
+                      controller.refreshNodeManagementData(),
+                    ]);
+                  },
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Refresh services',
+                ),
+              ],
             ),
           ),
-          if (quickEntries.isEmpty)
-            _HomeOnboardingPanel(hasPeers: controller.addressBook.isNotEmpty)
+          if (isRefreshingServices)
+            const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: LinearProgressIndicator(),
+            ),
+          if (controller.localServicesError.value.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _StatusCard(
+              message: controller.localServicesError.value,
+              actionLabel: 'Retry local',
+              onPressed: controller.refreshLocalServicesData,
+            ),
+          ],
+          if (controller.availableServicesError.value.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _StatusCard(
+              message: controller.availableServicesError.value,
+              actionLabel: 'Retry remote',
+              onPressed: controller.refreshAvailableServicesData,
+            ),
+          ],
+          const _SectionDivider(),
+          if (serviceEntries.isEmpty)
+            _HomeOnboardingPanel(
+              hasDevices: controller.addressBook.isNotEmpty,
+              onCreateService: () => showCreateServiceDialog(context),
+            )
           else
-            ...quickEntries
-                .take(12)
-                .map((entry) => _QuickServiceCard(entry: entry)),
-          const _SectionDivider(),
-          _SectionHeader(
-            title: 'Catalog',
-            helpMessage:
-                'Open the full remote catalog when you need service details, published endpoints, and attach or detach controls.',
-          ),
-          _CatalogEntryCard(
-            onOpen: () => _showCatalogDialog(context),
-            serviceCount: sections.fold(
-              0,
-              (sum, section) => sum + section.services.length,
-            ),
-          ),
-          const _SectionDivider(),
-          const _SectionHeader(
-            title: 'Port Forwarding',
-            helpMessage: 'Create raw client-side port forwarding rules.',
-          ),
-          const ClientDataTunnelSection(showTitle: false),
+            ...serviceEntries.map((entry) {
+              if (entry.isLocal) {
+                return _LocalServiceCard(service: entry.localService!);
+              }
+              return _QuickServiceCard(entry: entry.remoteEntry!);
+            }),
         ],
       );
     });
-  }
-
-  void _showCatalogDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        child: SizedBox(
-          width: 980,
-          height: 760,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Expanded(
-                      child: Row(
-                        children: [
-                          Text(
-                            'Catalog',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          HelpTooltip(
-                            title: 'Catalog',
-                            message:
-                                'Browse published services from known peers and manage local access for each service.',
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: controller.availableServicesLoading.value
-                          ? null
-                          : controller.refreshAvailableServicesData,
-                      icon: const Icon(Icons.refresh),
-                      tooltip: 'Refresh',
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              const Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(16),
-                  child: PublishedServicesSection(showHeader: false),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 
 class _DashboardCatalogEntry {
   const _DashboardCatalogEntry({
     required this.peerId,
-    required this.peerLabel,
+    required this.deviceLabel,
     required this.service,
   });
 
   final String peerId;
-  final String peerLabel;
+  final String deviceLabel;
   final RemoteServiceListEntryView service;
+}
+
+class _DashboardServiceEntry {
+  _DashboardServiceEntry.local({required LocalServiceView service})
+    : this._(
+        localService: service,
+        remoteEntry: null,
+        isLocal: true,
+        reference: service.name,
+        isActive: service.running,
+      );
+
+  _DashboardServiceEntry.remote({required _DashboardCatalogEntry entry})
+    : this._(
+        localService: null,
+        remoteEntry: entry,
+        isLocal: false,
+        reference: _DashboardCatalogEntryReference.reference(entry),
+        isActive: entry.service.accessAttached || entry.service.running,
+      );
+
+  const _DashboardServiceEntry._({
+    required this.localService,
+    required this.remoteEntry,
+    required this.isLocal,
+    required this.reference,
+    required this.isActive,
+  });
+
+  final LocalServiceView? localService;
+  final _DashboardCatalogEntry? remoteEntry;
+  final bool isLocal;
+  final String reference;
+  final bool isActive;
+}
+
+class _DashboardCatalogEntryReference {
+  static String reference(_DashboardCatalogEntry entry) {
+    return _dashboardRemoteServiceReference(
+      service: entry.service,
+      deviceLabel: entry.deviceLabel,
+    );
+  }
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -213,9 +254,13 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _HomeOnboardingPanel extends GetView<FungiController> {
-  const _HomeOnboardingPanel({required this.hasPeers});
+  const _HomeOnboardingPanel({
+    required this.hasDevices,
+    required this.onCreateService,
+  });
 
-  final bool hasPeers;
+  final bool hasDevices;
+  final VoidCallback onCreateService;
 
   @override
   Widget build(BuildContext context) {
@@ -226,16 +271,14 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              hasPeers
-                  ? 'No quick-access services yet.'
-                  : 'Add a peer to get started.',
+              hasDevices ? 'No services are ready yet.' : 'No services yet.',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 6),
             Text(
-              hasPeers
-                  ? 'Your peers are saved, but none of them currently expose Web or TCP services in the catalog.'
-                  : 'Save a peer manually or discover one on the local network, then try pulling a service manifest to it.',
+              hasDevices
+                  ? 'This device has no local services yet, and your saved devices are not currently publishing any Web or TCP services you can use here.'
+                  : 'Create a service on this device, or save a device that can host one remotely.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 14),
@@ -244,10 +287,15 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
               runSpacing: 10,
               children: [
                 FilledButton.icon(
+                  onPressed: onCreateService,
+                  icon: const Icon(Icons.add_circle),
+                  label: const Text('Create Service'),
+                ),
+                OutlinedButton.icon(
                   onPressed: () =>
                       DefaultTabController.of(context).animateTo(1),
                   icon: const Icon(Icons.device_hub),
-                  label: const Text('Manage Peers'),
+                  label: const Text('Manage Devices'),
                 ),
                 OutlinedButton.icon(
                   onPressed: controller.openDocumentation,
@@ -275,6 +323,40 @@ class _SectionDivider extends StatelessWidget {
   }
 }
 
+class _ServiceOriginBadge extends StatelessWidget {
+  const _ServiceOriginBadge.local() : isRemote = false;
+
+  const _ServiceOriginBadge.remote() : isRemote = true;
+
+  final bool isRemote;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final backgroundColor = isRemote
+        ? colorScheme.tertiaryContainer
+        : colorScheme.primaryContainer;
+    final foregroundColor = isRemote
+        ? colorScheme.onTertiaryContainer
+        : colorScheme.onPrimaryContainer;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        isRemote ? 'Remote' : 'Local',
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: foregroundColor,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
 class _QuickServiceCard extends GetView<FungiController> {
   const _QuickServiceCard({required this.entry});
 
@@ -283,6 +365,14 @@ class _QuickServiceCard extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     final service = entry.service;
+    final serviceReference = _dashboardRemoteServiceReference(
+      service: service,
+      deviceLabel: entry.deviceLabel,
+    );
+    final shouldShowHumanName =
+        service.displayName.isNotEmpty &&
+        service.displayName != serviceReference &&
+        service.displayName != service.serviceName;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -292,15 +382,27 @@ class _QuickServiceCard extends GetView<FungiController> {
           childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
           leading: ServiceIcon(
             iconUrl: service.iconUrl,
-            fallbackLabel: service.displayName,
+            fallbackLabel: serviceReference,
           ),
           title: Text(
-            service.displayName,
+            serviceReference,
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          subtitle: Text(
-            entry.peerLabel,
-            style: Theme.of(context).textTheme.bodySmall,
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                const _ServiceOriginBadge.remote(),
+                if (shouldShowHumanName) Chip(label: Text(service.displayName)),
+                Chip(
+                  label: Text(
+                    service.accessAttached ? 'Connected' : 'Published',
+                  ),
+                ),
+              ],
+            ),
           ),
           trailing: _QuickAccessActions(entry: entry),
           children: [_QuickServiceDetails(entry: entry)],
@@ -318,17 +420,34 @@ class _QuickAccessActions extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     final service = entry.service;
+    final canControl = service.serviceName.trim().isNotEmpty;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (service.isWeb && service.serviceId != null)
+        if (service.isWeb && canControl)
           FilledButton(
             onPressed: () => controller.openCatalogWebService(
               peerId: entry.peerId,
-              serviceId: service.serviceId!,
+              serviceName: service.serviceName,
             ),
             child: const Text('Open'),
+          )
+        else if (canControl && !service.accessAttached)
+          FilledButton(
+            onPressed: () => controller.attachCatalogServiceAccess(
+              peerId: entry.peerId,
+              serviceName: service.serviceName,
+            ),
+            child: const Text('Connect'),
+          )
+        else if (canControl)
+          FilledButton.tonal(
+            onPressed: () => controller.detachCatalogServiceAccess(
+              peerId: entry.peerId,
+              serviceName: service.serviceName,
+            ),
+            child: const Text('Disconnect'),
           ),
         const SizedBox(width: 8),
         const Icon(Icons.expand_more),
@@ -345,6 +464,10 @@ class _QuickServiceDetails extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     final service = entry.service;
+    final serviceReference = _dashboardRemoteServiceReference(
+      service: service,
+      deviceLabel: entry.deviceLabel,
+    );
     final launchUri = service.isWeb
         ? controller.catalogWebLaunchUri(service)
         : null;
@@ -360,9 +483,7 @@ class _QuickServiceDetails extends GetView<FungiController> {
             Chip(label: Text(service.runtime)),
             Chip(
               label: Text(
-                service.accessAttached
-                    ? 'Access attached'
-                    : 'Access not attached',
+                service.accessAttached ? 'Connected locally' : 'Not connected',
               ),
             ),
           ],
@@ -372,15 +493,20 @@ class _QuickServiceDetails extends GetView<FungiController> {
           'State: ${service.state}${service.running ? ' • running' : ''}',
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        if (service.serviceId != null && service.serviceId!.isNotEmpty) ...[
+        if (service.serviceName.isNotEmpty) ...[
           const SizedBox(height: 6),
+          Text(
+            'Service Reference',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           SelectableText(
-            service.serviceId!,
+            serviceReference,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
         if (launchUri != null) ...[
           const SizedBox(height: 8),
+          Text('Open URL', style: Theme.of(context).textTheme.bodySmall),
           SelectableText(
             launchUri.toString(),
             style: Theme.of(context).textTheme.bodySmall,
@@ -393,39 +519,43 @@ class _QuickServiceDetails extends GetView<FungiController> {
           children: [
             if (!service.isWeb &&
                 !service.accessAttached &&
-                service.serviceId != null)
+                service.serviceName.isNotEmpty)
               OutlinedButton.icon(
                 onPressed: () => controller.attachCatalogServiceAccess(
                   peerId: entry.peerId,
-                  serviceId: service.serviceId!,
+                  serviceName: service.serviceName,
                 ),
                 icon: const Icon(Icons.link),
-                label: const Text('Attach'),
+                label: const Text('Connect'),
               ),
             if (service.isWeb &&
                 !service.accessAttached &&
-                service.serviceId != null)
+                service.serviceName.isNotEmpty)
               OutlinedButton.icon(
                 onPressed: () => controller.attachCatalogServiceAccess(
                   peerId: entry.peerId,
-                  serviceId: service.serviceId!,
+                  serviceName: service.serviceName,
                 ),
                 icon: const Icon(Icons.link),
-                label: const Text('Attach Only'),
+                label: const Text('Connect'),
               ),
-            if (service.accessAttached && service.serviceId != null)
+            if (service.accessAttached && service.serviceName.isNotEmpty)
               OutlinedButton.icon(
                 onPressed: () => controller.detachCatalogServiceAccess(
                   peerId: entry.peerId,
-                  serviceId: service.serviceId!,
+                  serviceName: service.serviceName,
                 ),
                 icon: const Icon(Icons.link_off),
-                label: const Text('Detach'),
+                label: const Text('Disconnect'),
               ),
           ],
         ),
         if (service.localAccessEndpoints.isNotEmpty) ...[
           const SizedBox(height: 10),
+          Text(
+            'Local Endpoints',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
           ...service.localAccessEndpoints.map(
             (endpoint) => Text(
               '${endpoint.name} -> ${endpoint.localHost}:${endpoint.localPort} [${endpoint.protocol}]',
@@ -438,40 +568,127 @@ class _QuickServiceDetails extends GetView<FungiController> {
   }
 }
 
-class _CatalogEntryCard extends StatelessWidget {
-  const _CatalogEntryCard({required this.onOpen, required this.serviceCount});
+class _LocalServiceCard extends GetView<FungiController> {
+  const _LocalServiceCard({required this.service});
 
-  final VoidCallback onOpen;
-  final int serviceCount;
+  final LocalServiceView service;
+
+  @override
+  Widget build(BuildContext context) {
+    final pendingAction = controller.localServicePendingActions[service.name];
+    final isBusy = pendingAction != null;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: EnhancedCard(
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ServiceIcon(iconUrl: null, fallbackLabel: service.name),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          service.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${service.runtime} • ${service.source}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Chip(
+                    label: Text(service.running ? 'running' : service.state),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  const _ServiceOriginBadge.local(),
+                  Chip(label: Text(service.runtime)),
+                  if (service.source.isNotEmpty)
+                    Chip(label: Text(service.source)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (service.localEndpoints.isNotEmpty) ...[
+                Text(
+                  'Local Endpoints',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: 6),
+                ...service.localEndpoints.map(
+                  (endpoint) => Text(
+                    '${endpoint.name ?? endpoint.protocol} -> ${endpoint.localHost}:${endpoint.localPort}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton.icon(
+                    onPressed: isBusy
+                        ? null
+                        : service.running
+                        ? () => controller.stopLocalService(service.name)
+                        : () => controller.startLocalService(service.name),
+                    icon: Icon(service.running ? Icons.stop : Icons.play_arrow),
+                    label: Text(service.running ? 'Stop' : 'Start'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () =>
+                        DefaultTabController.of(context).animateTo(2),
+                    icon: const Icon(Icons.tune),
+                    label: const Text('Manage'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusCard extends StatelessWidget {
+  const _StatusCard({
+    required this.message,
+    required this.actionLabel,
+    required this.onPressed,
+  });
+
+  final String message;
+  final String actionLabel;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return EnhancedCard(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Catalog',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$serviceCount services available.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            FilledButton.icon(
-              onPressed: onOpen,
-              icon: const Icon(Icons.tune),
-              label: const Text('Open Catalog'),
-            ),
+            Text(message, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            OutlinedButton(onPressed: onPressed, child: Text(actionLabel)),
           ],
         ),
       ),

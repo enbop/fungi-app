@@ -7,7 +7,7 @@ import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/foreground_task.dart';
 import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
-import 'package:fungi_app/src/grpc/generated/fungi_daemon.pbgrpc.dart';
+import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart' as grpc;
@@ -1477,11 +1477,11 @@ class FungiController extends GetxController {
       final accessByService = <String, Map<String, dynamic>>{};
       for (final access in attachedAccesses) {
         final peerId = access['peer_id'] as String? ?? '';
-        final serviceId = access['service_id'] as String? ?? '';
-        if (peerId.isEmpty || serviceId.isEmpty) {
+        final serviceName = access['service_name'] as String? ?? '';
+        if (peerId.isEmpty || serviceName.isEmpty) {
           continue;
         }
-        accessByService['$peerId::$serviceId'] = access;
+        accessByService['$peerId::$serviceName'] = access;
       }
 
       final next = <String, List<RemoteServiceListEntryView>>{};
@@ -1493,12 +1493,12 @@ class FungiController extends GetxController {
           final services = decodeJsonStringList(catalogResponse.servicesJson, (
             serviceJson,
           ) {
-            final serviceId = serviceJson['service_id'] as String? ?? '';
-            final access = accessByService['${peer.peerId}::$serviceId'];
+            final serviceName = serviceJson['service_name'] as String? ?? '';
+            final access = accessByService['${peer.peerId}::$serviceName'];
 
             return RemoteServiceListEntryView.fromJson({
-              'display_name': serviceJson['display_name'],
-              'service_name': serviceJson['service_name'],
+              'display_name': serviceName,
+              'service_name': serviceName,
               'runtime': serviceJson['runtime']?.toString(),
               'transport': serviceJson['transport'],
               'usage': serviceJson['usage'],
@@ -1507,7 +1507,7 @@ class FungiController extends GetxController {
               'running':
                   (serviceJson['status'] as Map<String, dynamic>?)?['running'],
               'published': true,
-              'service_id': serviceId,
+              'service_id': serviceName,
               'access_attached': access != null,
               'catalog_id': serviceJson['catalog_id'],
               'icon_url': serviceJson['icon_url'],
@@ -1633,59 +1633,114 @@ class FungiController extends GetxController {
     return peerManagedServicesErrors[peerId] ?? '';
   }
 
-  RemoteServiceListEntryView? catalogServiceForPeer(
+  Iterable<String> remoteServiceReferenceCandidates(String peerId) sync* {
+    yield peerId;
+
+    for (final peer in addressBook) {
+      if (peer.peerId != peerId) {
+        continue;
+      }
+
+      if (peer.alias.isNotEmpty) {
+        yield peer.alias;
+      }
+      if (peer.hostname.isNotEmpty) {
+        yield peer.hostname;
+      }
+      break;
+    }
+  }
+
+  RemoteServiceListEntryView? _matchCatalogServiceForPeer(
     String peerId,
-    String serviceId,
+    String serviceName,
   ) {
+    final normalizedServiceName = serviceName.trim();
+    if (normalizedServiceName.isEmpty) {
+      return null;
+    }
+
     final services = peerCatalogServices[peerId] ?? const [];
     for (final service in services) {
-      if (service.serviceId == serviceId) {
+      if (service.serviceName == normalizedServiceName ||
+          service.serviceId == normalizedServiceName) {
         return service;
       }
+
+      for (final candidate in remoteServiceReferenceCandidates(peerId)) {
+        if (service.qualifiedName(candidate) == normalizedServiceName) {
+          return service;
+        }
+      }
     }
+
     return null;
+  }
+
+  String normalizeRemoteServiceName(String peerId, String serviceName) {
+    final matched = _matchCatalogServiceForPeer(peerId, serviceName);
+    return matched?.serviceName ?? serviceName.trim();
+  }
+
+  RemoteServiceListEntryView? catalogServiceForPeer(
+    String peerId,
+    String serviceName,
+  ) {
+    return _matchCatalogServiceForPeer(peerId, serviceName);
   }
 
   Future<void> attachCatalogServiceAccess({
     required String peerId,
-    required String serviceId,
+    required String serviceName,
   }) async {
+    final normalizedServiceName = normalizeRemoteServiceName(
+      peerId,
+      serviceName,
+    );
     try {
       await fungiClient.attachServiceAccess(
         AttachServiceAccessRequest()
           ..peerId = peerId
-          ..serviceId = serviceId,
+          ..serviceId = normalizedServiceName,
       );
       await refreshAvailableServicesData();
-      Get.snackbar('Success', 'Local access attached');
+      Get.snackbar('Success', 'Connected locally');
     } catch (e) {
-      Get.snackbar('Attach failed', '$e');
+      Get.snackbar('Connect failed', '$e');
     }
   }
 
   Future<void> detachCatalogServiceAccess({
     required String peerId,
-    required String serviceId,
+    required String serviceName,
   }) async {
+    final normalizedServiceName = normalizeRemoteServiceName(
+      peerId,
+      serviceName,
+    );
     try {
       await fungiClient.detachServiceAccess(
         DetachServiceAccessRequest()
           ..peerId = peerId
-          ..serviceId = serviceId,
+          ..serviceId = normalizedServiceName,
       );
       await refreshAvailableServicesData();
-      Get.snackbar('Success', 'Local access detached');
+      Get.snackbar('Success', 'Disconnected');
     } catch (e) {
-      Get.snackbar('Detach failed', '$e');
+      Get.snackbar('Disconnect failed', '$e');
     }
   }
 
   Future<void> openCatalogWebService({
     required String peerId,
-    required String serviceId,
+    required String serviceName,
   }) async {
+    final normalizedServiceName = normalizeRemoteServiceName(
+      peerId,
+      serviceName,
+    );
     try {
-      var service = catalogServiceForPeer(peerId, serviceId);
+      var service = catalogServiceForPeer(peerId, normalizedServiceName);
       if (service == null) {
         throw Exception('Service not found in current catalog');
       }
@@ -1697,10 +1752,10 @@ class FungiController extends GetxController {
         await fungiClient.attachServiceAccess(
           AttachServiceAccessRequest()
             ..peerId = peerId
-            ..serviceId = serviceId,
+            ..serviceId = normalizedServiceName,
         );
         await refreshAvailableServicesData();
-        service = catalogServiceForPeer(peerId, serviceId);
+        service = catalogServiceForPeer(peerId, normalizedServiceName);
         if (service == null) {
           throw Exception('Failed to refresh local access state');
         }
@@ -1723,7 +1778,7 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<void> pullRemoteServiceFromPath({
+  Future<bool> pullRemoteServiceFromPath({
     required String peerId,
     required String manifestPath,
   }) async {
@@ -1741,9 +1796,11 @@ class FungiController extends GetxController {
       );
       await refreshPeerManagedServicesData(peerId: peerId);
       await refreshAvailableServicesData();
-      Get.snackbar('Success', 'Remote service pull requested');
+      Get.snackbar('Success', 'Service added to device');
+      return true;
     } catch (e) {
       Get.snackbar('Remote pull failed', '$e');
+      return false;
     }
   }
 
@@ -1882,7 +1939,7 @@ class FungiController extends GetxController {
     return values.first;
   }
 
-  Future<void> pullLocalServiceFromPath(String manifestPath) async {
+  Future<bool> pullLocalServiceFromPath(String manifestPath) async {
     try {
       final file = File(manifestPath);
       if (!await file.exists()) {
@@ -1897,9 +1954,11 @@ class FungiController extends GetxController {
       );
       await refreshLocalServicesPageData();
       await refreshNodeManagementData();
-      Get.snackbar('Success', 'Service pulled successfully');
+      Get.snackbar('Success', 'Service added');
+      return true;
     } catch (e) {
       Get.snackbar('Pull failed', '$e');
+      return false;
     }
   }
 

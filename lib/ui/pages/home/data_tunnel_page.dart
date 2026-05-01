@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
-import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
+import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';

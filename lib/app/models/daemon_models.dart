@@ -174,7 +174,8 @@ class RemoteServiceListEntryView {
       state: json['state'] as String? ?? 'unknown',
       running: json['running'] as bool? ?? false,
       published: json['published'] as bool? ?? false,
-      serviceId: json['service_id'] as String?,
+      serviceId:
+          json['service_id'] as String? ?? json['service_name'] as String?,
       accessAttached: json['access_attached'] as bool? ?? false,
       catalogId: json['catalog_id'] as String?,
       iconUrl: json['icon_url'] as String?,
@@ -192,6 +193,34 @@ class RemoteServiceListEntryView {
   bool get isWeb => usageKind == 'web';
 
   bool get isTcp => transportKind == 'tcp';
+
+  String get canonicalName {
+    if (serviceName.trim().isNotEmpty) {
+      return serviceName;
+    }
+
+    final legacyServiceId = serviceId?.trim();
+    if (legacyServiceId != null && legacyServiceId.isNotEmpty) {
+      return legacyServiceId;
+    }
+
+    return displayName;
+  }
+
+  String qualifiedName(String deviceName) {
+    final baseName = canonicalName.trim();
+    final targetDeviceName = deviceName.trim();
+
+    if (baseName.isEmpty) {
+      return targetDeviceName;
+    }
+
+    if (baseName.contains('@') || targetDeviceName.isEmpty) {
+      return baseName;
+    }
+
+    return '$baseName@$targetDeviceName';
+  }
 }
 
 class NodeCapabilitiesView {

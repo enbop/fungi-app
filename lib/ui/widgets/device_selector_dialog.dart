@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 
 import 'dart:math';
 
-import '../../src/grpc/generated/fungi_daemon.pb.dart';
+import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
 
 Future<PeerInfo?> showAddressBookSelectorDialog() async {
   final dialogId =

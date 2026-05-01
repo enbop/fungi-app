@@ -6,6 +6,21 @@ import 'package:fungi_app/ui/widgets/service_icon.dart';
 import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:get/get.dart';
 
+String _availableServicesDeviceLabel(PeerServicesSectionView section) {
+  return section.alias?.isNotEmpty == true
+      ? section.alias!
+      : (section.hostname?.isNotEmpty == true
+            ? section.hostname!
+            : section.peerId);
+}
+
+String _availableServicesReference({
+  required PeerServicesSectionView section,
+  required RemoteServiceListEntryView service,
+}) {
+  return service.qualifiedName(_availableServicesDeviceLabel(section));
+}
+
 class AvailableServicesPage extends GetView<FungiController> {
   const AvailableServicesPage({super.key});
 
@@ -24,9 +39,9 @@ class PublishedServicesSection extends GetView<FungiController> {
   const PublishedServicesSection({
     super.key,
     this.showHeader = true,
-    this.title = 'Catalog',
+    this.title = 'Remote Services',
     this.subtitle =
-        'Browse published services from known peers and reuse local access entries when available.',
+        'Browse published services from your saved devices and reuse local connections when available.',
   });
 
   final bool showHeader;
@@ -69,7 +84,7 @@ class PublishedServicesSection extends GetView<FungiController> {
             )
           else if (sections.isEmpty)
             Text(
-              'No published peer services found yet.',
+              'No published device services found yet.',
               style: Theme.of(context).textTheme.bodyMedium,
             )
           else
@@ -103,11 +118,7 @@ class _PeerServicesSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      section.alias?.isNotEmpty == true
-                          ? section.alias!
-                          : (section.hostname?.isNotEmpty == true
-                                ? section.hostname!
-                                : section.peerId),
+                      _availableServicesDeviceLabel(section),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 4),
@@ -119,8 +130,18 @@ class _PeerServicesSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          ...section.services.map(
-            (service) => EnhancedCard(
+          ...section.services.map((service) {
+            final serviceReference = _availableServicesReference(
+              section: section,
+              service: service,
+            );
+            final shouldShowHumanName =
+                service.displayName.isNotEmpty &&
+                service.displayName != serviceReference &&
+                service.displayName != service.serviceName;
+            final canControl = service.serviceName.isNotEmpty;
+
+            return EnhancedCard(
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
@@ -131,7 +152,7 @@ class _PeerServicesSection extends StatelessWidget {
                       children: [
                         ServiceIcon(
                           iconUrl: service.iconUrl,
-                          fallbackLabel: service.displayName,
+                          fallbackLabel: serviceReference,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -139,44 +160,22 @@ class _PeerServicesSection extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                service.displayName,
+                                serviceReference,
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                section.alias?.isNotEmpty == true
-                                    ? section.alias!
-                                    : (section.hostname?.isNotEmpty == true
-                                          ? section.hostname!
-                                          : section.peerId),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
+                              if (shouldShowHumanName) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  service.displayName,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
                             ],
                           ),
                         ),
                         Chip(label: Text(service.runtime)),
                       ],
                     ),
-                    if (service.serviceId != null &&
-                        service.serviceId!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SelectableText(
-                              service.serviceId!,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            if (service.catalogId != null &&
-                                service.catalogId!.isNotEmpty)
-                              Text(
-                                'Catalog ID: ${service.catalogId!}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                          ],
-                        ),
-                      ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -187,28 +186,37 @@ class _PeerServicesSection extends StatelessWidget {
                             service.usageKind ?? service.transportKind,
                           ),
                         ),
-                        if (!service.isWeb)
-                          Chip(
-                            label: Text(
-                              service.accessAttached
-                                  ? 'TCP attached'
-                                  : 'TCP not attached',
-                            ),
+                        Chip(
+                          label: Text(
+                            service.accessAttached
+                                ? 'Connected locally'
+                                : 'Published remotely',
                           ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'State: ${service.state}${service.running ? ' • running' : ''}',
                     ),
-                    Text(
-                      service.accessAttached
-                          ? 'Local access attached'
-                          : 'No local access attached',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    if (service.serviceId != null &&
-                        service.serviceId!.isNotEmpty) ...[
+                    if (canControl) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Service Reference',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      SelectableText(
+                        serviceReference,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      if (service.catalogId != null &&
+                          service.catalogId!.isNotEmpty)
+                        Text(
+                          'Catalog ID: ${service.catalogId!}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                    ],
+                    if (canControl) ...[
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
@@ -218,7 +226,7 @@ class _PeerServicesSection extends StatelessWidget {
                             FilledButton.icon(
                               onPressed: () => controller.openCatalogWebService(
                                 peerId: section.peerId,
-                                serviceId: service.serviceId!,
+                                serviceName: service.serviceName,
                               ),
                               icon: const Icon(Icons.open_in_new),
                               label: const Text('Open'),
@@ -228,22 +236,20 @@ class _PeerServicesSection extends StatelessWidget {
                               onPressed: () =>
                                   controller.attachCatalogServiceAccess(
                                     peerId: section.peerId,
-                                    serviceId: service.serviceId!,
+                                    serviceName: service.serviceName,
                                   ),
                               icon: const Icon(Icons.link),
-                              label: Text(
-                                service.isWeb ? 'Attach Only' : 'Attach',
-                              ),
+                              label: const Text('Connect'),
                             )
                           else
                             OutlinedButton.icon(
                               onPressed: () =>
                                   controller.detachCatalogServiceAccess(
                                     peerId: section.peerId,
-                                    serviceId: service.serviceId!,
+                                    serviceName: service.serviceName,
                                   ),
                               icon: const Icon(Icons.link_off),
-                              label: const Text('Detach'),
+                              label: const Text('Disconnect'),
                             ),
                         ],
                       ),
@@ -290,8 +296,8 @@ class _PeerServicesSection extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );

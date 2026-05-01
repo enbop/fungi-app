@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
-import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
+import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
 import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:fungi_app/ui/widgets/service_management_widgets.dart';
@@ -16,8 +16,6 @@ class LocalServicesPage extends GetView<FungiController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final services = controller.localServices;
-      final runtimeConfig = controller.runtimeConfig.value;
-      final incomingAllowedPeers = controller.incomingAllowedPeers;
 
       return ListView(
         padding: const EdgeInsets.all(16),
@@ -34,7 +32,7 @@ class LocalServicesPage extends GetView<FungiController> {
                     TextButton.icon(
                       onPressed: _pickManifestAndPull,
                       icon: const Icon(Icons.add_circle),
-                      label: const Text('Select a Manifest YAML'),
+                      label: const Text('Import YAML'),
                     ),
                   ],
                 ),
@@ -68,122 +66,21 @@ class LocalServicesPage extends GetView<FungiController> {
             ),
           ),
           const _PageSectionDivider(),
-          const _PageSection(
-            title: 'Port Listening',
-            child: ServerDataTunnelSection(showTitle: false),
-          ),
-          const _PageSectionDivider(),
           _PageSection(
-            title: 'Runtime Capability',
+            title: 'Advanced & Legacy',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Supported runtimes:',
-                  style: Theme.of(context).textTheme.labelLarge,
+                  'Import YAML stays here, but runtime policy, raw port listening, and incoming allowlists now live behind a secondary admin view.',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ServiceStatusBadge(
-                      label: 'Docker',
-                      active: !runtimeConfig.disableDocker,
-                    ),
-                    ServiceStatusBadge(
-                      label: 'Wasmtime',
-                      active: !runtimeConfig.disableWasmtime,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                _SectionHeader(
-                  title: 'Allowed Host Paths',
-                  actionLabel: 'Add Path',
-                  onAction: _showAddPathDialog,
-                  compact: true,
-                ),
-                if (runtimeConfig.allowedHostPaths.isEmpty)
-                  const ManagementEmptyStateCard(
-                    message: 'No allowed host paths configured yet.',
-                  )
-                else
-                  ...runtimeConfig.allowedHostPaths.map(
-                    (path) => _CompactActionRow(
-                      title: path,
-                      subtitle: 'Remote peers can access this directory.',
-                      actionLabel: 'Remove',
-                      onAction: () => _confirmRemovePath(path),
-                    ),
-                  ),
                 const SizedBox(height: 12),
-                _SectionHeader(
-                  title: 'Allowed Ports',
-                  actionLabel: 'Add Port',
-                  onAction: _showAddPortDialog,
-                  compact: true,
+                FilledButton.icon(
+                  onPressed: () => _showLegacyControlsDialog(context),
+                  icon: const Icon(Icons.tune),
+                  label: const Text('Open Advanced & Legacy'),
                 ),
-                if (runtimeConfig.allowedPorts.isEmpty)
-                  const ManagementEmptyStateCard(
-                    message: 'No individually allowed ports configured yet.',
-                  )
-                else
-                  ...runtimeConfig.allowedPorts.map(
-                    (port) => _CompactActionRow(
-                      title: '$port',
-                      subtitle: 'Remote peers can access this port.',
-                      actionLabel: 'Remove',
-                      onAction: () => _confirmRemovePort(port),
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                _SectionHeader(
-                  title: 'Allowed Port Ranges',
-                  actionLabel: 'Add Range',
-                  onAction: _showAddRangeDialog,
-                  compact: true,
-                ),
-                if (runtimeConfig.allowedPortRanges.isEmpty)
-                  const ManagementEmptyStateCard(
-                    message: 'No allowed port ranges configured yet.',
-                  )
-                else
-                  ...runtimeConfig.allowedPortRanges.map(
-                    (range) => _CompactActionRow(
-                      title: '${range.start}-${range.end}',
-                      subtitle: 'Remote peers can access ports in this range.',
-                      actionLabel: 'Remove',
-                      onAction: () =>
-                          _confirmRemoveRange(range.start, range.end),
-                    ),
-                  ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
-          const _PageSectionDivider(),
-          _PageSection(
-            title: 'Incoming Allowed Peers',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _CountBadge(label: 'Peers', value: incomingAllowedPeers.length),
-                const SizedBox(height: 12),
-                _SectionHeader(
-                  title: 'Incoming Allowed Peers',
-                  actionLabel: 'Add Peer',
-                  onAction: showAddAllowedPeerDialog,
-                  compact: true,
-                ),
-                if (incomingAllowedPeers.isEmpty)
-                  const ManagementEmptyStateCard(
-                    message: 'No incoming peers have been allowed yet.',
-                  )
-                else
-                  ...incomingAllowedPeers.map(
-                    (peer) => _PeerItemCard(peer: peer),
-                  ),
               ],
             ),
           ),
@@ -203,6 +100,194 @@ class LocalServicesPage extends GetView<FungiController> {
       return;
     }
     await controller.pullLocalServiceFromPath(path);
+  }
+
+  Future<void> _showLegacyControlsDialog(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          child: SizedBox(
+            width: 960,
+            height: 760,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Advanced & Legacy',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Runtime policy, raw networking, and incoming allowlists stay available here without taking over the main Local Services path.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: Obx(() {
+                    final runtimeConfig = controller.runtimeConfig.value;
+                    final incomingAllowedPeers = controller.incomingAllowedPeers;
+
+                    return ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        const _PageSection(
+                          title: 'Port Listening',
+                          child: ServerDataTunnelSection(showTitle: false),
+                        ),
+                        const _PageSectionDivider(),
+                        _PageSection(
+                          title: 'Runtime Capability',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Supported runtimes:',
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  ServiceStatusBadge(
+                                    label: 'Docker',
+                                    active: !runtimeConfig.disableDocker,
+                                  ),
+                                  ServiceStatusBadge(
+                                    label: 'Wasmtime',
+                                    active: !runtimeConfig.disableWasmtime,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              _SectionHeader(
+                                title: 'Allowed Host Paths',
+                                actionLabel: 'Add Path',
+                                onAction: _showAddPathDialog,
+                                compact: true,
+                              ),
+                              if (runtimeConfig.allowedHostPaths.isEmpty)
+                                const ManagementEmptyStateCard(
+                                  message: 'No allowed host paths configured yet.',
+                                )
+                              else
+                                ...runtimeConfig.allowedHostPaths.map(
+                                  (path) => _CompactActionRow(
+                                    title: path,
+                                    subtitle:
+                                        'Remote peers can access this directory.',
+                                    actionLabel: 'Remove',
+                                    onAction: () => _confirmRemovePath(path),
+                                  ),
+                                ),
+                              const SizedBox(height: 12),
+                              _SectionHeader(
+                                title: 'Allowed Ports',
+                                actionLabel: 'Add Port',
+                                onAction: _showAddPortDialog,
+                                compact: true,
+                              ),
+                              if (runtimeConfig.allowedPorts.isEmpty)
+                                const ManagementEmptyStateCard(
+                                  message:
+                                      'No individually allowed ports configured yet.',
+                                )
+                              else
+                                ...runtimeConfig.allowedPorts.map(
+                                  (port) => _CompactActionRow(
+                                    title: '$port',
+                                    subtitle:
+                                        'Remote peers can access this port.',
+                                    actionLabel: 'Remove',
+                                    onAction: () => _confirmRemovePort(port),
+                                  ),
+                                ),
+                              const SizedBox(height: 12),
+                              _SectionHeader(
+                                title: 'Allowed Port Ranges',
+                                actionLabel: 'Add Range',
+                                onAction: _showAddRangeDialog,
+                                compact: true,
+                              ),
+                              if (runtimeConfig.allowedPortRanges.isEmpty)
+                                const ManagementEmptyStateCard(
+                                  message:
+                                      'No allowed port ranges configured yet.',
+                                )
+                              else
+                                ...runtimeConfig.allowedPortRanges.map(
+                                  (range) => _CompactActionRow(
+                                    title: '${range.start}-${range.end}',
+                                    subtitle:
+                                        'Remote peers can access ports in this range.',
+                                    actionLabel: 'Remove',
+                                    onAction: () => _confirmRemoveRange(
+                                      range.start,
+                                      range.end,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const _PageSectionDivider(),
+                        _PageSection(
+                          title: 'Incoming Allowed Peers',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _CountBadge(
+                                label: 'Peers',
+                                value: incomingAllowedPeers.length,
+                              ),
+                              const SizedBox(height: 12),
+                              _SectionHeader(
+                                title: 'Incoming Allowed Peers',
+                                actionLabel: 'Add Peer',
+                                onAction: showAddAllowedPeerDialog,
+                                compact: true,
+                              ),
+                              if (incomingAllowedPeers.isEmpty)
+                                const ManagementEmptyStateCard(
+                                  message:
+                                      'No incoming peers have been allowed yet.',
+                                )
+                              else
+                                ...incomingAllowedPeers.map(
+                                  (peer) => _PeerItemCard(peer: peer),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _showAddPathDialog() async {
@@ -421,7 +506,7 @@ class _LocalServiceCard extends GetView<FungiController> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: SelectableText(
-                      '${endpoint.protocol} · ${endpoint.localHost}:${endpoint.localPort}',
+                      '${endpoint.protocol} · ${endpoint.localHost}:${endpoint.localPort} -> ${endpoint.servicePort}',
                       style: theme.textTheme.bodySmall,
                     ),
                   ),
@@ -468,7 +553,6 @@ class _PeerItemCard extends GetView<FungiController> {
         ? peer.alias
         : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId);
 
-    // TODO use same style as other Remove
     return _ConfigItemCard(
       title: displayName,
       subtitle: peer.peerId,
