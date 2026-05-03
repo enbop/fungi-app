@@ -93,14 +93,14 @@ Future<void> showCreateServiceDialog(
           }
 
           return AlertDialog(
-            title: const Text('Create Service'),
+            title: const Text('Add Service'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Start from a manifest YAML for now. Choose whether to create the service on this device or on another saved device.',
+                    'Start from a manifest YAML for now. Choose whether to add the service on this device or on another saved device.',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 16),
@@ -141,7 +141,7 @@ Future<void> showCreateServiceDialog(
                   if (isRemote) ...[
                     if (devices.isEmpty)
                       Text(
-                        'Save a device in Devices before creating a remote service.',
+                        'Save a device in Devices before adding a remote service.',
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
                         ),
@@ -212,7 +212,7 @@ Future<void> showCreateServiceDialog(
                   if (remoteUnavailable) ...[
                     const SizedBox(height: 12),
                     Text(
-                      'Remote creation stays available here, but it needs a saved device first.',
+                      'Remote add stays available here, but it needs a saved device first.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -235,9 +235,7 @@ Future<void> showCreateServiceDialog(
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.add_circle),
-                label: Text(
-                  isRemote ? 'Create on Device' : 'Create on This Device',
-                ),
+                label: Text(isRemote ? 'Add to Device' : 'Add to This Device'),
               ),
             ],
           );

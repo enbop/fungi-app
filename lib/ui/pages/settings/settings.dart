@@ -299,9 +299,7 @@ class Settings extends GetView<FungiController> {
         actions: [
           TextButton(
             onPressed: () {
-              Clipboard.setData(
-                ClipboardData(text: details),
-              );
+              Clipboard.setData(ClipboardData(text: details));
               SmartDialog.showToast('Version details copied to clipboard');
             },
             child: const Text('Copy'),

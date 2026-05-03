@@ -7,6 +7,7 @@ import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:fungi_app/ui/widgets/node_management_dialogs.dart';
 import 'package:fungi_app/ui/widgets/service_management_widgets.dart';
+import 'package:fungi_app/ui/widgets/ui_primitives.dart';
 import 'package:get/get.dart';
 
 String _deviceDisplayName(PeerInfo peer) {
@@ -77,6 +78,11 @@ class _NodeManagementPageState extends State<NodeManagementPage>
                   ],
                 ),
               ),
+              InlineAddButton(
+                onPressed: () => showNodeEditorDialog(),
+                label: 'Add',
+              ),
+              const SizedBox(width: 4),
               IconButton(
                 onPressed: controller.nodeManagementLoading.value
                     ? null
@@ -85,15 +91,6 @@ class _NodeManagementPageState extends State<NodeManagementPage>
                 tooltip: 'Refresh',
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => showNodeEditorDialog(),
-              icon: const Icon(Icons.add_circle),
-              label: const Text('Add Device'),
-            ),
           ),
           const SizedBox(height: 16),
           if (controller.nodeManagementLoading.value && peers.isEmpty)
@@ -214,24 +211,17 @@ class _PeerCard extends GetView<FungiController> {
                   alignment: WrapAlignment.start,
                   runAlignment: WrapAlignment.start,
                   children: [
-                    Chip(
-                      label: Text(
-                        connections.isEmpty ? 'offline' : 'connected',
-                      ),
+                    ServiceStatusBadge(
+                      label: connections.isEmpty ? 'Offline' : 'Connected',
+                      active: connections.isNotEmpty,
                     ),
-                    Chip(label: Text('${managedServices.length} services')),
-                    if (isRefreshing) const Chip(label: Text('refreshing')),
+                    ServicePillLabel(
+                      label: '${managedServices.length} services',
+                    ),
+                    if (isRefreshing)
+                      const ServicePillLabel(label: 'Refreshing'),
                     if (refreshError.isNotEmpty)
-                      Chip(
-                        avatar: const Icon(Icons.error_outline, size: 18),
-                        label: const Text('needs attention'),
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.errorContainer,
-                        labelStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onErrorContainer,
-                        ),
-                      ),
+                      const AttentionBadge(label: 'Needs attention'),
                   ],
                 ),
               ],
@@ -257,13 +247,10 @@ class _PeerCard extends GetView<FungiController> {
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => showCreateServiceDialog(
-                    context,
-                    initialPeer: peer,
-                  ),
-                  icon: const Icon(Icons.add_circle),
-                  label: const Text('Create Service'),
+                child: InlineAddButton(
+                  onPressed: () =>
+                      showCreateServiceDialog(context, initialPeer: peer),
+                  label: 'Add Service',
                 ),
               ),
               if (managedServices.isNotEmpty) ...[
@@ -426,23 +413,22 @@ class _DeviceDetailsSheet extends StatelessWidget {
                                   spacing: 8,
                                   runSpacing: 8,
                                   children: [
-                                    Chip(label: Text(connection.direction)),
-                                    Chip(
-                                      label: Text(
-                                        connection.isRelay ? 'relay' : 'direct',
-                                      ),
+                                    ServicePillLabel(
+                                      label: connection.direction,
+                                    ),
+                                    ServicePillLabel(
+                                      label: connection.isRelay
+                                          ? 'Relay'
+                                          : 'Direct',
                                     ),
                                     if (connection.hasLastRttMs())
-                                      Chip(
-                                        label: Text(
-                                          '${connection.lastRttMs} ms',
-                                        ),
+                                      ServicePillLabel(
+                                        label: '${connection.lastRttMs} ms',
                                       ),
                                     if (connection.activeStreamsTotal > 0)
-                                      Chip(
-                                        label: Text(
-                                          '${connection.activeStreamsTotal} streams',
-                                        ),
+                                      ServicePillLabel(
+                                        label:
+                                            '${connection.activeStreamsTotal} streams',
                                       ),
                                   ],
                                 ),

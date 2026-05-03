@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:fungi_app/ui/widgets/ui_primitives.dart';
 
 class TruncatedId extends StatelessWidget {
   final String id;
@@ -28,30 +27,15 @@ class TruncatedId extends StatelessWidget {
         Tooltip(
           message: 'Copy',
           waitDuration: const Duration(milliseconds: 500),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => _copyToClipboard(context),
-              child: Icon(
-                Icons.copy,
-                size: 12,
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
-              ),
-            ),
+          child: CopyIconButton(
+            value: id,
+            successMessage: 'ID copied to clipboard',
+            iconSize: 12,
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+            onCopied: onCopied,
           ),
         ),
       ],
     );
-  }
-
-  void _copyToClipboard(BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: id));
-    if (onCopied != null) {
-      onCopied!();
-    } else {
-      if (context.mounted) {
-        SmartDialog.showToast('ID copied to clipboard');
-      }
-    }
   }
 }

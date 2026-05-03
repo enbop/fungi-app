@@ -5,6 +5,7 @@ import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:fungi_app/ui/widgets/service_icon.dart';
+import 'package:fungi_app/ui/widgets/ui_primitives.dart';
 import 'package:get/get.dart';
 
 String _dashboardDeviceLabel({
@@ -22,6 +23,92 @@ String _dashboardRemoteServiceReference({
   required String deviceLabel,
 }) {
   return service.qualifiedName(deviceLabel);
+}
+
+String _remoteServiceTypeLabel(RemoteServiceListEntryView service) {
+  if (service.isWeb) {
+    return 'Web';
+  }
+
+  final transport = service.transportKind.trim();
+  if (transport.isEmpty) {
+    return 'TCP';
+  }
+
+  return transport.toUpperCase();
+}
+
+String _remoteServiceStatusLabel(RemoteServiceListEntryView service) {
+  return service.accessAttached ? 'Connected' : 'Published';
+}
+
+String _localAccessEndpointLabel(ServiceAccessEndpointView endpoint) {
+  final name = endpoint.name.trim();
+  if (name.isNotEmpty) {
+    return name;
+  }
+
+  final protocol = endpoint.protocol.trim();
+  if (protocol.isNotEmpty) {
+    return protocol.toUpperCase();
+  }
+
+  return 'Local address';
+}
+
+String _localAccessEndpointValue(ServiceAccessEndpointView endpoint) {
+  return '${endpoint.localHost}:${endpoint.localPort}';
+}
+
+Future<void> _showLocalAddressDialog(
+  BuildContext context, {
+  required String serviceReference,
+  required List<ServiceAccessEndpointView> endpoints,
+}) async {
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: const Text('Local Address'),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: endpoints.isEmpty
+              ? const Text(
+                  'No local forwarding address is available yet. Try reconnecting once the tunnel finishes attaching.',
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      serviceReference,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    ...endpoints.asMap().entries.map((entry) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: entry.key == endpoints.length - 1 ? 0 : 10,
+                        ),
+                        child: CopyableValueCard(
+                          label: _localAccessEndpointLabel(entry.value),
+                          value: _localAccessEndpointValue(entry.value),
+                          successMessage: 'Address copied',
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class DashboardPage extends GetView<FungiController> {
@@ -101,10 +188,9 @@ class DashboardPage extends GetView<FungiController> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (showHeaderCreateAction) ...[
-                  FilledButton.icon(
+                  InlineAddButton(
                     onPressed: () => showCreateServiceDialog(context),
-                    icon: const Icon(Icons.add_circle),
-                    label: const Text('Create Service'),
+                    label: 'Add',
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -143,7 +229,6 @@ class DashboardPage extends GetView<FungiController> {
               onPressed: controller.refreshAvailableServicesData,
             ),
           ],
-          const _SectionDivider(),
           if (serviceEntries.isEmpty)
             _HomeOnboardingPanel(
               hasDevices: controller.addressBook.isNotEmpty,
@@ -311,52 +396,6 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
   }
 }
 
-class _SectionDivider extends StatelessWidget {
-  const _SectionDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 20),
-      child: Divider(height: 1),
-    );
-  }
-}
-
-class _ServiceOriginBadge extends StatelessWidget {
-  const _ServiceOriginBadge.local() : isRemote = false;
-
-  const _ServiceOriginBadge.remote() : isRemote = true;
-
-  final bool isRemote;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final backgroundColor = isRemote
-        ? colorScheme.tertiaryContainer
-        : colorScheme.primaryContainer;
-    final foregroundColor = isRemote
-        ? colorScheme.onTertiaryContainer
-        : colorScheme.onPrimaryContainer;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        isRemote ? 'Remote' : 'Local',
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: foregroundColor,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
 class _QuickServiceCard extends GetView<FungiController> {
   const _QuickServiceCard({required this.entry});
 
@@ -373,6 +412,8 @@ class _QuickServiceCard extends GetView<FungiController> {
         service.displayName.isNotEmpty &&
         service.displayName != serviceReference &&
         service.displayName != service.serviceName;
+    final typeLabel = _remoteServiceTypeLabel(service);
+    final statusLabel = _remoteServiceStatusLabel(service);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -394,13 +435,11 @@ class _QuickServiceCard extends GetView<FungiController> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                const _ServiceOriginBadge.remote(),
-                if (shouldShowHumanName) Chip(label: Text(service.displayName)),
-                Chip(
-                  label: Text(
-                    service.accessAttached ? 'Connected' : 'Published',
-                  ),
-                ),
+                const ServiceOriginBadge.remote(),
+                if (shouldShowHumanName)
+                  CompactBadge(label: service.displayName),
+                CompactBadge(label: typeLabel),
+                CompactBadge(label: statusLabel),
               ],
             ),
           ),
@@ -421,6 +460,10 @@ class _QuickAccessActions extends GetView<FungiController> {
   Widget build(BuildContext context) {
     final service = entry.service;
     final canControl = service.serviceName.trim().isNotEmpty;
+    final serviceReference = _dashboardRemoteServiceReference(
+      service: service,
+      deviceLabel: entry.deviceLabel,
+    );
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -442,12 +485,13 @@ class _QuickAccessActions extends GetView<FungiController> {
             child: const Text('Connect'),
           )
         else if (canControl)
-          FilledButton.tonal(
-            onPressed: () => controller.detachCatalogServiceAccess(
-              peerId: entry.peerId,
-              serviceName: service.serviceName,
+          FilledButton(
+            onPressed: () => _showLocalAddressDialog(
+              context,
+              serviceReference: serviceReference,
+              endpoints: service.localAccessEndpoints,
             ),
-            child: const Text('Disconnect'),
+            child: const Text('Address'),
           ),
         const SizedBox(width: 8),
         const Icon(Icons.expand_more),
@@ -464,62 +508,53 @@ class _QuickServiceDetails extends GetView<FungiController> {
   @override
   Widget build(BuildContext context) {
     final service = entry.service;
-    final serviceReference = _dashboardRemoteServiceReference(
-      service: service,
-      deviceLabel: entry.deviceLabel,
-    );
     final launchUri = service.isWeb
         ? controller.catalogWebLaunchUri(service)
         : null;
+    final hasLocalAddresses = service.localAccessEndpoints.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            Chip(label: Text(service.usageKind ?? service.transportKind)),
-            Chip(label: Text(service.runtime)),
-            Chip(
-              label: Text(
-                service.accessAttached ? 'Connected locally' : 'Not connected',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'State: ${service.state}${service.running ? ' • running' : ''}',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        if (service.serviceName.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Text(
-            'Service Reference',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          SelectableText(
-            serviceReference,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
         if (launchUri != null) ...[
-          const SizedBox(height: 8),
-          Text('Open URL', style: Theme.of(context).textTheme.bodySmall),
-          SelectableText(
-            launchUri.toString(),
+          CopyableValueCard(
+            label: 'Local URL',
+            value: launchUri.toString(),
+            compact: true,
+            successMessage: 'Address copied',
+          ),
+        ] else if (hasLocalAddresses) ...[
+          ...service.localAccessEndpoints.asMap().entries.map((entry) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: entry.key == service.localAccessEndpoints.length - 1
+                    ? 0
+                    : 8,
+              ),
+              child: CopyableValueCard(
+                label: _localAccessEndpointLabel(entry.value),
+                value: _localAccessEndpointValue(entry.value),
+                compact: true,
+                successMessage: 'Address copied',
+              ),
+            );
+          }),
+        ] else ...[
+          Text(
+            service.accessAttached
+                ? 'Local forwarding is being prepared.'
+                : service.isWeb
+                ? 'Connect to prepare a local URL here.'
+                : 'Connect to create a local forwarded address here.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
-            if (!service.isWeb &&
-                !service.accessAttached &&
-                service.serviceName.isNotEmpty)
+            if (!service.accessAttached && service.serviceName.isNotEmpty)
               OutlinedButton.icon(
                 onPressed: () => controller.attachCatalogServiceAccess(
                   peerId: entry.peerId,
@@ -528,16 +563,18 @@ class _QuickServiceDetails extends GetView<FungiController> {
                 icon: const Icon(Icons.link),
                 label: const Text('Connect'),
               ),
-            if (service.isWeb &&
-                !service.accessAttached &&
-                service.serviceName.isNotEmpty)
+            if (!service.isWeb && hasLocalAddresses)
               OutlinedButton.icon(
-                onPressed: () => controller.attachCatalogServiceAccess(
-                  peerId: entry.peerId,
-                  serviceName: service.serviceName,
+                onPressed: () => _showLocalAddressDialog(
+                  context,
+                  serviceReference: _dashboardRemoteServiceReference(
+                    service: service,
+                    deviceLabel: entry.deviceLabel,
+                  ),
+                  endpoints: service.localAccessEndpoints,
                 ),
-                icon: const Icon(Icons.link),
-                label: const Text('Connect'),
+                icon: const Icon(Icons.copy_all),
+                label: const Text('Address'),
               ),
             if (service.accessAttached && service.serviceName.isNotEmpty)
               OutlinedButton.icon(
@@ -550,19 +587,6 @@ class _QuickServiceDetails extends GetView<FungiController> {
               ),
           ],
         ),
-        if (service.localAccessEndpoints.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          Text(
-            'Local Endpoints',
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
-          ...service.localAccessEndpoints.map(
-            (endpoint) => Text(
-              '${endpoint.name} -> ${endpoint.localHost}:${endpoint.localPort} [${endpoint.protocol}]',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-        ],
       ],
     );
   }
@@ -577,6 +601,10 @@ class _LocalServiceCard extends GetView<FungiController> {
   Widget build(BuildContext context) {
     final pendingAction = controller.localServicePendingActions[service.name];
     final isBusy = pendingAction != null;
+    final metadata = <String>[
+      service.runtime,
+      if (service.source.isNotEmpty) service.source,
+    ].join(' • ');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -599,30 +627,23 @@ class _LocalServiceCard extends GetView<FungiController> {
                           service.name,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${service.runtime} • ${service.source}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
+                        if (metadata.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            metadata,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  Chip(
-                    label: Text(service.running ? 'running' : service.state),
+                  CompactBadge(
+                    label: service.running ? 'Running' : service.state,
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  const _ServiceOriginBadge.local(),
-                  Chip(label: Text(service.runtime)),
-                  if (service.source.isNotEmpty)
-                    Chip(label: Text(service.source)),
-                ],
-              ),
+              const ServiceOriginBadge.local(),
               const SizedBox(height: 10),
               if (service.localEndpoints.isNotEmpty) ...[
                 Text(
