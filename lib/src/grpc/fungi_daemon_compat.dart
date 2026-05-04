@@ -18,6 +18,14 @@ class RemoveAddressBookPeerRequest {
   String peerId = '';
 }
 
+class AddIncomingAllowedPeerRequest {
+  String peerId = '';
+}
+
+class RemoveIncomingAllowedPeerRequest {
+  String peerId = '';
+}
+
 class RuntimeAllowedPortRequest {
   int port = 0;
 }
@@ -48,6 +56,10 @@ extension DeviceInfoResponseCompat on DeviceInfoResponse {
   DeviceInfo get peerInfo => device;
 }
 
+extension TrustedDevicesListResponseCompat on TrustedDevicesListResponse {
+  List<DeviceInfo> get peers => devices;
+}
+
 extension RuntimeConfigResponseCompat on RuntimeConfigResponse {
   List<int> get allowedPorts => const <int>[];
 
@@ -68,6 +80,33 @@ extension DetachServiceAccessRequestCompat on DetachServiceAccessRequest {
 }
 
 extension FungiDaemonClientCompat on FungiDaemonClient {
+  Future<TrustedDevicesListResponse> getIncomingAllowedPeers(
+    Empty request, {
+    CallOptions? options,
+  }) {
+    return listTrustedDevices(request, options: options);
+  }
+
+  Future<Empty> addIncomingAllowedPeer(
+    AddIncomingAllowedPeerRequest request, {
+    CallOptions? options,
+  }) {
+    return trustDevice(
+      TrustDeviceRequest()..peerId = request.peerId,
+      options: options,
+    );
+  }
+
+  Future<Empty> removeIncomingAllowedPeer(
+    RemoveIncomingAllowedPeerRequest request, {
+    CallOptions? options,
+  }) {
+    return untrustDevice(
+      UntrustDeviceRequest()..peerId = request.peerId,
+      options: options,
+    );
+  }
+
   Future<DeviceInfoListResponse> listAddressBookPeers(
     Empty request, {
     CallOptions? options,

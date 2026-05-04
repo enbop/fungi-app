@@ -37,17 +37,17 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/Hostname',
       ($0.Empty value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.HostnameResponse.fromBuffer(value));
-  static final _$getIncomingAllowedPeers = $grpc.ClientMethod<$0.Empty, $0.IncomingAllowedPeersListResponse>(
-      '/fungi_daemon.FungiDaemon/GetIncomingAllowedPeers',
+  static final _$listTrustedDevices = $grpc.ClientMethod<$0.Empty, $0.TrustedDevicesListResponse>(
+      '/fungi_daemon.FungiDaemon/ListTrustedDevices',
       ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.IncomingAllowedPeersListResponse.fromBuffer(value));
-  static final _$addIncomingAllowedPeer = $grpc.ClientMethod<$0.AddIncomingAllowedPeerRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/AddIncomingAllowedPeer',
-      ($0.AddIncomingAllowedPeerRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.TrustedDevicesListResponse.fromBuffer(value));
+  static final _$trustDevice = $grpc.ClientMethod<$0.TrustDeviceRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/TrustDevice',
+      ($0.TrustDeviceRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$removeIncomingAllowedPeer = $grpc.ClientMethod<$0.RemoveIncomingAllowedPeerRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveIncomingAllowedPeer',
-      ($0.RemoveIncomingAllowedPeerRequest value) => value.writeToBuffer(),
+  static final _$untrustDevice = $grpc.ClientMethod<$0.UntrustDeviceRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/UntrustDevice',
+      ($0.UntrustDeviceRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
   static final _$getRelayConfig = $grpc.ClientMethod<$0.Empty, $0.RelayConfigResponse>(
       '/fungi_daemon.FungiDaemon/GetRelayConfig',
@@ -288,16 +288,16 @@ class FungiDaemonClient extends $grpc.Client {
     return $createUnaryCall(_$hostname, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.IncomingAllowedPeersListResponse> getIncomingAllowedPeers($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getIncomingAllowedPeers, request, options: options);
+  $grpc.ResponseFuture<$0.TrustedDevicesListResponse> listTrustedDevices($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listTrustedDevices, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.Empty> addIncomingAllowedPeer($0.AddIncomingAllowedPeerRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$addIncomingAllowedPeer, request, options: options);
+  $grpc.ResponseFuture<$0.Empty> trustDevice($0.TrustDeviceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$trustDevice, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.Empty> removeIncomingAllowedPeer($0.RemoveIncomingAllowedPeerRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeIncomingAllowedPeer, request, options: options);
+  $grpc.ResponseFuture<$0.Empty> untrustDevice($0.UntrustDeviceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$untrustDevice, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.RelayConfigResponse> getRelayConfig($0.Empty request, {$grpc.CallOptions? options}) {
@@ -550,26 +550,26 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
         ($0.HostnameResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.IncomingAllowedPeersListResponse>(
-        'GetIncomingAllowedPeers',
-        getIncomingAllowedPeers_Pre,
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.TrustedDevicesListResponse>(
+        'ListTrustedDevices',
+        listTrustedDevices_Pre,
         false,
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.IncomingAllowedPeersListResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.AddIncomingAllowedPeerRequest, $0.Empty>(
-        'AddIncomingAllowedPeer',
-        addIncomingAllowedPeer_Pre,
+        ($0.TrustedDevicesListResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.TrustDeviceRequest, $0.Empty>(
+        'TrustDevice',
+        trustDevice_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.AddIncomingAllowedPeerRequest.fromBuffer(value),
+        ($core.List<$core.int> value) => $0.TrustDeviceRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RemoveIncomingAllowedPeerRequest, $0.Empty>(
-        'RemoveIncomingAllowedPeer',
-        removeIncomingAllowedPeer_Pre,
+    $addMethod($grpc.ServiceMethod<$0.UntrustDeviceRequest, $0.Empty>(
+        'UntrustDevice',
+        untrustDevice_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.RemoveIncomingAllowedPeerRequest.fromBuffer(value),
+        ($core.List<$core.int> value) => $0.UntrustDeviceRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Empty, $0.RelayConfigResponse>(
         'GetRelayConfig',
@@ -967,16 +967,16 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return hostname(call, await request);
   }
 
-  $async.Future<$0.IncomingAllowedPeersListResponse> getIncomingAllowedPeers_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getIncomingAllowedPeers(call, await request);
+  $async.Future<$0.TrustedDevicesListResponse> listTrustedDevices_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return listTrustedDevices(call, await request);
   }
 
-  $async.Future<$0.Empty> addIncomingAllowedPeer_Pre($grpc.ServiceCall call, $async.Future<$0.AddIncomingAllowedPeerRequest> request) async {
-    return addIncomingAllowedPeer(call, await request);
+  $async.Future<$0.Empty> trustDevice_Pre($grpc.ServiceCall call, $async.Future<$0.TrustDeviceRequest> request) async {
+    return trustDevice(call, await request);
   }
 
-  $async.Future<$0.Empty> removeIncomingAllowedPeer_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveIncomingAllowedPeerRequest> request) async {
-    return removeIncomingAllowedPeer(call, await request);
+  $async.Future<$0.Empty> untrustDevice_Pre($grpc.ServiceCall call, $async.Future<$0.UntrustDeviceRequest> request) async {
+    return untrustDevice(call, await request);
   }
 
   $async.Future<$0.RelayConfigResponse> getRelayConfig_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
@@ -1199,9 +1199,9 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.PeerIdResponse> peerId($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.ConfigFilePathResponse> configFilePath($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.HostnameResponse> hostname($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.IncomingAllowedPeersListResponse> getIncomingAllowedPeers($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> addIncomingAllowedPeer($grpc.ServiceCall call, $0.AddIncomingAllowedPeerRequest request);
-  $async.Future<$0.Empty> removeIncomingAllowedPeer($grpc.ServiceCall call, $0.RemoveIncomingAllowedPeerRequest request);
+  $async.Future<$0.TrustedDevicesListResponse> listTrustedDevices($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.Empty> trustDevice($grpc.ServiceCall call, $0.TrustDeviceRequest request);
+  $async.Future<$0.Empty> untrustDevice($grpc.ServiceCall call, $0.UntrustDeviceRequest request);
   $async.Future<$0.RelayConfigResponse> getRelayConfig($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> setRelayEnabled($grpc.ServiceCall call, $0.RelayEnabledRequest request);
   $async.Future<$0.Empty> setUseCommunityRelays($grpc.ServiceCall call, $0.UseCommunityRelaysRequest request);

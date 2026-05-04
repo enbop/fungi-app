@@ -95,44 +95,42 @@ final $typed_data.Uint8List configFilePathResponseDescriptor = $convert.base64De
     'ChZDb25maWdGaWxlUGF0aFJlc3BvbnNlEigKEGNvbmZpZ19maWxlX3BhdGgYASABKAlSDmNvbm'
     'ZpZ0ZpbGVQYXRo');
 
-@$core.Deprecated('Use incomingAllowedPeersListResponseDescriptor instead')
-const IncomingAllowedPeersListResponse$json = {
-  '1': 'IncomingAllowedPeersListResponse',
+@$core.Deprecated('Use trustedDevicesListResponseDescriptor instead')
+const TrustedDevicesListResponse$json = {
+  '1': 'TrustedDevicesListResponse',
   '2': [
-    {'1': 'peers', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.DeviceInfo', '10': 'peers'},
+    {'1': 'devices', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.DeviceInfo', '10': 'devices'},
   ],
 };
 
-/// Descriptor for `IncomingAllowedPeersListResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List incomingAllowedPeersListResponseDescriptor = $convert.base64Decode(
-    'CiBJbmNvbWluZ0FsbG93ZWRQZWVyc0xpc3RSZXNwb25zZRIuCgVwZWVycxgBIAMoCzIYLmZ1bm'
-    'dpX2RhZW1vbi5EZXZpY2VJbmZvUgVwZWVycw==');
+/// Descriptor for `TrustedDevicesListResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List trustedDevicesListResponseDescriptor = $convert.base64Decode(
+    'ChpUcnVzdGVkRGV2aWNlc0xpc3RSZXNwb25zZRIyCgdkZXZpY2VzGAEgAygLMhguZnVuZ2lfZG'
+    'FlbW9uLkRldmljZUluZm9SB2RldmljZXM=');
 
-@$core.Deprecated('Use addIncomingAllowedPeerRequestDescriptor instead')
-const AddIncomingAllowedPeerRequest$json = {
-  '1': 'AddIncomingAllowedPeerRequest',
-  '2': [
-    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
-  ],
-};
-
-/// Descriptor for `AddIncomingAllowedPeerRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List addIncomingAllowedPeerRequestDescriptor = $convert.base64Decode(
-    'Ch1BZGRJbmNvbWluZ0FsbG93ZWRQZWVyUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySW'
-    'Q=');
-
-@$core.Deprecated('Use removeIncomingAllowedPeerRequestDescriptor instead')
-const RemoveIncomingAllowedPeerRequest$json = {
-  '1': 'RemoveIncomingAllowedPeerRequest',
+@$core.Deprecated('Use trustDeviceRequestDescriptor instead')
+const TrustDeviceRequest$json = {
+  '1': 'TrustDeviceRequest',
   '2': [
     {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
   ],
 };
 
-/// Descriptor for `RemoveIncomingAllowedPeerRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List removeIncomingAllowedPeerRequestDescriptor = $convert.base64Decode(
-    'CiBSZW1vdmVJbmNvbWluZ0FsbG93ZWRQZWVyUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZW'
-    'VySWQ=');
+/// Descriptor for `TrustDeviceRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List trustDeviceRequestDescriptor = $convert.base64Decode(
+    'ChJUcnVzdERldmljZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklk');
+
+@$core.Deprecated('Use untrustDeviceRequestDescriptor instead')
+const UntrustDeviceRequest$json = {
+  '1': 'UntrustDeviceRequest',
+  '2': [
+    {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
+  ],
+};
+
+/// Descriptor for `UntrustDeviceRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List untrustDeviceRequestDescriptor = $convert.base64Decode(
+    'ChRVbnRydXN0RGV2aWNlUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
 
 @$core.Deprecated('Use relayEnabledRequestDescriptor instead')
 const RelayEnabledRequest$json = {

@@ -320,22 +320,22 @@ class ConfigFilePathResponse extends $pb.GeneratedMessage {
   void clearConfigFilePath() => clearField(1);
 }
 
-class IncomingAllowedPeersListResponse extends $pb.GeneratedMessage {
-  factory IncomingAllowedPeersListResponse({
-    $core.Iterable<DeviceInfo>? peers,
+class TrustedDevicesListResponse extends $pb.GeneratedMessage {
+  factory TrustedDevicesListResponse({
+    $core.Iterable<DeviceInfo>? devices,
   }) {
     final $result = create();
-    if (peers != null) {
-      $result.peers.addAll(peers);
+    if (devices != null) {
+      $result.devices.addAll(devices);
     }
     return $result;
   }
-  IncomingAllowedPeersListResponse._() : super();
-  factory IncomingAllowedPeersListResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory IncomingAllowedPeersListResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  TrustedDevicesListResponse._() : super();
+  factory TrustedDevicesListResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TrustedDevicesListResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'IncomingAllowedPeersListResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
-    ..pc<DeviceInfo>(1, _omitFieldNames ? '' : 'peers', $pb.PbFieldType.PM, subBuilder: DeviceInfo.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TrustedDevicesListResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..pc<DeviceInfo>(1, _omitFieldNames ? '' : 'devices', $pb.PbFieldType.PM, subBuilder: DeviceInfo.create)
     ..hasRequiredFields = false
   ;
 
@@ -343,29 +343,29 @@ class IncomingAllowedPeersListResponse extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  IncomingAllowedPeersListResponse clone() => IncomingAllowedPeersListResponse()..mergeFromMessage(this);
+  TrustedDevicesListResponse clone() => TrustedDevicesListResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  IncomingAllowedPeersListResponse copyWith(void Function(IncomingAllowedPeersListResponse) updates) => super.copyWith((message) => updates(message as IncomingAllowedPeersListResponse)) as IncomingAllowedPeersListResponse;
+  TrustedDevicesListResponse copyWith(void Function(TrustedDevicesListResponse) updates) => super.copyWith((message) => updates(message as TrustedDevicesListResponse)) as TrustedDevicesListResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static IncomingAllowedPeersListResponse create() => IncomingAllowedPeersListResponse._();
-  IncomingAllowedPeersListResponse createEmptyInstance() => create();
-  static $pb.PbList<IncomingAllowedPeersListResponse> createRepeated() => $pb.PbList<IncomingAllowedPeersListResponse>();
+  static TrustedDevicesListResponse create() => TrustedDevicesListResponse._();
+  TrustedDevicesListResponse createEmptyInstance() => create();
+  static $pb.PbList<TrustedDevicesListResponse> createRepeated() => $pb.PbList<TrustedDevicesListResponse>();
   @$core.pragma('dart2js:noInline')
-  static IncomingAllowedPeersListResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<IncomingAllowedPeersListResponse>(create);
-  static IncomingAllowedPeersListResponse? _defaultInstance;
+  static TrustedDevicesListResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TrustedDevicesListResponse>(create);
+  static TrustedDevicesListResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<DeviceInfo> get peers => $_getList(0);
+  $core.List<DeviceInfo> get devices => $_getList(0);
 }
 
-class AddIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
-  factory AddIncomingAllowedPeerRequest({
+class TrustDeviceRequest extends $pb.GeneratedMessage {
+  factory TrustDeviceRequest({
     $core.String? peerId,
   }) {
     final $result = create();
@@ -374,11 +374,11 @@ class AddIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  AddIncomingAllowedPeerRequest._() : super();
-  factory AddIncomingAllowedPeerRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AddIncomingAllowedPeerRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  TrustDeviceRequest._() : super();
+  factory TrustDeviceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TrustDeviceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'AddIncomingAllowedPeerRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TrustDeviceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'peerId')
     ..hasRequiredFields = false
   ;
@@ -387,22 +387,22 @@ class AddIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  AddIncomingAllowedPeerRequest clone() => AddIncomingAllowedPeerRequest()..mergeFromMessage(this);
+  TrustDeviceRequest clone() => TrustDeviceRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  AddIncomingAllowedPeerRequest copyWith(void Function(AddIncomingAllowedPeerRequest) updates) => super.copyWith((message) => updates(message as AddIncomingAllowedPeerRequest)) as AddIncomingAllowedPeerRequest;
+  TrustDeviceRequest copyWith(void Function(TrustDeviceRequest) updates) => super.copyWith((message) => updates(message as TrustDeviceRequest)) as TrustDeviceRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static AddIncomingAllowedPeerRequest create() => AddIncomingAllowedPeerRequest._();
-  AddIncomingAllowedPeerRequest createEmptyInstance() => create();
-  static $pb.PbList<AddIncomingAllowedPeerRequest> createRepeated() => $pb.PbList<AddIncomingAllowedPeerRequest>();
+  static TrustDeviceRequest create() => TrustDeviceRequest._();
+  TrustDeviceRequest createEmptyInstance() => create();
+  static $pb.PbList<TrustDeviceRequest> createRepeated() => $pb.PbList<TrustDeviceRequest>();
   @$core.pragma('dart2js:noInline')
-  static AddIncomingAllowedPeerRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AddIncomingAllowedPeerRequest>(create);
-  static AddIncomingAllowedPeerRequest? _defaultInstance;
+  static TrustDeviceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TrustDeviceRequest>(create);
+  static TrustDeviceRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get peerId => $_getSZ(0);
@@ -414,8 +414,8 @@ class AddIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
   void clearPeerId() => clearField(1);
 }
 
-class RemoveIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
-  factory RemoveIncomingAllowedPeerRequest({
+class UntrustDeviceRequest extends $pb.GeneratedMessage {
+  factory UntrustDeviceRequest({
     $core.String? peerId,
   }) {
     final $result = create();
@@ -424,11 +424,11 @@ class RemoveIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  RemoveIncomingAllowedPeerRequest._() : super();
-  factory RemoveIncomingAllowedPeerRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory RemoveIncomingAllowedPeerRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  UntrustDeviceRequest._() : super();
+  factory UntrustDeviceRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UntrustDeviceRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RemoveIncomingAllowedPeerRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UntrustDeviceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'peerId')
     ..hasRequiredFields = false
   ;
@@ -437,22 +437,22 @@ class RemoveIncomingAllowedPeerRequest extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  RemoveIncomingAllowedPeerRequest clone() => RemoveIncomingAllowedPeerRequest()..mergeFromMessage(this);
+  UntrustDeviceRequest clone() => UntrustDeviceRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  RemoveIncomingAllowedPeerRequest copyWith(void Function(RemoveIncomingAllowedPeerRequest) updates) => super.copyWith((message) => updates(message as RemoveIncomingAllowedPeerRequest)) as RemoveIncomingAllowedPeerRequest;
+  UntrustDeviceRequest copyWith(void Function(UntrustDeviceRequest) updates) => super.copyWith((message) => updates(message as UntrustDeviceRequest)) as UntrustDeviceRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static RemoveIncomingAllowedPeerRequest create() => RemoveIncomingAllowedPeerRequest._();
-  RemoveIncomingAllowedPeerRequest createEmptyInstance() => create();
-  static $pb.PbList<RemoveIncomingAllowedPeerRequest> createRepeated() => $pb.PbList<RemoveIncomingAllowedPeerRequest>();
+  static UntrustDeviceRequest create() => UntrustDeviceRequest._();
+  UntrustDeviceRequest createEmptyInstance() => create();
+  static $pb.PbList<UntrustDeviceRequest> createRepeated() => $pb.PbList<UntrustDeviceRequest>();
   @$core.pragma('dart2js:noInline')
-  static RemoveIncomingAllowedPeerRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RemoveIncomingAllowedPeerRequest>(create);
-  static RemoveIncomingAllowedPeerRequest? _defaultInstance;
+  static UntrustDeviceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UntrustDeviceRequest>(create);
+  static UntrustDeviceRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get peerId => $_getSZ(0);
