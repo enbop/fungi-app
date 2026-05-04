@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
-import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:fungi_app/ui/widgets/text.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
@@ -92,7 +92,7 @@ class ClientDataTunnelSection extends GetView<FungiController> {
                       children: [
                         if (peerLabel != rule.remotePeerId)
                           Text(
-                            "Alias: $peerLabel",
+                            "Device: $peerLabel",
                             style: Theme.of(context).textTheme.bodySmall?.apply(
                               color: Theme.of(
                                 context,
@@ -227,7 +227,7 @@ class ServerDataTunnelSection extends GetView<FungiController> {
                           ),
                         if (rule.allowedPeers.isNotEmpty)
                           Text(
-                            "Allowed peers: ${rule.allowedPeers.length}",
+                            "Trusted devices: ${rule.allowedPeers.length}",
                             style: Theme.of(context).textTheme.bodySmall?.apply(
                               color: Theme.of(
                                 context,

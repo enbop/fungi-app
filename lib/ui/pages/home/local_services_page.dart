@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
-import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:fungi_app/ui/widgets/service_management_widgets.dart';
@@ -72,7 +72,7 @@ class LocalServicesPage extends GetView<FungiController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Import YAML stays here, but runtime policy, raw port listening, and incoming allowlists now live behind a secondary admin view.',
+                  'Import YAML stays here, but runtime policy, raw port listening, and trusted-device controls now live behind a secondary admin view.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 12),
@@ -127,7 +127,7 @@ class LocalServicesPage extends GetView<FungiController> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Runtime policy, raw networking, and incoming allowlists stay available here without taking over the main Local Services path.',
+                              'Runtime policy, raw networking, and trusted-device controls stay available here without taking over the main Local Services path.',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -144,7 +144,7 @@ class LocalServicesPage extends GetView<FungiController> {
                 Expanded(
                   child: Obx(() {
                     final runtimeConfig = controller.runtimeConfig.value;
-                    final incomingAllowedPeers = controller.incomingAllowedPeers;
+                    final trustedDevices = controller.trustedDevices;
 
                     return ListView(
                       padding: const EdgeInsets.all(16),
@@ -187,7 +187,8 @@ class LocalServicesPage extends GetView<FungiController> {
                               ),
                               if (runtimeConfig.allowedHostPaths.isEmpty)
                                 const ManagementEmptyStateCard(
-                                  message: 'No allowed host paths configured yet.',
+                                  message:
+                                      'No allowed host paths configured yet.',
                                 )
                               else
                                 ...runtimeConfig.allowedHostPaths.map(
@@ -200,79 +201,37 @@ class LocalServicesPage extends GetView<FungiController> {
                                   ),
                                 ),
                               const SizedBox(height: 12),
-                              _SectionHeader(
-                                title: 'Allowed Ports',
-                                actionLabel: 'Add Port',
-                                onAction: _showAddPortDialog,
-                                compact: true,
+                              Text(
+                                'Allowed ports and port ranges are no longer exposed by the current daemon API.',
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
-                              if (runtimeConfig.allowedPorts.isEmpty)
-                                const ManagementEmptyStateCard(
-                                  message:
-                                      'No individually allowed ports configured yet.',
-                                )
-                              else
-                                ...runtimeConfig.allowedPorts.map(
-                                  (port) => _CompactActionRow(
-                                    title: '$port',
-                                    subtitle:
-                                        'Remote peers can access this port.',
-                                    actionLabel: 'Remove',
-                                    onAction: () => _confirmRemovePort(port),
-                                  ),
-                                ),
-                              const SizedBox(height: 12),
-                              _SectionHeader(
-                                title: 'Allowed Port Ranges',
-                                actionLabel: 'Add Range',
-                                onAction: _showAddRangeDialog,
-                                compact: true,
-                              ),
-                              if (runtimeConfig.allowedPortRanges.isEmpty)
-                                const ManagementEmptyStateCard(
-                                  message:
-                                      'No allowed port ranges configured yet.',
-                                )
-                              else
-                                ...runtimeConfig.allowedPortRanges.map(
-                                  (range) => _CompactActionRow(
-                                    title: '${range.start}-${range.end}',
-                                    subtitle:
-                                        'Remote peers can access ports in this range.',
-                                    actionLabel: 'Remove',
-                                    onAction: () => _confirmRemoveRange(
-                                      range.start,
-                                      range.end,
-                                    ),
-                                  ),
-                                ),
                             ],
                           ),
                         ),
                         const _PageSectionDivider(),
                         _PageSection(
-                          title: 'Incoming Allowed Peers',
+                          title: 'Trusted Devices',
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _CountBadge(
-                                label: 'Peers',
-                                value: incomingAllowedPeers.length,
+                                label: 'Devices',
+                                value: trustedDevices.length,
                               ),
                               const SizedBox(height: 12),
                               _SectionHeader(
-                                title: 'Incoming Allowed Peers',
-                                actionLabel: 'Add Peer',
-                                onAction: showAddAllowedPeerDialog,
+                                title: 'Trusted Devices',
+                                actionLabel: 'Trust Device',
+                                onAction: showTrustDeviceDialog,
                                 compact: true,
                               ),
-                              if (incomingAllowedPeers.isEmpty)
+                              if (trustedDevices.isEmpty)
                                 const ManagementEmptyStateCard(
                                   message:
-                                      'No incoming peers have been allowed yet.',
+                                      'No trusted devices have been added yet.',
                                 )
                               else
-                                ...incomingAllowedPeers.map(
+                                ...trustedDevices.map(
                                   (peer) => _PeerItemCard(peer: peer),
                                 ),
                             ],
@@ -323,111 +282,11 @@ class LocalServicesPage extends GetView<FungiController> {
     );
   }
 
-  Future<void> _showAddPortDialog() async {
-    final portController = TextEditingController();
-    await SmartDialog.show(
-      builder: (_) => AlertDialog(
-        title: const Text('Add Allowed Port'),
-        content: TextField(
-          controller: portController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Port',
-            hintText: '8080',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: SmartDialog.dismiss,
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final port = int.tryParse(portController.text.trim());
-              if (port == null) {
-                return;
-              }
-              SmartDialog.dismiss();
-              await controller.addRuntimeAllowedPort(port);
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _showAddRangeDialog() async {
-    final startController = TextEditingController();
-    final endController = TextEditingController();
-    await SmartDialog.show(
-      builder: (_) => AlertDialog(
-        title: const Text('Add Allowed Port Range'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: startController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Start port',
-                hintText: '3000',
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: endController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'End port',
-                hintText: '3999',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: SmartDialog.dismiss,
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final start = int.tryParse(startController.text.trim());
-              final end = int.tryParse(endController.text.trim());
-              if (start == null || end == null || start > end) {
-                return;
-              }
-              SmartDialog.dismiss();
-              await controller.addRuntimeAllowedPortRange(start, end);
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _confirmRemovePath(String path) async {
     await _showConfirmDialog(
       title: 'Remove Allowed Host Path',
       message: path,
       onConfirm: () => controller.removeRuntimeAllowedHostPath(path),
-    );
-  }
-
-  Future<void> _confirmRemovePort(int port) async {
-    await _showConfirmDialog(
-      title: 'Remove Allowed Port',
-      message: '$port',
-      onConfirm: () => controller.removeRuntimeAllowedPort(port),
-    );
-  }
-
-  Future<void> _confirmRemoveRange(int start, int end) async {
-    await _showConfirmDialog(
-      title: 'Remove Allowed Port Range',
-      message: '$start-$end',
-      onConfirm: () => controller.removeRuntimeAllowedPortRange(start, end),
     );
   }
 
@@ -545,19 +404,19 @@ class _LocalServiceCard extends GetView<FungiController> {
 class _PeerItemCard extends GetView<FungiController> {
   const _PeerItemCard({required this.peer});
 
-  final PeerInfo peer;
+  final DeviceInfo peer;
 
   @override
   Widget build(BuildContext context) {
-    final displayName = peer.alias.isNotEmpty
-        ? peer.alias
+    final displayName = peer.name.isNotEmpty
+        ? peer.name
         : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId);
 
     return _ConfigItemCard(
       title: displayName,
       subtitle: peer.peerId,
       actionLabel: 'Remove',
-      onAction: () => controller.removeIncomingAllowedPeer(peer.peerId),
+      onAction: () => controller.removeTrustedDevice(peer.peerId),
     );
   }
 }

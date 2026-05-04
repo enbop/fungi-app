@@ -7,7 +7,7 @@ import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/foreground_task.dart';
 import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
-import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pbgrpc.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart' as grpc;
@@ -123,8 +123,8 @@ class FungiController extends GetxController {
   final launchAtLoginRequiresApproval = false.obs;
   final launchAtLoginHideToTray = true.obs;
   final launchAtLoginLoading = false.obs;
-  final incomingAllowedPeers = <PeerInfo>[].obs;
-  final addressBook = <PeerInfo>[].obs;
+  final trustedDevices = <DeviceInfo>[].obs;
+  final addressBook = <DeviceInfo>[].obs;
   final fileTransferServerState = FileTransferServerState(enabled: false).obs;
   final fileTransferClients = <FileTransferClient>[].obs;
 
@@ -561,42 +561,59 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<void> updateIncomingAllowedPeers() async {
-    incomingAllowedPeers.value = (await fungiClient.getIncomingAllowedPeers(
+  Future<void> updateTrustedDevices() async {
+    trustedDevices.value = (await fungiClient.listTrustedDevices(
       Empty(),
-    )).peers;
+    )).devices;
   }
 
   Future<void> updateAddressBook() async {
-    addressBook.value = (await fungiClient.listAddressBookPeers(Empty())).peers;
+    addressBook.value = (await fungiClient.listDevices(Empty())).devices;
   }
 
-  Future<void> addIncomingAllowedPeer(PeerInfo peerInfo) async {
-    await fungiClient.addIncomingAllowedPeer(
-      AddIncomingAllowedPeerRequest()..peerId = peerInfo.peerId,
+  Future<void> addTrustedDevice(DeviceInfo peerInfo) async {
+    await fungiClient.trustDevice(
+      TrustDeviceRequest()..peerId = peerInfo.peerId,
     );
-    await updateIncomingAllowedPeers();
-    // Also add to address books
 
-    // Update the address books list to reflect the new peer
-    await updateAddressBookPeer(peerInfo);
+    try {
+      // Persist the chosen device metadata before refreshing the trusted list
+      // so the UI snapshots the latest saved name/hostname in one pass.
+      await persistDeviceMetadata(peerInfo);
+    } catch (e) {
+      await updateTrustedDevices();
+      Get.snackbar(
+        'Trusted with incomplete details',
+        'Device trust succeeded, but saving its details failed: $e',
+      );
+      return;
+    }
+
+    try {
+      await Future.wait([updateAddressBook(), updateTrustedDevices()]);
+    } catch (e) {
+      Get.snackbar(
+        'Trusted device saved',
+        'Device was trusted and its details were saved, but refreshing the lists failed: $e',
+      );
+    }
   }
 
-  Future<void> removeIncomingAllowedPeer(String peerId) async {
-    await fungiClient.removeIncomingAllowedPeer(
-      RemoveIncomingAllowedPeerRequest()..peerId = peerId,
-    );
-    await updateIncomingAllowedPeers();
+  Future<void> removeTrustedDevice(String peerId) async {
+    await fungiClient.untrustDevice(UntrustDeviceRequest()..peerId = peerId);
+    await updateTrustedDevices();
   }
 
-  Future<void> updateAddressBookPeer(PeerInfo peerInfo) async {
-    await fungiClient.updateAddressBookPeer(
-      UpdateAddressBookPeerRequest()..peerInfo = peerInfo,
-    );
+  Future<void> persistDeviceMetadata(DeviceInfo peerInfo) async {
+    await fungiClient.updateDevice(UpdateDeviceRequest()..device = peerInfo);
+  }
+
+  Future<void> updateAddressBookPeer(DeviceInfo peerInfo) async {
+    await persistDeviceMetadata(peerInfo);
     await updateAddressBook();
   }
 
-  Future<void> saveAddressBookPeer(PeerInfo peerInfo) async {
+  Future<void> saveAddressBookPeer(DeviceInfo peerInfo) async {
     try {
       await updateAddressBookPeer(peerInfo);
       await refreshNodeManagementData();
@@ -606,16 +623,14 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<PeerInfo?> getAddressBookPeer(String peerId) async {
-    return (await fungiClient.getAddressBookPeer(
-      GetAddressBookPeerRequest()..peerId = peerId,
-    )).peerInfo;
+  Future<DeviceInfo?> getAddressBookPeer(String peerId) async {
+    return (await fungiClient.getDevice(
+      GetDeviceRequest()..peerId = peerId,
+    )).device;
   }
 
   Future<void> removeAddressBookPeer(String peerId) async {
-    await fungiClient.removeAddressBookPeer(
-      RemoveAddressBookPeerRequest()..peerId = peerId,
-    );
+    await fungiClient.removeDevice(RemoveDeviceRequest()..peerId = peerId);
     await updateAddressBook();
   }
 
@@ -656,9 +671,9 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<List<PeerInfo>> listMdnsPeers() async {
+  Future<List<DeviceInfo>> listMdnsPeers() async {
     final response = await fungiClient.listMdnsDevices(Empty());
-    return response.peers;
+    return response.devices;
   }
 
   Future<void> startFileTransferServer(String rootDir) async {
@@ -707,19 +722,19 @@ class FungiController extends GetxController {
 
   Future<void> addFileTransferClient({
     required bool enabled,
-    required PeerInfo peerInfo,
+    required DeviceInfo peerInfo,
   }) async {
     await fungiClient.addFileTransferClient(
       AddFileTransferClientRequest()
         ..enabled = enabled
-        ..name = peerInfo.alias
+        ..name = peerInfo.name
         ..peerId = peerInfo.peerId,
     );
     fileTransferClients.add(
       FileTransferClient(
         enabled: enabled,
         peerId: peerInfo.peerId,
-        name: peerInfo.alias,
+        name: peerInfo.name,
       ),
     );
     // add to address books
@@ -845,7 +860,7 @@ class FungiController extends GetxController {
       } catch (e) {
         debugPrint('Failed to get proxy infos: $e');
       }
-      await updateIncomingAllowedPeers();
+      await updateTrustedDevices();
       await updateAddressBook();
       await refreshRelayConfig();
       // Load TCP tunneling config
@@ -1303,7 +1318,7 @@ class FungiController extends GetxController {
     required String localHost,
     required int localPort,
     required int remotePort,
-    required PeerInfo peerInfo,
+    required DeviceInfo peerInfo,
   }) async {
     try {
       await fungiClient.addTcpForwardingRule(
@@ -1440,7 +1455,7 @@ class FungiController extends GetxController {
     await Future.wait([
       refreshLocalServicesData(),
       refreshRuntimeConfig(),
-      updateIncomingAllowedPeers(),
+      updateTrustedDevices(),
     ]);
   }
 
@@ -1612,7 +1627,7 @@ class FungiController extends GetxController {
         .map(
           (peer) => PeerServicesSectionView(
             peerId: peer.peerId,
-            alias: peer.alias,
+            alias: peer.name,
             hostname: peer.hostname,
             services: peerCatalogServices[peer.peerId] ?? const [],
           ),
@@ -1641,8 +1656,8 @@ class FungiController extends GetxController {
         continue;
       }
 
-      if (peer.alias.isNotEmpty) {
-        yield peer.alias;
+      if (peer.name.isNotEmpty) {
+        yield peer.name;
       }
       if (peer.hostname.isNotEmpty) {
         yield peer.hostname;
@@ -1701,7 +1716,7 @@ class FungiController extends GetxController {
       await fungiClient.attachServiceAccess(
         AttachServiceAccessRequest()
           ..peerId = peerId
-          ..serviceId = normalizedServiceName,
+          ..serviceName = normalizedServiceName,
       );
       await refreshAvailableServicesData();
       Get.snackbar('Success', 'Connected locally');
@@ -1722,7 +1737,7 @@ class FungiController extends GetxController {
       await fungiClient.detachServiceAccess(
         DetachServiceAccessRequest()
           ..peerId = peerId
-          ..serviceId = normalizedServiceName,
+          ..serviceName = normalizedServiceName,
       );
       await refreshAvailableServicesData();
       Get.snackbar('Success', 'Disconnected');
@@ -1752,7 +1767,7 @@ class FungiController extends GetxController {
         await fungiClient.attachServiceAccess(
           AttachServiceAccessRequest()
             ..peerId = peerId
-            ..serviceId = normalizedServiceName,
+            ..serviceName = normalizedServiceName,
         );
         await refreshAvailableServicesData();
         service = catalogServiceForPeer(peerId, normalizedServiceName);
@@ -1912,8 +1927,8 @@ class FungiController extends GetxController {
       if (peer.peerId != peerId) {
         continue;
       }
-      if (peer.alias.isNotEmpty) {
-        return peer.alias;
+      if (peer.name.isNotEmpty) {
+        return peer.name;
       }
       if (peer.hostname.isNotEmpty) {
         return peer.hostname;
@@ -1987,55 +2002,31 @@ class FungiController extends GetxController {
   }
 
   Future<void> addRuntimeAllowedPort(int port) async {
-    try {
-      await fungiClient.addRuntimeAllowedPort(
-        RuntimeAllowedPortRequest()..port = port,
-      );
-      await refreshRuntimeConfig();
-      Get.snackbar('Success', 'Allowed port added');
-    } catch (e) {
-      Get.snackbar('Update failed', '$e');
-    }
+    Get.snackbar(
+      'Unavailable',
+      'Allowed ports are no longer exposed by the current daemon API.',
+    );
   }
 
   Future<void> removeRuntimeAllowedPort(int port) async {
-    try {
-      await fungiClient.removeRuntimeAllowedPort(
-        RuntimeAllowedPortRequest()..port = port,
-      );
-      await refreshRuntimeConfig();
-      Get.snackbar('Success', 'Allowed port removed');
-    } catch (e) {
-      Get.snackbar('Update failed', '$e');
-    }
+    Get.snackbar(
+      'Unavailable',
+      'Allowed ports are no longer exposed by the current daemon API.',
+    );
   }
 
   Future<void> addRuntimeAllowedPortRange(int start, int end) async {
-    try {
-      await fungiClient.addRuntimeAllowedPortRange(
-        RuntimeAllowedPortRangeRequest()
-          ..start = start
-          ..end = end,
-      );
-      await refreshRuntimeConfig();
-      Get.snackbar('Success', 'Allowed port range added');
-    } catch (e) {
-      Get.snackbar('Update failed', '$e');
-    }
+    Get.snackbar(
+      'Unavailable',
+      'Allowed port ranges are no longer exposed by the current daemon API.',
+    );
   }
 
   Future<void> removeRuntimeAllowedPortRange(int start, int end) async {
-    try {
-      await fungiClient.removeRuntimeAllowedPortRange(
-        RuntimeAllowedPortRangeRequest()
-          ..start = start
-          ..end = end,
-      );
-      await refreshRuntimeConfig();
-      Get.snackbar('Success', 'Allowed port range removed');
-    } catch (e) {
-      Get.snackbar('Update failed', '$e');
-    }
+    Get.snackbar(
+      'Unavailable',
+      'Allowed port ranges are no longer exposed by the current daemon API.',
+    );
   }
 
   Future<void> startLocalService(String name) async {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
-import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
@@ -10,13 +10,13 @@ import 'package:fungi_app/ui/widgets/service_management_widgets.dart';
 import 'package:fungi_app/ui/widgets/ui_primitives.dart';
 import 'package:get/get.dart';
 
-String _deviceDisplayName(PeerInfo peer) {
-  return peer.alias.isNotEmpty
-      ? peer.alias
+String _deviceDisplayName(DeviceInfo peer) {
+  return peer.name.isNotEmpty
+      ? peer.name
       : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId);
 }
 
-String _remoteServiceReference(PeerInfo peer, LocalServiceView service) {
+String _remoteServiceReference(DeviceInfo peer, LocalServiceView service) {
   final serviceName = service.name.trim();
   if (serviceName.isEmpty) {
     return _deviceDisplayName(peer);
@@ -133,7 +133,7 @@ class _PeerCard extends GetView<FungiController> {
     required this.onExpansionChanged,
   });
 
-  final PeerInfo peer;
+  final DeviceInfo peer;
   final bool expanded;
   final ValueChanged<bool> onExpansionChanged;
 
@@ -307,7 +307,7 @@ class _DeviceDetailsSheet extends StatelessWidget {
     required this.refreshError,
   });
 
-  final PeerInfo peer;
+  final DeviceInfo peer;
   final List<ConnectionSnapshot> connections;
   final int? latency;
   final String refreshError;
@@ -523,7 +523,7 @@ class _NodeEmptyState extends GetView<FungiController> {
 class _RemoteServiceCard extends GetView<FungiController> {
   const _RemoteServiceCard({required this.peer, required this.service});
 
-  final PeerInfo peer;
+  final DeviceInfo peer;
   final LocalServiceView service;
 
   @override

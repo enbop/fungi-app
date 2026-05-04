@@ -314,17 +314,17 @@ class FileServer extends GetView<FungiController> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Incoming Allowed Peers: ",
+                  "Trusted Devices: ",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 SizedBox(width: 5),
                 SelectableText(
-                  "${controller.incomingAllowedPeers.length}",
+                  "${controller.trustedDevices.length}",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 IconButton(
                   onPressed: () {
-                    showAllowedPeersList();
+                    showTrustedDevicesList();
                   },
                   icon: Icon(Icons.edit, size: 15),
                 ),

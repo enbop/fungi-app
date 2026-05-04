@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
-import 'package:fungi_app/src/grpc/fungi_daemon_compat.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:get/get.dart';
 
 enum _CreateServiceTarget { local, remote }
 
-String _createServiceDeviceLabel(PeerInfo peer) {
-  if (peer.alias.isNotEmpty) {
-    return peer.alias;
+String _createServiceDeviceLabel(DeviceInfo peer) {
+  if (peer.name.isNotEmpty) {
+    return peer.name;
   }
   if (peer.hostname.isNotEmpty) {
     return peer.hostname;
@@ -20,12 +20,12 @@ String _createServiceDeviceLabel(PeerInfo peer) {
 
 Future<void> showCreateServiceDialog(
   BuildContext context, {
-  PeerInfo? initialPeer,
+  DeviceInfo? initialPeer,
 }) async {
   final controller = Get.find<FungiController>();
   final devices = initialPeer == null
       ? controller.addressBook.toList(growable: false)
-      : <PeerInfo>[initialPeer];
+      : <DeviceInfo>[initialPeer];
   final manifestPathController = TextEditingController();
   var target = initialPeer == null
       ? _CreateServiceTarget.local
