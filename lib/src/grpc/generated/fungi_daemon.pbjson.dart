@@ -52,8 +52,8 @@ const Empty$json = {
 };
 
 /// Descriptor for `Empty`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List emptyDescriptor = $convert.base64Decode(
-    'CgVFbXB0eQ==');
+final $typed_data.Uint8List emptyDescriptor =
+    $convert.base64Decode('CgVFbXB0eQ==');
 
 @$core.Deprecated('Use versionResponseDescriptor instead')
 const VersionResponse$json = {
@@ -64,7 +64,13 @@ const VersionResponse$json = {
     {'1': 'commit', '3': 3, '4': 1, '5': 9, '10': 'commit'},
     {'1': 'build_time', '3': 4, '4': 1, '5': 9, '10': 'buildTime'},
     {'1': 'default_fungi_dir', '3': 5, '4': 1, '5': 9, '10': 'defaultFungiDir'},
-    {'1': 'default_rpc_address', '3': 6, '4': 1, '5': 9, '10': 'defaultRpcAddress'},
+    {
+      '1': 'default_rpc_address',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '10': 'defaultRpcAddress'
+    },
   ],
 };
 
@@ -96,8 +102,8 @@ const PeerIdResponse$json = {
 };
 
 /// Descriptor for `PeerIdResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List peerIdResponseDescriptor = $convert.base64Decode(
-    'Cg5QZWVySWRSZXNwb25zZRIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
+final $typed_data.Uint8List peerIdResponseDescriptor = $convert
+    .base64Decode('Cg5QZWVySWRSZXNwb25zZRIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
 
 @$core.Deprecated('Use configFilePathResponseDescriptor instead')
 const ConfigFilePathResponse$json = {
@@ -108,22 +114,31 @@ const ConfigFilePathResponse$json = {
 };
 
 /// Descriptor for `ConfigFilePathResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List configFilePathResponseDescriptor = $convert.base64Decode(
-    'ChZDb25maWdGaWxlUGF0aFJlc3BvbnNlEigKEGNvbmZpZ19maWxlX3BhdGgYASABKAlSDmNvbm'
-    'ZpZ0ZpbGVQYXRo');
+final $typed_data.Uint8List configFilePathResponseDescriptor =
+    $convert.base64Decode(
+        'ChZDb25maWdGaWxlUGF0aFJlc3BvbnNlEigKEGNvbmZpZ19maWxlX3BhdGgYASABKAlSDmNvbm'
+        'ZpZ0ZpbGVQYXRo');
 
 @$core.Deprecated('Use trustedDevicesListResponseDescriptor instead')
 const TrustedDevicesListResponse$json = {
   '1': 'TrustedDevicesListResponse',
   '2': [
-    {'1': 'devices', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.DeviceInfo', '10': 'devices'},
+    {
+      '1': 'devices',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.DeviceInfo',
+      '10': 'devices'
+    },
   ],
 };
 
 /// Descriptor for `TrustedDevicesListResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List trustedDevicesListResponseDescriptor = $convert.base64Decode(
-    'ChpUcnVzdGVkRGV2aWNlc0xpc3RSZXNwb25zZRIyCgdkZXZpY2VzGAEgAygLMhguZnVuZ2lfZG'
-    'FlbW9uLkRldmljZUluZm9SB2RldmljZXM=');
+final $typed_data.Uint8List trustedDevicesListResponseDescriptor =
+    $convert.base64Decode(
+        'ChpUcnVzdGVkRGV2aWNlc0xpc3RSZXNwb25zZRIyCgdkZXZpY2VzGAEgAygLMhguZnVuZ2lfZG'
+        'FlbW9uLkRldmljZUluZm9SB2RldmljZXM=');
 
 @$core.Deprecated('Use trustDeviceRequestDescriptor instead')
 const TrustDeviceRequest$json = {
@@ -134,8 +149,9 @@ const TrustDeviceRequest$json = {
 };
 
 /// Descriptor for `TrustDeviceRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List trustDeviceRequestDescriptor = $convert.base64Decode(
-    'ChJUcnVzdERldmljZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklk');
+final $typed_data.Uint8List trustDeviceRequestDescriptor =
+    $convert.base64Decode(
+        'ChJUcnVzdERldmljZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklk');
 
 @$core.Deprecated('Use untrustDeviceRequestDescriptor instead')
 const UntrustDeviceRequest$json = {
@@ -146,8 +162,9 @@ const UntrustDeviceRequest$json = {
 };
 
 /// Descriptor for `UntrustDeviceRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List untrustDeviceRequestDescriptor = $convert.base64Decode(
-    'ChRVbnRydXN0RGV2aWNlUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
+final $typed_data.Uint8List untrustDeviceRequestDescriptor =
+    $convert.base64Decode(
+        'ChRVbnRydXN0RGV2aWNlUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
 
 @$core.Deprecated('Use relayEnabledRequestDescriptor instead')
 const RelayEnabledRequest$json = {
@@ -158,8 +175,9 @@ const RelayEnabledRequest$json = {
 };
 
 /// Descriptor for `RelayEnabledRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List relayEnabledRequestDescriptor = $convert.base64Decode(
-    'ChNSZWxheUVuYWJsZWRSZXF1ZXN0EhgKB2VuYWJsZWQYASABKAhSB2VuYWJsZWQ=');
+final $typed_data.Uint8List relayEnabledRequestDescriptor =
+    $convert.base64Decode(
+        'ChNSZWxheUVuYWJsZWRSZXF1ZXN0EhgKB2VuYWJsZWQYASABKAhSB2VuYWJsZWQ=');
 
 @$core.Deprecated('Use useCommunityRelaysRequestDescriptor instead')
 const UseCommunityRelaysRequest$json = {
@@ -170,8 +188,9 @@ const UseCommunityRelaysRequest$json = {
 };
 
 /// Descriptor for `UseCommunityRelaysRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List useCommunityRelaysRequestDescriptor = $convert.base64Decode(
-    'ChlVc2VDb21tdW5pdHlSZWxheXNSZXF1ZXN0EhgKB2VuYWJsZWQYASABKAhSB2VuYWJsZWQ=');
+final $typed_data.Uint8List useCommunityRelaysRequestDescriptor =
+    $convert.base64Decode(
+        'ChlVc2VDb21tdW5pdHlSZWxheXNSZXF1ZXN0EhgKB2VuYWJsZWQYASABKAhSB2VuYWJsZWQ=');
 
 @$core.Deprecated('Use relayAddressRequestDescriptor instead')
 const RelayAddressRequest$json = {
@@ -182,8 +201,9 @@ const RelayAddressRequest$json = {
 };
 
 /// Descriptor for `RelayAddressRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List relayAddressRequestDescriptor = $convert.base64Decode(
-    'ChNSZWxheUFkZHJlc3NSZXF1ZXN0EhgKB2FkZHJlc3MYASABKAlSB2FkZHJlc3M=');
+final $typed_data.Uint8List relayAddressRequestDescriptor =
+    $convert.base64Decode(
+        'ChNSZWxheUFkZHJlc3NSZXF1ZXN0EhgKB2FkZHJlc3MYASABKAlSB2FkZHJlc3M=');
 
 @$core.Deprecated('Use effectiveRelayAddressDescriptor instead')
 const EffectiveRelayAddress$json = {
@@ -204,9 +224,28 @@ const RelayConfigResponse$json = {
   '1': 'RelayConfigResponse',
   '2': [
     {'1': 'relay_enabled', '3': 1, '4': 1, '5': 8, '10': 'relayEnabled'},
-    {'1': 'use_community_relays', '3': 2, '4': 1, '5': 8, '10': 'useCommunityRelays'},
-    {'1': 'custom_relay_addresses', '3': 3, '4': 3, '5': 9, '10': 'customRelayAddresses'},
-    {'1': 'effective_relay_addresses', '3': 4, '4': 3, '5': 11, '6': '.fungi_daemon.EffectiveRelayAddress', '10': 'effectiveRelayAddresses'},
+    {
+      '1': 'use_community_relays',
+      '3': 2,
+      '4': 1,
+      '5': 8,
+      '10': 'useCommunityRelays'
+    },
+    {
+      '1': 'custom_relay_addresses',
+      '3': 3,
+      '4': 3,
+      '5': 9,
+      '10': 'customRelayAddresses'
+    },
+    {
+      '1': 'effective_relay_addresses',
+      '3': 4,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.EffectiveRelayAddress',
+      '10': 'effectiveRelayAddresses'
+    },
   ],
 };
 
@@ -227,8 +266,9 @@ const RuntimeAllowedHostPathRequest$json = {
 };
 
 /// Descriptor for `RuntimeAllowedHostPathRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List runtimeAllowedHostPathRequestDescriptor = $convert.base64Decode(
-    'Ch1SdW50aW1lQWxsb3dlZEhvc3RQYXRoUmVxdWVzdBISCgRwYXRoGAEgASgJUgRwYXRo');
+final $typed_data.Uint8List runtimeAllowedHostPathRequestDescriptor =
+    $convert.base64Decode(
+        'Ch1SdW50aW1lQWxsb3dlZEhvc3RQYXRoUmVxdWVzdBISCgRwYXRoGAEgASgJUgRwYXRo');
 
 @$core.Deprecated('Use runtimeConfigResponseDescriptor instead')
 const RuntimeConfigResponse$json = {
@@ -236,7 +276,13 @@ const RuntimeConfigResponse$json = {
   '2': [
     {'1': 'disable_docker', '3': 1, '4': 1, '5': 8, '10': 'disableDocker'},
     {'1': 'disable_wasmtime', '3': 2, '4': 1, '5': 8, '10': 'disableWasmtime'},
-    {'1': 'allowed_host_paths', '3': 3, '4': 3, '5': 9, '10': 'allowedHostPaths'},
+    {
+      '1': 'allowed_host_paths',
+      '3': 3,
+      '4': 3,
+      '5': 9,
+      '10': 'allowedHostPaths'
+    },
   ],
 };
 
@@ -267,16 +313,31 @@ final $typed_data.Uint8List runtimeAvailabilityStatusDescriptor = $convert.base6
 const LocalRuntimeStatusResponse$json = {
   '1': 'LocalRuntimeStatusResponse',
   '2': [
-    {'1': 'docker', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.RuntimeAvailabilityStatus', '10': 'docker'},
-    {'1': 'wasmtime', '3': 2, '4': 1, '5': 11, '6': '.fungi_daemon.RuntimeAvailabilityStatus', '10': 'wasmtime'},
+    {
+      '1': 'docker',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.RuntimeAvailabilityStatus',
+      '10': 'docker'
+    },
+    {
+      '1': 'wasmtime',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.RuntimeAvailabilityStatus',
+      '10': 'wasmtime'
+    },
   ],
 };
 
 /// Descriptor for `LocalRuntimeStatusResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List localRuntimeStatusResponseDescriptor = $convert.base64Decode(
-    'ChpMb2NhbFJ1bnRpbWVTdGF0dXNSZXNwb25zZRI/CgZkb2NrZXIYASABKAsyJy5mdW5naV9kYW'
-    'Vtb24uUnVudGltZUF2YWlsYWJpbGl0eVN0YXR1c1IGZG9ja2VyEkMKCHdhc210aW1lGAIgASgL'
-    'MicuZnVuZ2lfZGFlbW9uLlJ1bnRpbWVBdmFpbGFiaWxpdHlTdGF0dXNSCHdhc210aW1l');
+final $typed_data.Uint8List localRuntimeStatusResponseDescriptor =
+    $convert.base64Decode(
+        'ChpMb2NhbFJ1bnRpbWVTdGF0dXNSZXNwb25zZRI/CgZkb2NrZXIYASABKAsyJy5mdW5naV9kYW'
+        'Vtb24uUnVudGltZUF2YWlsYWJpbGl0eVN0YXR1c1IGZG9ja2VyEkMKCHdhc210aW1lGAIgASgL'
+        'MicuZnVuZ2lfZGFlbW9uLlJ1bnRpbWVBdmFpbGFiaWxpdHlTdGF0dXNSCHdhc210aW1l');
 
 @$core.Deprecated('Use fileTransferServiceEnabledResponseDescriptor instead')
 const FileTransferServiceEnabledResponse$json = {
@@ -287,9 +348,10 @@ const FileTransferServiceEnabledResponse$json = {
 };
 
 /// Descriptor for `FileTransferServiceEnabledResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileTransferServiceEnabledResponseDescriptor = $convert.base64Decode(
-    'CiJGaWxlVHJhbnNmZXJTZXJ2aWNlRW5hYmxlZFJlc3BvbnNlEhgKB2VuYWJsZWQYASABKAhSB2'
-    'VuYWJsZWQ=');
+final $typed_data.Uint8List fileTransferServiceEnabledResponseDescriptor =
+    $convert.base64Decode(
+        'CiJGaWxlVHJhbnNmZXJTZXJ2aWNlRW5hYmxlZFJlc3BvbnNlEhgKB2VuYWJsZWQYASABKAhSB2'
+        'VuYWJsZWQ=');
 
 @$core.Deprecated('Use fileTransferServiceRootDirResponseDescriptor instead')
 const FileTransferServiceRootDirResponse$json = {
@@ -300,9 +362,10 @@ const FileTransferServiceRootDirResponse$json = {
 };
 
 /// Descriptor for `FileTransferServiceRootDirResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileTransferServiceRootDirResponseDescriptor = $convert.base64Decode(
-    'CiJGaWxlVHJhbnNmZXJTZXJ2aWNlUm9vdERpclJlc3BvbnNlEhkKCHJvb3RfZGlyGAEgASgJUg'
-    'dyb290RGly');
+final $typed_data.Uint8List fileTransferServiceRootDirResponseDescriptor =
+    $convert.base64Decode(
+        'CiJGaWxlVHJhbnNmZXJTZXJ2aWNlUm9vdERpclJlc3BvbnNlEhkKCHJvb3RfZGlyGAEgASgJUg'
+        'dyb290RGly');
 
 @$core.Deprecated('Use startFileTransferServiceRequestDescriptor instead')
 const StartFileTransferServiceRequest$json = {
@@ -313,9 +376,10 @@ const StartFileTransferServiceRequest$json = {
 };
 
 /// Descriptor for `StartFileTransferServiceRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List startFileTransferServiceRequestDescriptor = $convert.base64Decode(
-    'Ch9TdGFydEZpbGVUcmFuc2ZlclNlcnZpY2VSZXF1ZXN0EhkKCHJvb3RfZGlyGAEgASgJUgdyb2'
-    '90RGly');
+final $typed_data.Uint8List startFileTransferServiceRequestDescriptor =
+    $convert.base64Decode(
+        'Ch9TdGFydEZpbGVUcmFuc2ZlclNlcnZpY2VSZXF1ZXN0EhkKCHJvb3RfZGlyGAEgASgJUgdyb2'
+        '90RGly');
 
 @$core.Deprecated('Use addFileTransferClientRequestDescriptor instead')
 const AddFileTransferClientRequest$json = {
@@ -328,9 +392,10 @@ const AddFileTransferClientRequest$json = {
 };
 
 /// Descriptor for `AddFileTransferClientRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List addFileTransferClientRequestDescriptor = $convert.base64Decode(
-    'ChxBZGRGaWxlVHJhbnNmZXJDbGllbnRSZXF1ZXN0EhgKB2VuYWJsZWQYASABKAhSB2VuYWJsZW'
-    'QSEgoEbmFtZRgCIAEoCVIEbmFtZRIXCgdwZWVyX2lkGAMgASgJUgZwZWVySWQ=');
+final $typed_data.Uint8List addFileTransferClientRequestDescriptor =
+    $convert.base64Decode(
+        'ChxBZGRGaWxlVHJhbnNmZXJDbGllbnRSZXF1ZXN0EhgKB2VuYWJsZWQYASABKAhSB2VuYWJsZW'
+        'QSEgoEbmFtZRgCIAEoCVIEbmFtZRIXCgdwZWVyX2lkGAMgASgJUgZwZWVySWQ=');
 
 @$core.Deprecated('Use removeFileTransferClientRequestDescriptor instead')
 const RemoveFileTransferClientRequest$json = {
@@ -341,9 +406,10 @@ const RemoveFileTransferClientRequest$json = {
 };
 
 /// Descriptor for `RemoveFileTransferClientRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List removeFileTransferClientRequestDescriptor = $convert.base64Decode(
-    'Ch9SZW1vdmVGaWxlVHJhbnNmZXJDbGllbnRSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZX'
-    'JJZA==');
+final $typed_data.Uint8List removeFileTransferClientRequestDescriptor =
+    $convert.base64Decode(
+        'Ch9SZW1vdmVGaWxlVHJhbnNmZXJDbGllbnRSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZX'
+        'JJZA==');
 
 @$core.Deprecated('Use enableFileTransferClientRequestDescriptor instead')
 const EnableFileTransferClientRequest$json = {
@@ -355,9 +421,10 @@ const EnableFileTransferClientRequest$json = {
 };
 
 /// Descriptor for `EnableFileTransferClientRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List enableFileTransferClientRequestDescriptor = $convert.base64Decode(
-    'Ch9FbmFibGVGaWxlVHJhbnNmZXJDbGllbnRSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZX'
-    'JJZBIYCgdlbmFibGVkGAIgASgIUgdlbmFibGVk');
+final $typed_data.Uint8List enableFileTransferClientRequestDescriptor =
+    $convert.base64Decode(
+        'Ch9FbmFibGVGaWxlVHJhbnNmZXJDbGllbnRSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZX'
+        'JJZBIYCgdlbmFibGVkGAIgASgIUgdlbmFibGVk');
 
 @$core.Deprecated('Use fileTransferClientDescriptor instead')
 const FileTransferClient$json = {
@@ -378,14 +445,22 @@ final $typed_data.Uint8List fileTransferClientDescriptor = $convert.base64Decode
 const FileTransferClientsResponse$json = {
   '1': 'FileTransferClientsResponse',
   '2': [
-    {'1': 'clients', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.FileTransferClient', '10': 'clients'},
+    {
+      '1': 'clients',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.FileTransferClient',
+      '10': 'clients'
+    },
   ],
 };
 
 /// Descriptor for `FileTransferClientsResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileTransferClientsResponseDescriptor = $convert.base64Decode(
-    'ChtGaWxlVHJhbnNmZXJDbGllbnRzUmVzcG9uc2USOgoHY2xpZW50cxgBIAMoCzIgLmZ1bmdpX2'
-    'RhZW1vbi5GaWxlVHJhbnNmZXJDbGllbnRSB2NsaWVudHM=');
+final $typed_data.Uint8List fileTransferClientsResponseDescriptor =
+    $convert.base64Decode(
+        'ChtGaWxlVHJhbnNmZXJDbGllbnRzUmVzcG9uc2USOgoHY2xpZW50cxgBIAMoCzIgLmZ1bmdpX2'
+        'RhZW1vbi5GaWxlVHJhbnNmZXJDbGllbnRSB2NsaWVudHM=');
 
 @$core.Deprecated('Use ftpProxyResponseDescriptor instead')
 const FtpProxyResponse$json = {
@@ -443,9 +518,10 @@ const UpdateWebdavProxyRequest$json = {
 };
 
 /// Descriptor for `UpdateWebdavProxyRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateWebdavProxyRequestDescriptor = $convert.base64Decode(
-    'ChhVcGRhdGVXZWJkYXZQcm94eVJlcXVlc3QSGAoHZW5hYmxlZBgBIAEoCFIHZW5hYmxlZBISCg'
-    'Rob3N0GAIgASgJUgRob3N0EhIKBHBvcnQYAyABKAVSBHBvcnQ=');
+final $typed_data.Uint8List updateWebdavProxyRequestDescriptor =
+    $convert.base64Decode(
+        'ChhVcGRhdGVXZWJkYXZQcm94eVJlcXVlc3QSGAoHZW5hYmxlZBgBIAEoCFIHZW5hYmxlZBISCg'
+        'Rob3N0GAIgASgJUgRob3N0EhIKBHBvcnQYAyABKAVSBHBvcnQ=');
 
 @$core.Deprecated('Use forwardingRuleDescriptor instead')
 const ForwardingRule$json = {
@@ -457,8 +533,20 @@ const ForwardingRule$json = {
     {'1': 'remote_port', '3': 4, '4': 1, '5': 5, '10': 'remotePort'},
     {'1': 'remote_protocol', '3': 5, '4': 1, '5': 9, '10': 'remoteProtocol'},
     {'1': 'remote_service_id', '3': 6, '4': 1, '5': 9, '10': 'remoteServiceId'},
-    {'1': 'remote_service_name', '3': 7, '4': 1, '5': 9, '10': 'remoteServiceName'},
-    {'1': 'remote_service_port_name', '3': 8, '4': 1, '5': 9, '10': 'remoteServicePortName'},
+    {
+      '1': 'remote_service_name',
+      '3': 7,
+      '4': 1,
+      '5': 9,
+      '10': 'remoteServiceName'
+    },
+    {
+      '1': 'remote_service_port_name',
+      '3': 8,
+      '4': 1,
+      '5': 9,
+      '10': 'remoteServicePortName'
+    },
   ],
 };
 
@@ -493,10 +581,36 @@ final $typed_data.Uint8List listeningRuleDescriptor = $convert.base64Decode(
 const TcpTunnelingConfigResponse$json = {
   '1': 'TcpTunnelingConfigResponse',
   '2': [
-    {'1': 'forwarding_enabled', '3': 1, '4': 1, '5': 8, '10': 'forwardingEnabled'},
-    {'1': 'listening_enabled', '3': 2, '4': 1, '5': 8, '10': 'listeningEnabled'},
-    {'1': 'forwarding_rules', '3': 3, '4': 3, '5': 11, '6': '.fungi_daemon.ForwardingRule', '10': 'forwardingRules'},
-    {'1': 'listening_rules', '3': 4, '4': 3, '5': 11, '6': '.fungi_daemon.ListeningRule', '10': 'listeningRules'},
+    {
+      '1': 'forwarding_enabled',
+      '3': 1,
+      '4': 1,
+      '5': 8,
+      '10': 'forwardingEnabled'
+    },
+    {
+      '1': 'listening_enabled',
+      '3': 2,
+      '4': 1,
+      '5': 8,
+      '10': 'listeningEnabled'
+    },
+    {
+      '1': 'forwarding_rules',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.ForwardingRule',
+      '10': 'forwardingRules'
+    },
+    {
+      '1': 'listening_rules',
+      '3': 4,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.ListeningRule',
+      '10': 'listeningRules'
+    },
   ],
 };
 
@@ -518,8 +632,20 @@ const AddTcpForwardingRuleRequest$json = {
     {'1': 'remote_port', '3': 4, '4': 1, '5': 5, '10': 'remotePort'},
     {'1': 'remote_protocol', '3': 5, '4': 1, '5': 9, '10': 'remoteProtocol'},
     {'1': 'remote_service_id', '3': 6, '4': 1, '5': 9, '10': 'remoteServiceId'},
-    {'1': 'remote_service_name', '3': 7, '4': 1, '5': 9, '10': 'remoteServiceName'},
-    {'1': 'remote_service_port_name', '3': 8, '4': 1, '5': 9, '10': 'remoteServicePortName'},
+    {
+      '1': 'remote_service_name',
+      '3': 7,
+      '4': 1,
+      '5': 9,
+      '10': 'remoteServiceName'
+    },
+    {
+      '1': 'remote_service_port_name',
+      '3': 8,
+      '4': 1,
+      '5': 9,
+      '10': 'remoteServicePortName'
+    },
   ],
 };
 
@@ -542,8 +668,9 @@ const TcpForwardingRuleResponse$json = {
 };
 
 /// Descriptor for `TcpForwardingRuleResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List tcpForwardingRuleResponseDescriptor = $convert.base64Decode(
-    'ChlUY3BGb3J3YXJkaW5nUnVsZVJlc3BvbnNlEhcKB3J1bGVfaWQYASABKAlSBnJ1bGVJZA==');
+final $typed_data.Uint8List tcpForwardingRuleResponseDescriptor =
+    $convert.base64Decode(
+        'ChlUY3BGb3J3YXJkaW5nUnVsZVJlc3BvbnNlEhcKB3J1bGVfaWQYASABKAlSBnJ1bGVJZA==');
 
 @$core.Deprecated('Use removeTcpForwardingRuleRequestDescriptor instead')
 const RemoveTcpForwardingRuleRequest$json = {
@@ -558,11 +685,12 @@ const RemoveTcpForwardingRuleRequest$json = {
 };
 
 /// Descriptor for `RemoveTcpForwardingRuleRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List removeTcpForwardingRuleRequestDescriptor = $convert.base64Decode(
-    'Ch5SZW1vdmVUY3BGb3J3YXJkaW5nUnVsZVJlcXVlc3QSHQoKbG9jYWxfaG9zdBgBIAEoCVIJbG'
-    '9jYWxIb3N0Eh0KCmxvY2FsX3BvcnQYAiABKAVSCWxvY2FsUG9ydBIXCgdwZWVyX2lkGAMgASgJ'
-    'UgZwZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQSJwoPcmVtb3RlX3Byb3'
-    'RvY29sGAUgASgJUg5yZW1vdGVQcm90b2NvbA==');
+final $typed_data.Uint8List removeTcpForwardingRuleRequestDescriptor =
+    $convert.base64Decode(
+        'Ch5SZW1vdmVUY3BGb3J3YXJkaW5nUnVsZVJlcXVlc3QSHQoKbG9jYWxfaG9zdBgBIAEoCVIJbG'
+        '9jYWxIb3N0Eh0KCmxvY2FsX3BvcnQYAiABKAVSCWxvY2FsUG9ydBIXCgdwZWVyX2lkGAMgASgJ'
+        'UgZwZWVySWQSHwoLcmVtb3RlX3BvcnQYBCABKAVSCnJlbW90ZVBvcnQSJwoPcmVtb3RlX3Byb3'
+        'RvY29sGAUgASgJUg5yZW1vdGVQcm90b2NvbA==');
 
 @$core.Deprecated('Use addTcpListeningRuleRequestDescriptor instead')
 const AddTcpListeningRuleRequest$json = {
@@ -576,10 +704,11 @@ const AddTcpListeningRuleRequest$json = {
 };
 
 /// Descriptor for `AddTcpListeningRuleRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List addTcpListeningRuleRequestDescriptor = $convert.base64Decode(
-    'ChpBZGRUY3BMaXN0ZW5pbmdSdWxlUmVxdWVzdBIdCgpsb2NhbF9ob3N0GAEgASgJUglsb2NhbE'
-    'hvc3QSHQoKbG9jYWxfcG9ydBgCIAEoBVIJbG9jYWxQb3J0EiMKDWFsbG93ZWRfcGVlcnMYAyAD'
-    'KAlSDGFsbG93ZWRQZWVycxIaCghwcm90b2NvbBgEIAEoCVIIcHJvdG9jb2w=');
+final $typed_data.Uint8List addTcpListeningRuleRequestDescriptor =
+    $convert.base64Decode(
+        'ChpBZGRUY3BMaXN0ZW5pbmdSdWxlUmVxdWVzdBIdCgpsb2NhbF9ob3N0GAEgASgJUglsb2NhbE'
+        'hvc3QSHQoKbG9jYWxfcG9ydBgCIAEoBVIJbG9jYWxQb3J0EiMKDWFsbG93ZWRfcGVlcnMYAyAD'
+        'KAlSDGFsbG93ZWRQZWVycxIaCghwcm90b2NvbBgEIAEoCVIIcHJvdG9jb2w=');
 
 @$core.Deprecated('Use tcpListeningRuleResponseDescriptor instead')
 const TcpListeningRuleResponse$json = {
@@ -590,8 +719,9 @@ const TcpListeningRuleResponse$json = {
 };
 
 /// Descriptor for `TcpListeningRuleResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List tcpListeningRuleResponseDescriptor = $convert.base64Decode(
-    'ChhUY3BMaXN0ZW5pbmdSdWxlUmVzcG9uc2USFwoHcnVsZV9pZBgBIAEoCVIGcnVsZUlk');
+final $typed_data.Uint8List tcpListeningRuleResponseDescriptor =
+    $convert.base64Decode(
+        'ChhUY3BMaXN0ZW5pbmdSdWxlUmVzcG9uc2USFwoHcnVsZV9pZBgBIAEoCVIGcnVsZUlk');
 
 @$core.Deprecated('Use removeTcpListeningRuleRequestDescriptor instead')
 const RemoveTcpListeningRuleRequest$json = {
@@ -604,10 +734,11 @@ const RemoveTcpListeningRuleRequest$json = {
 };
 
 /// Descriptor for `RemoveTcpListeningRuleRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List removeTcpListeningRuleRequestDescriptor = $convert.base64Decode(
-    'Ch1SZW1vdmVUY3BMaXN0ZW5pbmdSdWxlUmVxdWVzdBIdCgpsb2NhbF9ob3N0GAEgASgJUglsb2'
-    'NhbEhvc3QSHQoKbG9jYWxfcG9ydBgCIAEoBVIJbG9jYWxQb3J0EhoKCHByb3RvY29sGAMgASgJ'
-    'Ughwcm90b2NvbA==');
+final $typed_data.Uint8List removeTcpListeningRuleRequestDescriptor =
+    $convert.base64Decode(
+        'Ch1SZW1vdmVUY3BMaXN0ZW5pbmdSdWxlUmVxdWVzdBIdCgpsb2NhbF9ob3N0GAEgASgJUglsb2'
+        'NhbEhvc3QSHQoKbG9jYWxfcG9ydBgCIAEoBVIJbG9jYWxQb3J0EhoKCHByb3RvY29sGAMgASgJ'
+        'Ughwcm90b2NvbA==');
 
 @$core.Deprecated('Use deviceInfoDescriptor instead')
 const DeviceInfo$json = {
@@ -639,20 +770,35 @@ final $typed_data.Uint8List deviceInfoDescriptor = $convert.base64Decode(
 const DeviceInfoListResponse$json = {
   '1': 'DeviceInfoListResponse',
   '2': [
-    {'1': 'devices', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.DeviceInfo', '10': 'devices'},
+    {
+      '1': 'devices',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.DeviceInfo',
+      '10': 'devices'
+    },
   ],
 };
 
 /// Descriptor for `DeviceInfoListResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List deviceInfoListResponseDescriptor = $convert.base64Decode(
-    'ChZEZXZpY2VJbmZvTGlzdFJlc3BvbnNlEjIKB2RldmljZXMYASADKAsyGC5mdW5naV9kYWVtb2'
-    '4uRGV2aWNlSW5mb1IHZGV2aWNlcw==');
+final $typed_data.Uint8List deviceInfoListResponseDescriptor =
+    $convert.base64Decode(
+        'ChZEZXZpY2VJbmZvTGlzdFJlc3BvbnNlEjIKB2RldmljZXMYASADKAsyGC5mdW5naV9kYWVtb2'
+        '4uRGV2aWNlSW5mb1IHZGV2aWNlcw==');
 
 @$core.Deprecated('Use deviceInfoResponseDescriptor instead')
 const DeviceInfoResponse$json = {
   '1': 'DeviceInfoResponse',
   '2': [
-    {'1': 'device', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.DeviceInfo', '10': 'device'},
+    {
+      '1': 'device',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.DeviceInfo',
+      '10': 'device'
+    },
   ],
 };
 
@@ -665,7 +811,14 @@ final $typed_data.Uint8List deviceInfoResponseDescriptor = $convert.base64Decode
 const UpdateDeviceRequest$json = {
   '1': 'UpdateDeviceRequest',
   '2': [
-    {'1': 'device', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.DeviceInfo', '10': 'device'},
+    {
+      '1': 'device',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.DeviceInfo',
+      '10': 'device'
+    },
   ],
 };
 
@@ -695,8 +848,9 @@ const RemoveDeviceRequest$json = {
 };
 
 /// Descriptor for `RemoveDeviceRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List removeDeviceRequestDescriptor = $convert.base64Decode(
-    'ChNSZW1vdmVEZXZpY2VSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZA==');
+final $typed_data.Uint8List removeDeviceRequestDescriptor =
+    $convert.base64Decode(
+        'ChNSZW1vdmVEZXZpY2VSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZA==');
 
 @$core.Deprecated('Use pingPeerRequestDescriptor instead')
 const PingPeerRequest$json = {
@@ -719,11 +873,51 @@ const PingPeerEvent$json = {
     {'1': 'peer_id', '3': 1, '4': 1, '5': 9, '10': 'peerId'},
     {'1': 'tick_seq', '3': 2, '4': 1, '5': 4, '10': 'tickSeq'},
     {'1': 'ts_unix_ms', '3': 3, '4': 1, '5': 3, '10': 'tsUnixMs'},
-    {'1': 'connecting', '3': 10, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerConnecting', '9': 0, '10': 'connecting'},
-    {'1': 'connected', '3': 11, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerConnected', '9': 0, '10': 'connected'},
-    {'1': 'idle', '3': 12, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerIdle', '9': 0, '10': 'idle'},
-    {'1': 'result', '3': 13, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerResult', '9': 0, '10': 'result'},
-    {'1': 'error', '3': 14, '4': 1, '5': 11, '6': '.fungi_daemon.PingPeerError', '9': 0, '10': 'error'},
+    {
+      '1': 'connecting',
+      '3': 10,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.PingPeerConnecting',
+      '9': 0,
+      '10': 'connecting'
+    },
+    {
+      '1': 'connected',
+      '3': 11,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.PingPeerConnected',
+      '9': 0,
+      '10': 'connected'
+    },
+    {
+      '1': 'idle',
+      '3': 12,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.PingPeerIdle',
+      '9': 0,
+      '10': 'idle'
+    },
+    {
+      '1': 'result',
+      '3': 13,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.PingPeerResult',
+      '9': 0,
+      '10': 'result'
+    },
+    {
+      '1': 'error',
+      '3': 14,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.PingPeerError',
+      '9': 0,
+      '10': 'error'
+    },
   ],
   '8': [
     {'1': 'event'},
@@ -747,8 +941,8 @@ const PingPeerConnecting$json = {
 };
 
 /// Descriptor for `PingPeerConnecting`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List pingPeerConnectingDescriptor = $convert.base64Decode(
-    'ChJQaW5nUGVlckNvbm5lY3Rpbmc=');
+final $typed_data.Uint8List pingPeerConnectingDescriptor =
+    $convert.base64Decode('ChJQaW5nUGVlckNvbm5lY3Rpbmc=');
 
 @$core.Deprecated('Use pingPeerConnectedDescriptor instead')
 const PingPeerConnected$json = {
@@ -756,8 +950,8 @@ const PingPeerConnected$json = {
 };
 
 /// Descriptor for `PingPeerConnected`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List pingPeerConnectedDescriptor = $convert.base64Decode(
-    'ChFQaW5nUGVlckNvbm5lY3RlZA==');
+final $typed_data.Uint8List pingPeerConnectedDescriptor =
+    $convert.base64Decode('ChFQaW5nUGVlckNvbm5lY3RlZA==');
 
 @$core.Deprecated('Use pingPeerIdleDescriptor instead')
 const PingPeerIdle$json = {
@@ -765,8 +959,8 @@ const PingPeerIdle$json = {
 };
 
 /// Descriptor for `PingPeerIdle`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List pingPeerIdleDescriptor = $convert.base64Decode(
-    'CgxQaW5nUGVlcklkbGU=');
+final $typed_data.Uint8List pingPeerIdleDescriptor =
+    $convert.base64Decode('CgxQaW5nUGVlcklkbGU=');
 
 @$core.Deprecated('Use pingPeerResultDescriptor instead')
 const PingPeerResult$json = {
@@ -811,8 +1005,9 @@ const ListConnectionsRequest$json = {
 };
 
 /// Descriptor for `ListConnectionsRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listConnectionsRequestDescriptor = $convert.base64Decode(
-    'ChZMaXN0Q29ubmVjdGlvbnNSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZA==');
+final $typed_data.Uint8List listConnectionsRequestDescriptor =
+    $convert.base64Decode(
+        'ChZMaXN0Q29ubmVjdGlvbnNSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZA==');
 
 @$core.Deprecated('Use connectionSnapshotDescriptor instead')
 const ConnectionSnapshot$json = {
@@ -825,8 +1020,21 @@ const ConnectionSnapshot$json = {
     {'1': 'is_relay', '3': 5, '4': 1, '5': 8, '10': 'isRelay'},
     {'1': 'last_rtt_ms', '3': 6, '4': 1, '5': 4, '10': 'lastRttMs'},
     {'1': 'last_ping_unix_ms', '3': 7, '4': 1, '5': 3, '10': 'lastPingUnixMs'},
-    {'1': 'active_streams_total', '3': 8, '4': 1, '5': 4, '10': 'activeStreamsTotal'},
-    {'1': 'active_streams_by_protocol', '3': 9, '4': 3, '5': 11, '6': '.fungi_daemon.ProtocolStreamCountSnapshot', '10': 'activeStreamsByProtocol'},
+    {
+      '1': 'active_streams_total',
+      '3': 8,
+      '4': 1,
+      '5': 4,
+      '10': 'activeStreamsTotal'
+    },
+    {
+      '1': 'active_streams_by_protocol',
+      '3': 9,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.ProtocolStreamCountSnapshot',
+      '10': 'activeStreamsByProtocol'
+    },
     {'1': 'policy_state', '3': 10, '4': 1, '5': 9, '10': 'policyState'},
     {'1': 'policy_reason', '3': 11, '4': 1, '5': 9, '10': 'policyReason'},
     {'1': 'peer_name', '3': 12, '4': 1, '5': 9, '10': 'peerName'},
@@ -857,22 +1065,31 @@ const ProtocolStreamCountSnapshot$json = {
 };
 
 /// Descriptor for `ProtocolStreamCountSnapshot`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List protocolStreamCountSnapshotDescriptor = $convert.base64Decode(
-    'ChtQcm90b2NvbFN0cmVhbUNvdW50U25hcHNob3QSIwoNcHJvdG9jb2xfbmFtZRgBIAEoCVIMcH'
-    'JvdG9jb2xOYW1lEiEKDHN0cmVhbV9jb3VudBgCIAEoBFILc3RyZWFtQ291bnQ=');
+final $typed_data.Uint8List protocolStreamCountSnapshotDescriptor =
+    $convert.base64Decode(
+        'ChtQcm90b2NvbFN0cmVhbUNvdW50U25hcHNob3QSIwoNcHJvdG9jb2xfbmFtZRgBIAEoCVIMcH'
+        'JvdG9jb2xOYW1lEiEKDHN0cmVhbV9jb3VudBgCIAEoBFILc3RyZWFtQ291bnQ=');
 
 @$core.Deprecated('Use listConnectionsResponseDescriptor instead')
 const ListConnectionsResponse$json = {
   '1': 'ListConnectionsResponse',
   '2': [
-    {'1': 'connections', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.ConnectionSnapshot', '10': 'connections'},
+    {
+      '1': 'connections',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.ConnectionSnapshot',
+      '10': 'connections'
+    },
   ],
 };
 
 /// Descriptor for `ListConnectionsResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listConnectionsResponseDescriptor = $convert.base64Decode(
-    'ChdMaXN0Q29ubmVjdGlvbnNSZXNwb25zZRJCCgtjb25uZWN0aW9ucxgBIAMoCzIgLmZ1bmdpX2'
-    'RhZW1vbi5Db25uZWN0aW9uU25hcHNob3RSC2Nvbm5lY3Rpb25z');
+final $typed_data.Uint8List listConnectionsResponseDescriptor =
+    $convert.base64Decode(
+        'ChdMaXN0Q29ubmVjdGlvbnNSZXNwb25zZRJCCgtjb25uZWN0aW9ucxgBIAMoCzIgLmZ1bmdpX2'
+        'RhZW1vbi5Db25uZWN0aW9uU25hcHNob3RSC2Nvbm5lY3Rpb25z');
 
 @$core.Deprecated('Use listActiveStreamsRequestDescriptor instead')
 const ListActiveStreamsRequest$json = {
@@ -884,9 +1101,10 @@ const ListActiveStreamsRequest$json = {
 };
 
 /// Descriptor for `ListActiveStreamsRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listActiveStreamsRequestDescriptor = $convert.base64Decode(
-    'ChhMaXN0QWN0aXZlU3RyZWFtc1JlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEiMKDX'
-    'Byb3RvY29sX25hbWUYAiABKAlSDHByb3RvY29sTmFtZQ==');
+final $typed_data.Uint8List listActiveStreamsRequestDescriptor =
+    $convert.base64Decode(
+        'ChhMaXN0QWN0aXZlU3RyZWFtc1JlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEiMKDX'
+        'Byb3RvY29sX25hbWUYAiABKAlSDHByb3RvY29sTmFtZQ==');
 
 @$core.Deprecated('Use activeStreamSnapshotDescriptor instead')
 const ActiveStreamSnapshot$json = {
@@ -911,14 +1129,22 @@ final $typed_data.Uint8List activeStreamSnapshotDescriptor = $convert.base64Deco
 const ListActiveStreamsResponse$json = {
   '1': 'ListActiveStreamsResponse',
   '2': [
-    {'1': 'streams', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.ActiveStreamSnapshot', '10': 'streams'},
+    {
+      '1': 'streams',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.ActiveStreamSnapshot',
+      '10': 'streams'
+    },
   ],
 };
 
 /// Descriptor for `ListActiveStreamsResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listActiveStreamsResponseDescriptor = $convert.base64Decode(
-    'ChlMaXN0QWN0aXZlU3RyZWFtc1Jlc3BvbnNlEjwKB3N0cmVhbXMYASADKAsyIi5mdW5naV9kYW'
-    'Vtb24uQWN0aXZlU3RyZWFtU25hcHNob3RSB3N0cmVhbXM=');
+final $typed_data.Uint8List listActiveStreamsResponseDescriptor =
+    $convert.base64Decode(
+        'ChlMaXN0QWN0aXZlU3RyZWFtc1Jlc3BvbnNlEjwKB3N0cmVhbXMYASADKAsyIi5mdW5naV9kYW'
+        'Vtb24uQWN0aXZlU3RyZWFtU25hcHNob3RSB3N0cmVhbXM=');
 
 @$core.Deprecated('Use externalAddressSnapshotDescriptor instead')
 const ExternalAddressSnapshot$json = {
@@ -927,12 +1153,48 @@ const ExternalAddressSnapshot$json = {
     {'1': 'address', '3': 1, '4': 1, '5': 9, '10': 'address'},
     {'1': 'transport', '3': 2, '4': 1, '5': 9, '10': 'transport'},
     {'1': 'freshness', '3': 3, '4': 1, '5': 9, '10': 'freshness'},
-    {'1': 'recommend_refresh_before_dcutr', '3': 4, '4': 1, '5': 8, '10': 'recommendRefreshBeforeDcutr'},
-    {'1': 'first_observed_at_unix_ms', '3': 5, '4': 1, '5': 3, '10': 'firstObservedAtUnixMs'},
-    {'1': 'last_observed_at_unix_ms', '3': 6, '4': 1, '5': 3, '10': 'lastObservedAtUnixMs'},
-    {'1': 'confirmed_at_unix_ms', '3': 7, '4': 1, '5': 3, '10': 'confirmedAtUnixMs'},
-    {'1': 'expired_at_unix_ms', '3': 8, '4': 1, '5': 3, '10': 'expiredAtUnixMs'},
-    {'1': 'observation_count', '3': 9, '4': 1, '5': 4, '10': 'observationCount'},
+    {
+      '1': 'recommend_refresh_before_dcutr',
+      '3': 4,
+      '4': 1,
+      '5': 8,
+      '10': 'recommendRefreshBeforeDcutr'
+    },
+    {
+      '1': 'first_observed_at_unix_ms',
+      '3': 5,
+      '4': 1,
+      '5': 3,
+      '10': 'firstObservedAtUnixMs'
+    },
+    {
+      '1': 'last_observed_at_unix_ms',
+      '3': 6,
+      '4': 1,
+      '5': 3,
+      '10': 'lastObservedAtUnixMs'
+    },
+    {
+      '1': 'confirmed_at_unix_ms',
+      '3': 7,
+      '4': 1,
+      '5': 3,
+      '10': 'confirmedAtUnixMs'
+    },
+    {
+      '1': 'expired_at_unix_ms',
+      '3': 8,
+      '4': 1,
+      '5': 3,
+      '10': 'expiredAtUnixMs'
+    },
+    {
+      '1': 'observation_count',
+      '3': 9,
+      '4': 1,
+      '5': 4,
+      '10': 'observationCount'
+    },
     {'1': 'sources', '3': 10, '4': 3, '5': 9, '10': 'sources'},
   ],
 };
@@ -953,14 +1215,22 @@ final $typed_data.Uint8List externalAddressSnapshotDescriptor = $convert.base64D
 const ListExternalAddressCandidatesResponse$json = {
   '1': 'ListExternalAddressCandidatesResponse',
   '2': [
-    {'1': 'candidates', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.ExternalAddressSnapshot', '10': 'candidates'},
+    {
+      '1': 'candidates',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.ExternalAddressSnapshot',
+      '10': 'candidates'
+    },
   ],
 };
 
 /// Descriptor for `ListExternalAddressCandidatesResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listExternalAddressCandidatesResponseDescriptor = $convert.base64Decode(
-    'CiVMaXN0RXh0ZXJuYWxBZGRyZXNzQ2FuZGlkYXRlc1Jlc3BvbnNlEkUKCmNhbmRpZGF0ZXMYAS'
-    'ADKAsyJS5mdW5naV9kYWVtb24uRXh0ZXJuYWxBZGRyZXNzU25hcHNob3RSCmNhbmRpZGF0ZXM=');
+final $typed_data.Uint8List listExternalAddressCandidatesResponseDescriptor =
+    $convert.base64Decode(
+        'CiVMaXN0RXh0ZXJuYWxBZGRyZXNzQ2FuZGlkYXRlc1Jlc3BvbnNlEkUKCmNhbmRpZGF0ZXMYAS'
+        'ADKAsyJS5mdW5naV9kYWVtb24uRXh0ZXJuYWxBZGRyZXNzU25hcHNob3RSCmNhbmRpZGF0ZXM=');
 
 @$core.Deprecated('Use relayEndpointStatusSnapshotDescriptor instead')
 const RelayEndpointStatusSnapshot$json = {
@@ -969,16 +1239,70 @@ const RelayEndpointStatusSnapshot$json = {
     {'1': 'relay_addr', '3': 1, '4': 1, '5': 9, '10': 'relayAddr'},
     {'1': 'relay_peer_id', '3': 2, '4': 1, '5': 9, '10': 'relayPeerId'},
     {'1': 'transport', '3': 3, '4': 1, '5': 9, '10': 'transport'},
-    {'1': 'listener_registered', '3': 4, '4': 1, '5': 8, '10': 'listenerRegistered'},
+    {
+      '1': 'listener_registered',
+      '3': 4,
+      '4': 1,
+      '5': 8,
+      '10': 'listenerRegistered'
+    },
     {'1': 'task_running', '3': 5, '4': 1, '5': 8, '10': 'taskRunning'},
-    {'1': 'current_direct_connection_id', '3': 6, '4': 1, '5': 9, '10': 'currentDirectConnectionId'},
-    {'1': 'last_listener_seen_at_unix_ms', '3': 7, '4': 1, '5': 3, '10': 'lastListenerSeenAtUnixMs'},
-    {'1': 'last_listener_missing_at_unix_ms', '3': 8, '4': 1, '5': 3, '10': 'lastListenerMissingAtUnixMs'},
-    {'1': 'last_reservation_accepted_at_unix_ms', '3': 9, '4': 1, '5': 3, '10': 'lastReservationAcceptedAtUnixMs'},
-    {'1': 'last_reservation_established_at_unix_ms', '3': 10, '4': 1, '5': 3, '10': 'lastReservationEstablishedAtUnixMs'},
-    {'1': 'last_reservation_renewed_at_unix_ms', '3': 11, '4': 1, '5': 3, '10': 'lastReservationRenewedAtUnixMs'},
-    {'1': 'last_direct_connection_closed_at_unix_ms', '3': 12, '4': 1, '5': 3, '10': 'lastDirectConnectionClosedAtUnixMs'},
-    {'1': 'last_management_action', '3': 13, '4': 1, '5': 9, '10': 'lastManagementAction'},
+    {
+      '1': 'current_direct_connection_id',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '10': 'currentDirectConnectionId'
+    },
+    {
+      '1': 'last_listener_seen_at_unix_ms',
+      '3': 7,
+      '4': 1,
+      '5': 3,
+      '10': 'lastListenerSeenAtUnixMs'
+    },
+    {
+      '1': 'last_listener_missing_at_unix_ms',
+      '3': 8,
+      '4': 1,
+      '5': 3,
+      '10': 'lastListenerMissingAtUnixMs'
+    },
+    {
+      '1': 'last_reservation_accepted_at_unix_ms',
+      '3': 9,
+      '4': 1,
+      '5': 3,
+      '10': 'lastReservationAcceptedAtUnixMs'
+    },
+    {
+      '1': 'last_reservation_established_at_unix_ms',
+      '3': 10,
+      '4': 1,
+      '5': 3,
+      '10': 'lastReservationEstablishedAtUnixMs'
+    },
+    {
+      '1': 'last_reservation_renewed_at_unix_ms',
+      '3': 11,
+      '4': 1,
+      '5': 3,
+      '10': 'lastReservationRenewedAtUnixMs'
+    },
+    {
+      '1': 'last_direct_connection_closed_at_unix_ms',
+      '3': 12,
+      '4': 1,
+      '5': 3,
+      '10': 'lastDirectConnectionClosedAtUnixMs'
+    },
+    {
+      '1': 'last_management_action',
+      '3': 13,
+      '4': 1,
+      '5': 9,
+      '10': 'lastManagementAction'
+    },
     {'1': 'last_error', '3': 14, '4': 1, '5': 9, '10': 'lastError'},
   ],
 };
@@ -1005,14 +1329,22 @@ final $typed_data.Uint8List relayEndpointStatusSnapshotDescriptor = $convert.bas
 const ListRelayEndpointStatusesResponse$json = {
   '1': 'ListRelayEndpointStatusesResponse',
   '2': [
-    {'1': 'statuses', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.RelayEndpointStatusSnapshot', '10': 'statuses'},
+    {
+      '1': 'statuses',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.RelayEndpointStatusSnapshot',
+      '10': 'statuses'
+    },
   ],
 };
 
 /// Descriptor for `ListRelayEndpointStatusesResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listRelayEndpointStatusesResponseDescriptor = $convert.base64Decode(
-    'CiFMaXN0UmVsYXlFbmRwb2ludFN0YXR1c2VzUmVzcG9uc2USRQoIc3RhdHVzZXMYASADKAsyKS'
-    '5mdW5naV9kYWVtb24uUmVsYXlFbmRwb2ludFN0YXR1c1NuYXBzaG90UghzdGF0dXNlcw==');
+final $typed_data.Uint8List listRelayEndpointStatusesResponseDescriptor =
+    $convert.base64Decode(
+        'CiFMaXN0UmVsYXlFbmRwb2ludFN0YXR1c2VzUmVzcG9uc2USRQoIc3RhdHVzZXMYASADKAsyKS'
+        '5mdW5naV9kYWVtb24uUmVsYXlFbmRwb2ludFN0YXR1c1NuYXBzaG90UghzdGF0dXNlcw==');
 
 @$core.Deprecated('Use peerAddressSnapshotDescriptor instead')
 const PeerAddressSnapshot$json = {
@@ -1022,11 +1354,35 @@ const PeerAddressSnapshot$json = {
     {'1': 'address', '3': 2, '4': 1, '5': 9, '10': 'address'},
     {'1': 'transport', '3': 3, '4': 1, '5': 9, '10': 'transport'},
     {'1': 'source', '3': 4, '4': 1, '5': 9, '10': 'source'},
-    {'1': 'first_observed_at_unix_ms', '3': 5, '4': 1, '5': 3, '10': 'firstObservedAtUnixMs'},
-    {'1': 'last_observed_at_unix_ms', '3': 6, '4': 1, '5': 3, '10': 'lastObservedAtUnixMs'},
-    {'1': 'observation_count', '3': 7, '4': 1, '5': 4, '10': 'observationCount'},
+    {
+      '1': 'first_observed_at_unix_ms',
+      '3': 5,
+      '4': 1,
+      '5': 3,
+      '10': 'firstObservedAtUnixMs'
+    },
+    {
+      '1': 'last_observed_at_unix_ms',
+      '3': 6,
+      '4': 1,
+      '5': 3,
+      '10': 'lastObservedAtUnixMs'
+    },
+    {
+      '1': 'observation_count',
+      '3': 7,
+      '4': 1,
+      '5': 4,
+      '10': 'observationCount'
+    },
     {'1': 'freshness', '3': 8, '4': 1, '5': 9, '10': 'freshness'},
-    {'1': 'expired_at_unix_ms', '3': 9, '4': 1, '5': 3, '10': 'expiredAtUnixMs'},
+    {
+      '1': 'expired_at_unix_ms',
+      '3': 9,
+      '4': 1,
+      '5': 3,
+      '10': 'expiredAtUnixMs'
+    },
   ],
 };
 
@@ -1044,14 +1400,22 @@ final $typed_data.Uint8List peerAddressSnapshotDescriptor = $convert.base64Decod
 const ListPeerAddressesResponse$json = {
   '1': 'ListPeerAddressesResponse',
   '2': [
-    {'1': 'addresses', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.PeerAddressSnapshot', '10': 'addresses'},
+    {
+      '1': 'addresses',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.PeerAddressSnapshot',
+      '10': 'addresses'
+    },
   ],
 };
 
 /// Descriptor for `ListPeerAddressesResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listPeerAddressesResponseDescriptor = $convert.base64Decode(
-    'ChlMaXN0UGVlckFkZHJlc3Nlc1Jlc3BvbnNlEj8KCWFkZHJlc3NlcxgBIAMoCzIhLmZ1bmdpX2'
-    'RhZW1vbi5QZWVyQWRkcmVzc1NuYXBzaG90UglhZGRyZXNzZXM=');
+final $typed_data.Uint8List listPeerAddressesResponseDescriptor =
+    $convert.base64Decode(
+        'ChlMaXN0UGVlckFkZHJlc3Nlc1Jlc3BvbnNlEj8KCWFkZHJlc3NlcxgBIAMoCzIhLmZ1bmdpX2'
+        'RhZW1vbi5QZWVyQWRkcmVzc1NuYXBzaG90UglhZGRyZXNzZXM=');
 
 @$core.Deprecated('Use pullServiceRequestDescriptor instead')
 const PullServiceRequest$json = {
@@ -1071,7 +1435,14 @@ final $typed_data.Uint8List pullServiceRequestDescriptor = $convert.base64Decode
 const ServiceNameRequest$json = {
   '1': 'ServiceNameRequest',
   '2': [
-    {'1': 'runtime', '3': 1, '4': 1, '5': 14, '6': '.fungi_daemon.ServiceRuntimeKind', '10': 'runtime'},
+    {
+      '1': 'runtime',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.fungi_daemon.ServiceRuntimeKind',
+      '10': 'runtime'
+    },
     {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
   ],
 };
@@ -1085,7 +1456,14 @@ final $typed_data.Uint8List serviceNameRequestDescriptor = $convert.base64Decode
 const GetServiceLogsRequest$json = {
   '1': 'GetServiceLogsRequest',
   '2': [
-    {'1': 'runtime', '3': 1, '4': 1, '5': 14, '6': '.fungi_daemon.ServiceRuntimeKind', '10': 'runtime'},
+    {
+      '1': 'runtime',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.fungi_daemon.ServiceRuntimeKind',
+      '10': 'runtime'
+    },
     {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     {'1': 'tail', '3': 3, '4': 1, '5': 9, '10': 'tail'},
   ],
@@ -1106,9 +1484,10 @@ const ServiceInstanceResponse$json = {
 };
 
 /// Descriptor for `ServiceInstanceResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List serviceInstanceResponseDescriptor = $convert.base64Decode(
-    'ChdTZXJ2aWNlSW5zdGFuY2VSZXNwb25zZRIjCg1pbnN0YW5jZV9qc29uGAEgASgJUgxpbnN0YW'
-    '5jZUpzb24=');
+final $typed_data.Uint8List serviceInstanceResponseDescriptor =
+    $convert.base64Decode(
+        'ChdTZXJ2aWNlSW5zdGFuY2VSZXNwb25zZRIjCg1pbnN0YW5jZV9qc29uGAEgASgJUgxpbnN0YW'
+        '5jZUpzb24=');
 
 @$core.Deprecated('Use serviceLogsResponseDescriptor instead')
 const ServiceLogsResponse$json = {
@@ -1144,7 +1523,14 @@ const RecipeSummary$json = {
     {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     {'1': 'description', '3': 3, '4': 1, '5': 9, '10': 'description'},
-    {'1': 'runtime', '3': 4, '4': 1, '5': 14, '6': '.fungi_daemon.RecipeRuntimeKind', '10': 'runtime'},
+    {
+      '1': 'runtime',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.fungi_daemon.RecipeRuntimeKind',
+      '10': 'runtime'
+    },
     {'1': 'stability', '3': 5, '4': 1, '5': 9, '10': 'stability'},
     {'1': 'source_label', '3': 6, '4': 1, '5': 9, '10': 'sourceLabel'},
     {'1': 'release_version', '3': 7, '4': 1, '5': 9, '10': 'releaseVersion'},
@@ -1163,12 +1549,37 @@ final $typed_data.Uint8List recipeSummaryDescriptor = $convert.base64Decode(
 const RecipeDetail$json = {
   '1': 'RecipeDetail',
   '2': [
-    {'1': 'summary', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.RecipeSummary', '10': 'summary'},
+    {
+      '1': 'summary',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.RecipeSummary',
+      '10': 'summary'
+    },
     {'1': 'tags', '3': 2, '4': 3, '5': 9, '10': 'tags'},
     {'1': 'homepage', '3': 3, '4': 1, '5': 9, '10': 'homepage'},
-    {'1': 'cached_manifest_path', '3': 4, '4': 1, '5': 9, '10': 'cachedManifestPath'},
-    {'1': 'cached_readme_path', '3': 5, '4': 1, '5': 9, '10': 'cachedReadmePath'},
-    {'1': 'remote_manifest_url', '3': 6, '4': 1, '5': 9, '10': 'remoteManifestUrl'},
+    {
+      '1': 'cached_manifest_path',
+      '3': 4,
+      '4': 1,
+      '5': 9,
+      '10': 'cachedManifestPath'
+    },
+    {
+      '1': 'cached_readme_path',
+      '3': 5,
+      '4': 1,
+      '5': 9,
+      '10': 'cachedReadmePath'
+    },
+    {
+      '1': 'remote_manifest_url',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '10': 'remoteManifestUrl'
+    },
     {'1': 'remote_readme_url', '3': 7, '4': 1, '5': 9, '10': 'remoteReadmeUrl'},
   ],
 };
@@ -1191,14 +1602,22 @@ const ListRecipesRequest$json = {
 };
 
 /// Descriptor for `ListRecipesRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listRecipesRequestDescriptor = $convert.base64Decode(
-    'ChJMaXN0UmVjaXBlc1JlcXVlc3QSGAoHcmVmcmVzaBgBIAEoCFIHcmVmcmVzaA==');
+final $typed_data.Uint8List listRecipesRequestDescriptor =
+    $convert.base64Decode(
+        'ChJMaXN0UmVjaXBlc1JlcXVlc3QSGAoHcmVmcmVzaBgBIAEoCFIHcmVmcmVzaA==');
 
 @$core.Deprecated('Use listRecipesResponseDescriptor instead')
 const ListRecipesResponse$json = {
   '1': 'ListRecipesResponse',
   '2': [
-    {'1': 'recipes', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.RecipeSummary', '10': 'recipes'},
+    {
+      '1': 'recipes',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.fungi_daemon.RecipeSummary',
+      '10': 'recipes'
+    },
   ],
 };
 
@@ -1225,7 +1644,14 @@ final $typed_data.Uint8List getRecipeRequestDescriptor = $convert.base64Decode(
 const GetRecipeResponse$json = {
   '1': 'GetRecipeResponse',
   '2': [
-    {'1': 'detail', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.RecipeDetail', '10': 'detail'},
+    {
+      '1': 'detail',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.RecipeDetail',
+      '10': 'detail'
+    },
   ],
 };
 
@@ -1255,10 +1681,23 @@ final $typed_data.Uint8List resolveRecipeRequestDescriptor = $convert.base64Deco
 const ResolveRecipeResponse$json = {
   '1': 'ResolveRecipeResponse',
   '2': [
-    {'1': 'detail', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.RecipeDetail', '10': 'detail'},
+    {
+      '1': 'detail',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.fungi_daemon.RecipeDetail',
+      '10': 'detail'
+    },
     {'1': 'manifest_yaml', '3': 2, '4': 1, '5': 9, '10': 'manifestYaml'},
     {'1': 'manifest_base_dir', '3': 3, '4': 1, '5': 9, '10': 'manifestBaseDir'},
-    {'1': 'resolved_manifest_path', '3': 4, '4': 1, '5': 9, '10': 'resolvedManifestPath'},
+    {
+      '1': 'resolved_manifest_path',
+      '3': 4,
+      '4': 1,
+      '5': 9,
+      '10': 'resolvedManifestPath'
+    },
     {'1': 'warnings', '3': 5, '4': 3, '5': 9, '10': 'warnings'},
   ],
 };
@@ -1281,9 +1720,10 @@ const ListPeerCatalogRequest$json = {
 };
 
 /// Descriptor for `ListPeerCatalogRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listPeerCatalogRequestDescriptor = $convert.base64Decode(
-    'ChZMaXN0UGVlckNhdGFsb2dSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZBIWCgZjYW'
-    'NoZWQYAiABKAhSBmNhY2hlZA==');
+final $typed_data.Uint8List listPeerCatalogRequestDescriptor =
+    $convert.base64Decode(
+        'ChZMaXN0UGVlckNhdGFsb2dSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZXJJZBIWCgZjYW'
+        'NoZWQYAiABKAhSBmNhY2hlZA==');
 
 @$core.Deprecated('Use listPeerCatalogResponseDescriptor instead')
 const ListPeerCatalogResponse$json = {
@@ -1294,9 +1734,25 @@ const ListPeerCatalogResponse$json = {
 };
 
 /// Descriptor for `ListPeerCatalogResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listPeerCatalogResponseDescriptor = $convert.base64Decode(
-    'ChdMaXN0UGVlckNhdGFsb2dSZXNwb25zZRIjCg1zZXJ2aWNlc19qc29uGAEgASgJUgxzZXJ2aW'
-    'Nlc0pzb24=');
+final $typed_data.Uint8List listPeerCatalogResponseDescriptor =
+    $convert.base64Decode(
+        'ChdMaXN0UGVlckNhdGFsb2dSZXNwb25zZRIjCg1zZXJ2aWNlc19qc29uGAEgASgJUgxzZXJ2aW'
+        'Nlc0pzb24=');
+
+@$core.Deprecated('Use listDeviceServicesRequestDescriptor instead')
+const ListDeviceServicesRequest$json = {
+  '1': 'ListDeviceServicesRequest',
+  '2': [
+    {'1': 'device_id', '3': 1, '4': 1, '5': 9, '10': 'deviceId'},
+    {'1': 'cached', '3': 2, '4': 1, '5': 8, '10': 'cached'},
+  ],
+};
+
+/// Descriptor for `ListDeviceServicesRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listDeviceServicesRequestDescriptor =
+    $convert.base64Decode(
+        'ChlMaXN0RGV2aWNlU2VydmljZXNSZXF1ZXN0EhsKCWRldmljZV9pZBgBIAEoCVIIZGV2aWNlSW'
+        'QSFgoGY2FjaGVkGAIgASgIUgZjYWNoZWQ=');
 
 @$core.Deprecated('Use getPeerCapabilitySummaryRequestDescriptor instead')
 const GetPeerCapabilitySummaryRequest$json = {
@@ -1307,22 +1763,30 @@ const GetPeerCapabilitySummaryRequest$json = {
 };
 
 /// Descriptor for `GetPeerCapabilitySummaryRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getPeerCapabilitySummaryRequestDescriptor = $convert.base64Decode(
-    'Ch9HZXRQZWVyQ2FwYWJpbGl0eVN1bW1hcnlSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZX'
-    'JJZA==');
+final $typed_data.Uint8List getPeerCapabilitySummaryRequestDescriptor =
+    $convert.base64Decode(
+        'Ch9HZXRQZWVyQ2FwYWJpbGl0eVN1bW1hcnlSZXF1ZXN0EhcKB3BlZXJfaWQYASABKAlSBnBlZX'
+        'JJZA==');
 
 @$core.Deprecated('Use getPeerCapabilitySummaryResponseDescriptor instead')
 const GetPeerCapabilitySummaryResponse$json = {
   '1': 'GetPeerCapabilitySummaryResponse',
   '2': [
-    {'1': 'capability_summary_json', '3': 1, '4': 1, '5': 9, '10': 'capabilitySummaryJson'},
+    {
+      '1': 'capability_summary_json',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '10': 'capabilitySummaryJson'
+    },
   ],
 };
 
 /// Descriptor for `GetPeerCapabilitySummaryResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getPeerCapabilitySummaryResponseDescriptor = $convert.base64Decode(
-    'CiBHZXRQZWVyQ2FwYWJpbGl0eVN1bW1hcnlSZXNwb25zZRI2ChdjYXBhYmlsaXR5X3N1bW1hcn'
-    'lfanNvbhgBIAEoCVIVY2FwYWJpbGl0eVN1bW1hcnlKc29u');
+final $typed_data.Uint8List getPeerCapabilitySummaryResponseDescriptor =
+    $convert.base64Decode(
+        'CiBHZXRQZWVyQ2FwYWJpbGl0eVN1bW1hcnlSZXNwb25zZRI2ChdjYXBhYmlsaXR5X3N1bW1hcn'
+        'lfanNvbhgBIAEoCVIVY2FwYWJpbGl0eVN1bW1hcnlKc29u');
 
 @$core.Deprecated('Use remotePullServiceRequestDescriptor instead')
 const RemotePullServiceRequest$json = {
@@ -1334,9 +1798,10 @@ const RemotePullServiceRequest$json = {
 };
 
 /// Descriptor for `RemotePullServiceRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List remotePullServiceRequestDescriptor = $convert.base64Decode(
-    'ChhSZW1vdGVQdWxsU2VydmljZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEiMKDW'
-    '1hbmlmZXN0X3lhbWwYAiABKAlSDG1hbmlmZXN0WWFtbA==');
+final $typed_data.Uint8List remotePullServiceRequestDescriptor =
+    $convert.base64Decode(
+        'ChhSZW1vdGVQdWxsU2VydmljZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEiMKDW'
+        '1hbmlmZXN0X3lhbWwYAiABKAlSDG1hbmlmZXN0WWFtbA==');
 
 @$core.Deprecated('Use remoteServiceNameRequestDescriptor instead')
 const RemoteServiceNameRequest$json = {
@@ -1348,9 +1813,10 @@ const RemoteServiceNameRequest$json = {
 };
 
 /// Descriptor for `RemoteServiceNameRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List remoteServiceNameRequestDescriptor = $convert.base64Decode(
-    'ChhSZW1vdGVTZXJ2aWNlTmFtZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEhIKBG'
-    '5hbWUYAiABKAlSBG5hbWU=');
+final $typed_data.Uint8List remoteServiceNameRequestDescriptor =
+    $convert.base64Decode(
+        'ChhSZW1vdGVTZXJ2aWNlTmFtZVJlcXVlc3QSFwoHcGVlcl9pZBgBIAEoCVIGcGVlcklkEhIKBG'
+        '5hbWUYAiABKAlSBG5hbWU=');
 
 @$core.Deprecated('Use remotePeerRequestDescriptor instead')
 const RemotePeerRequest$json = {
@@ -1373,9 +1839,10 @@ const RemoteServiceControlResponse$json = {
 };
 
 /// Descriptor for `RemoteServiceControlResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List remoteServiceControlResponseDescriptor = $convert.base64Decode(
-    'ChxSZW1vdGVTZXJ2aWNlQ29udHJvbFJlc3BvbnNlEiEKDHNlcnZpY2VfbmFtZRgBIAEoCVILc2'
-    'VydmljZU5hbWU=');
+final $typed_data.Uint8List remoteServiceControlResponseDescriptor =
+    $convert.base64Decode(
+        'ChxSZW1vdGVTZXJ2aWNlQ29udHJvbFJlc3BvbnNlEiEKDHNlcnZpY2VfbmFtZRgBIAEoCVILc2'
+        'VydmljZU5hbWU=');
 
 @$core.Deprecated('Use attachServiceAccessRequestDescriptor instead')
 const AttachServiceAccessRequest$json = {
@@ -1389,10 +1856,11 @@ const AttachServiceAccessRequest$json = {
 };
 
 /// Descriptor for `AttachServiceAccessRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List attachServiceAccessRequestDescriptor = $convert.base64Decode(
-    'ChpBdHRhY2hTZXJ2aWNlQWNjZXNzUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQSIQ'
-    'oMc2VydmljZV9uYW1lGAIgASgJUgtzZXJ2aWNlTmFtZRIUCgVlbnRyeRgDIAEoCVIFZW50cnkS'
-    'HQoKbG9jYWxfcG9ydBgEIAEoBVIJbG9jYWxQb3J0');
+final $typed_data.Uint8List attachServiceAccessRequestDescriptor =
+    $convert.base64Decode(
+        'ChpBdHRhY2hTZXJ2aWNlQWNjZXNzUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQSIQ'
+        'oMc2VydmljZV9uYW1lGAIgASgJUgtzZXJ2aWNlTmFtZRIUCgVlbnRyeRgDIAEoCVIFZW50cnkS'
+        'HQoKbG9jYWxfcG9ydBgEIAEoBVIJbG9jYWxQb3J0');
 
 @$core.Deprecated('Use detachServiceAccessRequestDescriptor instead')
 const DetachServiceAccessRequest$json = {
@@ -1404,9 +1872,10 @@ const DetachServiceAccessRequest$json = {
 };
 
 /// Descriptor for `DetachServiceAccessRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List detachServiceAccessRequestDescriptor = $convert.base64Decode(
-    'ChpEZXRhY2hTZXJ2aWNlQWNjZXNzUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQSIQ'
-    'oMc2VydmljZV9uYW1lGAIgASgJUgtzZXJ2aWNlTmFtZQ==');
+final $typed_data.Uint8List detachServiceAccessRequestDescriptor =
+    $convert.base64Decode(
+        'ChpEZXRhY2hTZXJ2aWNlQWNjZXNzUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQSIQ'
+        'oMc2VydmljZV9uYW1lGAIgASgJUgtzZXJ2aWNlTmFtZQ==');
 
 @$core.Deprecated('Use listServiceAccessesRequestDescriptor instead')
 const ListServiceAccessesRequest$json = {
@@ -1417,14 +1886,21 @@ const ListServiceAccessesRequest$json = {
 };
 
 /// Descriptor for `ListServiceAccessesRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List listServiceAccessesRequestDescriptor = $convert.base64Decode(
-    'ChpMaXN0U2VydmljZUFjY2Vzc2VzUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
+final $typed_data.Uint8List listServiceAccessesRequestDescriptor =
+    $convert.base64Decode(
+        'ChpMaXN0U2VydmljZUFjY2Vzc2VzUmVxdWVzdBIXCgdwZWVyX2lkGAEgASgJUgZwZWVySWQ=');
 
 @$core.Deprecated('Use serviceAccessResponseDescriptor instead')
 const ServiceAccessResponse$json = {
   '1': 'ServiceAccessResponse',
   '2': [
-    {'1': 'service_access_json', '3': 1, '4': 1, '5': 9, '10': 'serviceAccessJson'},
+    {
+      '1': 'service_access_json',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '10': 'serviceAccessJson'
+    },
   ],
 };
 
@@ -1437,12 +1913,18 @@ final $typed_data.Uint8List serviceAccessResponseDescriptor = $convert.base64Dec
 const ServiceAccessesResponse$json = {
   '1': 'ServiceAccessesResponse',
   '2': [
-    {'1': 'service_accesses_json', '3': 1, '4': 1, '5': 9, '10': 'serviceAccessesJson'},
+    {
+      '1': 'service_accesses_json',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '10': 'serviceAccessesJson'
+    },
   ],
 };
 
 /// Descriptor for `ServiceAccessesResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List serviceAccessesResponseDescriptor = $convert.base64Decode(
-    'ChdTZXJ2aWNlQWNjZXNzZXNSZXNwb25zZRIyChVzZXJ2aWNlX2FjY2Vzc2VzX2pzb24YASABKA'
-    'lSE3NlcnZpY2VBY2Nlc3Nlc0pzb24=');
-
+final $typed_data.Uint8List serviceAccessesResponseDescriptor =
+    $convert.base64Decode(
+        'ChdTZXJ2aWNlQWNjZXNzZXNSZXNwb25zZRIyChVzZXJ2aWNlX2FjY2Vzc2VzX2pzb24YASABKA'
+        'lSE3NlcnZpY2VBY2Nlc3Nlc0pzb24=');

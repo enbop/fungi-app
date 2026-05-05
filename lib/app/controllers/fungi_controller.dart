@@ -871,6 +871,7 @@ class FungiController extends GetxController {
       await Future.wait([
         refreshLocalServicesData(),
         refreshAvailableServicesData(cached: true),
+        refreshPeerManagedServicesData(cached: true),
         refreshNodeManagementData(refreshManagedServices: false),
         refreshRuntimeConfig(),
       ]);
@@ -1525,9 +1526,9 @@ class FungiController extends GetxController {
           continue;
         }
         try {
-          final catalogResponse = await fungiClient.listPeerCatalog(
-            ListPeerCatalogRequest()
-              ..peerId = currentPeerId
+          final catalogResponse = await fungiClient.listDevicePublishedServices(
+            ListDeviceServicesRequest()
+              ..deviceId = currentPeerId
               ..cached = cached,
             options: grpc.CallOptions(timeout: _peerCatalogRequestTimeout),
           );
@@ -1559,7 +1560,7 @@ class FungiController extends GetxController {
           next[currentPeerId] = services;
         } catch (e) {
           debugPrint('Failed to load peer catalog for $currentPeerId: $e');
-          next[currentPeerId] = const [];
+          next.putIfAbsent(currentPeerId, () => const []);
         }
       }
       peerCatalogServices.value = next;
@@ -1593,7 +1594,7 @@ class FungiController extends GetxController {
       }
       peerConnections.value = grouped;
       if (refreshManagedServices) {
-        await refreshPeerManagedServicesData();
+        await refreshPeerManagedServicesData(cached: false);
       }
     } catch (e) {
       debugPrint('Failed to refresh node management data: $e');
@@ -1602,25 +1603,37 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<void> refreshPeerManagedServicesData({String? peerId}) async {
+  Future<void> refreshPeerManagedServicesData({
+    String? peerId,
+    bool cached = false,
+  }) async {
     final peers = peerId == null
         ? addressBook.map((peer) => peer.peerId).toList(growable: false)
         : <String>[peerId];
 
-    await Future.wait(peers.map(_refreshPeerManagedServicesForPeer));
+    await Future.wait(
+      peers.map((peerId) {
+        return _refreshPeerManagedServicesForPeer(peerId, cached: cached);
+      }),
+    );
   }
 
   void _refreshPeerManagedServicesInBackground({String? peerId}) {
-    unawaited(refreshPeerManagedServicesData(peerId: peerId));
+    unawaited(refreshPeerManagedServicesData(peerId: peerId, cached: false));
   }
 
-  Future<void> _refreshPeerManagedServicesForPeer(String peerId) async {
+  Future<void> _refreshPeerManagedServicesForPeer(
+    String peerId, {
+    required bool cached,
+  }) async {
     _setPeerManagedServicesLoading(peerId, true);
     _setPeerManagedServicesError(peerId, '');
 
     try {
-      final response = await fungiClient.remoteListServices(
-        RemotePeerRequest()..peerId = peerId,
+      final response = await fungiClient.listDeviceManagedServices(
+        ListDeviceServicesRequest()
+          ..deviceId = peerId
+          ..cached = cached,
         options: grpc.CallOptions(timeout: _remotePeerServicesRequestTimeout),
       );
       final services = decodeJsonStringList(
@@ -1630,7 +1643,9 @@ class FungiController extends GetxController {
       _setPeerManagedServices(peerId, services);
     } catch (e) {
       debugPrint('Failed to load managed services for $peerId: $e');
-      _setPeerManagedServices(peerId, const []);
+      if (!peerManagedServices.containsKey(peerId)) {
+        _setPeerManagedServices(peerId, const []);
+      }
       _setPeerManagedServicesError(peerId, e.toString());
     } finally {
       _setPeerManagedServicesLoading(peerId, false);
@@ -2083,6 +2098,57 @@ class FungiController extends GetxController {
       port: endpoint.localPort,
       path: normalizedPath,
     );
+  }
+
+  Uri? localServiceLaunchUri(LocalServiceView service) {
+    if (service.localEndpoints.isEmpty) {
+      return null;
+    }
+
+    LocalServicePortView? webEndpoint;
+    for (final endpoint in service.localEndpoints) {
+      final label = [
+        endpoint.name ?? '',
+        endpoint.protocol,
+      ].join(' ').toLowerCase();
+      if (label.contains('web') || label.contains('http')) {
+        webEndpoint = endpoint;
+        break;
+      }
+    }
+
+    final endpoint = webEndpoint ?? service.localEndpoints.first;
+    if (endpoint.localPort <= 0) {
+      return null;
+    }
+
+    return Uri(
+      scheme: 'http',
+      host: endpoint.localHost,
+      port: endpoint.localPort,
+      path: '/',
+    );
+  }
+
+  Future<void> openLocalService(String serviceName) async {
+    try {
+      final service = localServices.firstWhere(
+        (service) => service.name == serviceName || service.id == serviceName,
+      );
+      final uri = localServiceLaunchUri(service);
+      if (uri == null) {
+        throw Exception('No local endpoint is available');
+      }
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        throw Exception('Open request was rejected');
+      }
+    } catch (e) {
+      Get.snackbar('Open failed', '$e');
+    }
   }
 
   String peerDisplayLabel(String peerId) {
