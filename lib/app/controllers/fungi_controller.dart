@@ -91,6 +91,7 @@ class FungiController extends GetxController {
   static const daemonDisabledStorageKey = 'daemon_disabled';
   static const _recipeRequestTimeout = Duration(seconds: 20);
   static const _peerCatalogRequestTimeout = Duration(seconds: 10);
+  static const _remotePeerServicesRequestTimeout = Duration(seconds: 8);
 
   FungiDaemonClient fungiClient;
   late final DaemonServiceManager daemonManager;
@@ -873,6 +874,7 @@ class FungiController extends GetxController {
         refreshNodeManagementData(refreshManagedServices: false),
         refreshRuntimeConfig(),
       ]);
+      _refreshPeerManagedServicesInBackground();
     } catch (e) {
       daemonConnectionState.value = DaemonConnectionState.failed;
       daemonError.value = e.toString();
@@ -1608,6 +1610,10 @@ class FungiController extends GetxController {
     await Future.wait(peers.map(_refreshPeerManagedServicesForPeer));
   }
 
+  void _refreshPeerManagedServicesInBackground({String? peerId}) {
+    unawaited(refreshPeerManagedServicesData(peerId: peerId));
+  }
+
   Future<void> _refreshPeerManagedServicesForPeer(String peerId) async {
     _setPeerManagedServicesLoading(peerId, true);
     _setPeerManagedServicesError(peerId, '');
@@ -1615,6 +1621,7 @@ class FungiController extends GetxController {
     try {
       final response = await fungiClient.remoteListServices(
         RemotePeerRequest()..peerId = peerId,
+        options: grpc.CallOptions(timeout: _remotePeerServicesRequestTimeout),
       );
       final services = decodeJsonStringList(
         response.servicesJson,
@@ -1757,6 +1764,7 @@ class FungiController extends GetxController {
         cached: true,
         showLoading: false,
       );
+      _refreshPeerManagedServicesInBackground(peerId: peerId);
       Get.snackbar('Success', 'Connected locally');
     } catch (e) {
       Get.snackbar('Connect failed', '$e');
@@ -1782,6 +1790,7 @@ class FungiController extends GetxController {
         cached: true,
         showLoading: false,
       );
+      _refreshPeerManagedServicesInBackground(peerId: peerId);
       Get.snackbar('Success', 'Disconnected');
     } catch (e) {
       Get.snackbar('Disconnect failed', '$e');
