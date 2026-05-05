@@ -58,7 +58,9 @@ class Settings extends GetView<FungiController> {
               SettingsTile.navigation(
                 leading: Icon(Icons.file_open),
                 title: Text('Config file path'),
-                value: Text(controller.configFilePath.value),
+                value: _TruncatedSettingsValue(
+                  value: controller.configFilePath.value,
+                ),
                 onPressed: (context) {
                   Clipboard.setData(
                     ClipboardData(text: controller.configFilePath.value),
@@ -69,7 +71,9 @@ class Settings extends GetView<FungiController> {
               SettingsTile.navigation(
                 leading: Icon(Icons.folder_open),
                 title: Text('Log file path'),
-                value: Text(controller.logDirPath.value),
+                value: _TruncatedSettingsValue(
+                  value: controller.logDirPath.value,
+                ),
                 onPressed: (context) {
                   if (controller.logDirPath.value.isEmpty) {
                     SmartDialog.showToast('Log path is not available yet');
@@ -204,13 +208,13 @@ class Settings extends GetView<FungiController> {
             tiles: <SettingsTile>[
               SettingsTile.navigation(
                 leading: Icon(Icons.swap_horiz),
-                title: Text('Legacy Port Forwarding'),
+                title: Text('Legacy Tunnel'),
                 value: Text('Deprecated'),
                 description: Text(
-                  'Open the raw port forwarding UI in a dialog. This path will be removed in a future release.',
+                  'Open raw port forwarding and port listening tools in one dialog.',
                 ),
                 onPressed: (context) {
-                  _showLegacyPortForwardingDialog(context);
+                  _showLegacyTunnelDialog(context);
                 },
               ),
               SettingsTile.navigation(
@@ -366,53 +370,70 @@ class Settings extends GetView<FungiController> {
     );
   }
 
-  void _showLegacyPortForwardingDialog(BuildContext context) {
+  void _showLegacyTunnelDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
         child: SizedBox(
           width: 920,
           height: 720,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Legacy Port Forwarding',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'Legacy Tunnel',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'This raw port-forwarding path is deprecated and will be removed in a future release.',
-                          ),
-                        ],
+                            SizedBox(height: 4),
+                            Text(
+                              'Raw tunnel tools are deprecated and kept here for advanced compatibility.',
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                const TabBar(
+                  tabs: [
+                    Tab(text: 'Port Forwarding'),
+                    Tab(text: 'Port Listening'),
                   ],
                 ),
-              ),
-              const Divider(height: 1),
-              const Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(12),
-                  child: ClientDataTunnelSection(showTitle: false),
+                const Divider(height: 1),
+                const Expanded(
+                  child: TabBarView(
+                    children: [
+                      SingleChildScrollView(
+                        padding: EdgeInsets.all(12),
+                        child: ClientDataTunnelSection(showTitle: false),
+                      ),
+                      SingleChildScrollView(
+                        padding: EdgeInsets.all(12),
+                        child: ServerDataTunnelSection(showTitle: false),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -456,6 +477,30 @@ class Settings extends GetView<FungiController> {
           ],
         );
       },
+    );
+  }
+}
+
+class _TruncatedSettingsValue extends StatelessWidget {
+  const _TruncatedSettingsValue({required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final display = value.isEmpty ? 'Unavailable' : value;
+    return Tooltip(
+      message: display,
+      waitDuration: const Duration(milliseconds: 500),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Text(
+          display,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.right,
+        ),
+      ),
     );
   }
 }
