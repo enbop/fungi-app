@@ -137,18 +137,26 @@ class _PeerCard extends GetView<FungiController> {
       final title = _deviceDisplayName(peer);
 
       return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.only(bottom: 6),
         child: EnhancedCard(
+          margin: EdgeInsets.zero,
           child: ExpansionTile(
             initiallyExpanded: expanded,
             maintainState: true,
             onExpansionChanged: onExpansionChanged,
             title: Text(title),
             trailing: Wrap(
-              spacing: 8,
+              spacing: 2,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 IconButton(
+                  iconSize: 20,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
+                  ),
                   tooltip: 'Device details',
                   onPressed: () => showModalBottomSheet<void>(
                     context: context,
@@ -163,11 +171,25 @@ class _PeerCard extends GetView<FungiController> {
                   icon: const Icon(Icons.info_outline),
                 ),
                 IconButton(
+                  iconSize: 20,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
+                  ),
                   tooltip: 'Edit device',
                   onPressed: () => showNodeEditorDialog(initialPeer: peer),
                   icon: const Icon(Icons.edit_outlined),
                 ),
                 IconButton(
+                  iconSize: 20,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
+                  ),
                   tooltip: 'Refresh device',
                   onPressed: isRefreshing
                       ? null
@@ -215,7 +237,7 @@ class _PeerCard extends GetView<FungiController> {
                 ),
               ],
             ),
-            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             children: [
               if (isRefreshing) ...[
                 const LinearProgressIndicator(),

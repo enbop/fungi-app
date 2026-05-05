@@ -57,6 +57,24 @@ String _localAccessEndpointValue(ServiceAccessEndpointView endpoint) {
   return '${endpoint.localHost}:${endpoint.localPort}';
 }
 
+String _localServiceTypeLabel(LocalServiceView service) {
+  for (final endpoint in service.localEndpoints) {
+    final label = [endpoint.name ?? '', endpoint.protocol].join(' ');
+    final normalized = label.toLowerCase();
+    if (normalized.contains('web') || normalized.contains('http')) {
+      return 'Web';
+    }
+  }
+
+  final protocol = service.localEndpoints.isEmpty
+      ? ''
+      : service.localEndpoints.first.protocol.trim();
+  if (protocol.isEmpty) {
+    return 'TCP';
+  }
+  return protocol.toUpperCase();
+}
+
 Future<void> _showLocalAddressDialog(
   BuildContext context, {
   required String serviceReference,
@@ -515,6 +533,7 @@ class _QuickServiceCard extends GetView<FungiController> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: EnhancedCard(
+        margin: EdgeInsets.zero,
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -542,20 +561,11 @@ class _QuickServiceCard extends GetView<FungiController> {
           trailing: _QuickAccessActions(entry: entry),
           children: [
             _QuickServiceDetails(entry: entry),
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.start,
-                children: [
-                  CompactBadge(
-                    label: service.running ? 'Running' : service.state,
-                  ),
-                  CompactBadge(label: service.runtime),
-                ],
-              ),
+            _ServiceDetailRow(
+              label: 'Status',
+              value: service.running ? 'Running' : service.state,
             ),
+            _ServiceDetailRow(label: 'Runtime', value: service.runtime),
             const SizedBox(height: 8),
             if (service.accessAttached && service.serviceName.isNotEmpty)
               Align(
@@ -608,42 +618,74 @@ class _CompactCopyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _ServiceDetailRow(
+      label: label,
+      value: value,
+      tooltip: value,
+      onTap: () => copyTextValue(value, successMessage: successMessage),
+      trailing: CopyIconButton(
+        value: value,
+        successMessage: successMessage,
+        tooltip: 'Copy $label',
+      ),
+    );
+  }
+}
+
+class _ServiceDetailRow extends StatelessWidget {
+  const _ServiceDetailRow({
+    required this.label,
+    required this.value,
+    this.tooltip,
+    this.onTap,
+    this.trailing,
+  });
+
+  final String label;
+  final String value;
+  final String? tooltip;
+  final VoidCallback? onTap;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 92,
+            child: Text(
+              '$label:',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          Expanded(
+            child: Tooltip(
+              message: tooltip ?? value,
+              waitDuration: const Duration(milliseconds: 500),
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+          if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+        ],
+      ),
+    );
+
+    if (onTap == null) {
+      return row;
+    }
+
     return InkWell(
       borderRadius: BorderRadius.circular(6),
-      onTap: () => copyTextValue(value, successMessage: successMessage),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 92,
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-            ),
-            Expanded(
-              child: Tooltip(
-                message: value,
-                waitDuration: const Duration(milliseconds: 500),
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            CopyIconButton(
-              value: value,
-              successMessage: successMessage,
-              tooltip: 'Copy $label',
-            ),
-          ],
-        ),
-      ),
+      onTap: onTap,
+      child: row,
     );
   }
 }
@@ -712,7 +754,6 @@ class _QuickServiceDetails extends GetView<FungiController> {
         ? controller.catalogWebLaunchUri(service)
         : null;
     final hasLocalAddresses = service.localAccessEndpoints.isNotEmpty;
-    final imageUrl = service.iconUrl?.trim();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -747,14 +788,6 @@ class _QuickServiceDetails extends GetView<FungiController> {
                 ? 'Connect to prepare a local URL here.'
                 : 'Connect to create a local forwarded address here.',
             style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 8),
-        ],
-        if (imageUrl != null && imageUrl.isNotEmpty) ...[
-          _CompactCopyRow(
-            label: 'Image URL',
-            value: imageUrl,
-            successMessage: 'Image URL copied',
           ),
           const SizedBox(height: 8),
         ],
@@ -837,6 +870,7 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: EnhancedCard(
+        margin: EdgeInsets.zero,
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -876,20 +910,11 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
                 );
               }),
             ],
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.start,
-                children: [
-                  CompactBadge(
-                    label: service.running ? 'Running' : service.state,
-                  ),
-                  CompactBadge(label: service.runtime),
-                ],
-              ),
+            _ServiceDetailRow(
+              label: 'Status',
+              value: service.running ? 'Running' : service.state,
             ),
+            _ServiceDetailRow(label: 'Runtime', value: service.runtime),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
@@ -978,10 +1003,12 @@ class _LocalServiceCard extends GetView<FungiController> {
     final pendingAction = controller.localServicePendingActions[service.name];
     final isBusy = pendingAction != null;
     final launchUri = controller.localServiceLaunchUri(service);
+    final typeLabel = _localServiceTypeLabel(service);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: EnhancedCard(
+        margin: EdgeInsets.zero,
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -995,7 +1022,10 @@ class _LocalServiceCard extends GetView<FungiController> {
             child: Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: const [ServiceOriginBadge.local()],
+              children: [
+                const ServiceOriginBadge.local(),
+                CompactBadge(label: typeLabel),
+              ],
             ),
           ),
           trailing: Row(
@@ -1040,20 +1070,11 @@ class _LocalServiceCard extends GetView<FungiController> {
                 ),
               ),
             ],
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.start,
-                children: [
-                  CompactBadge(
-                    label: service.running ? 'Running' : service.state,
-                  ),
-                  CompactBadge(label: service.runtime),
-                ],
-              ),
+            _ServiceDetailRow(
+              label: 'Status',
+              value: service.running ? 'Running' : service.state,
             ),
+            _ServiceDetailRow(label: 'Runtime', value: service.runtime),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
