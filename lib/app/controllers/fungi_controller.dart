@@ -1819,6 +1819,91 @@ class FungiController extends GetxController {
     }
   }
 
+  Future<List<RecipeSummary>> listServiceRecipes({bool refresh = false}) async {
+    final response = await fungiClient.listRecipes(
+      ListRecipesRequest()..refresh = refresh,
+    );
+    return response.recipes;
+  }
+
+  Future<RecipeDetail> getServiceRecipeDetail({
+    required String recipeId,
+    bool refresh = false,
+  }) async {
+    final response = await fungiClient.getRecipe(
+      GetRecipeRequest()
+        ..recipeId = recipeId
+        ..refresh = refresh,
+    );
+    if (!response.hasDetail()) {
+      throw Exception('Recipe detail was missing from the daemon response');
+    }
+    return response.detail;
+  }
+
+  Future<ResolveRecipeResponse> resolveServiceRecipe({
+    required String recipeId,
+    String? serviceName,
+    String? peerId,
+    bool refresh = false,
+  }) async {
+    final response = await fungiClient.resolveRecipe(
+      ResolveRecipeRequest()
+        ..recipeId = recipeId
+        ..serviceName = serviceName ?? ''
+        ..peerId = peerId ?? ''
+        ..refresh = refresh,
+    );
+    if (!response.hasDetail()) {
+      throw Exception('Recipe detail was missing from the daemon response');
+    }
+    if (!response.hasManifestYaml()) {
+      throw Exception(
+        'Resolved recipe manifest was missing from the daemon response',
+      );
+    }
+    return response;
+  }
+
+  Future<bool> createLocalServiceFromResolvedRecipe(
+    ResolveRecipeResponse resolved,
+  ) async {
+    try {
+      await fungiClient.pullService(
+        PullServiceRequest()
+          ..manifestYaml = resolved.manifestYaml
+          ..manifestBaseDir = resolved.manifestBaseDir,
+      );
+      await refreshLocalServicesPageData();
+      await refreshNodeManagementData();
+      Get.snackbar('Success', 'Service added');
+      return true;
+    } catch (e) {
+      Get.snackbar('Recipe add failed', '$e');
+      return false;
+    }
+  }
+
+  Future<bool> createRemoteServiceFromResolvedRecipe({
+    required String peerId,
+    required ResolveRecipeResponse resolved,
+  }) async {
+    try {
+      await fungiClient.remotePullService(
+        RemotePullServiceRequest()
+          ..peerId = peerId
+          ..manifestYaml = resolved.manifestYaml,
+      );
+      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshAvailableServicesData();
+      Get.snackbar('Success', 'Service added to device');
+      return true;
+    } catch (e) {
+      Get.snackbar('Remote recipe add failed', '$e');
+      return false;
+    }
+  }
+
   String remoteServiceActionKey(String peerId, String serviceName) {
     return '$peerId::$serviceName';
   }

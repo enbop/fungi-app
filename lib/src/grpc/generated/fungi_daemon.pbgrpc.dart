@@ -225,6 +225,18 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/ListServices',
       ($0.Empty value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
+  static final _$listRecipes = $grpc.ClientMethod<$0.ListRecipesRequest, $0.ListRecipesResponse>(
+      '/fungi_daemon.FungiDaemon/ListRecipes',
+      ($0.ListRecipesRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListRecipesResponse.fromBuffer(value));
+  static final _$getRecipe = $grpc.ClientMethod<$0.GetRecipeRequest, $0.GetRecipeResponse>(
+      '/fungi_daemon.FungiDaemon/GetRecipe',
+      ($0.GetRecipeRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.GetRecipeResponse.fromBuffer(value));
+  static final _$resolveRecipe = $grpc.ClientMethod<$0.ResolveRecipeRequest, $0.ResolveRecipeResponse>(
+      '/fungi_daemon.FungiDaemon/ResolveRecipe',
+      ($0.ResolveRecipeRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ResolveRecipeResponse.fromBuffer(value));
   static final _$listPeerCatalog = $grpc.ClientMethod<$0.ListPeerCatalogRequest, $0.ListPeerCatalogResponse>(
       '/fungi_daemon.FungiDaemon/ListPeerCatalog',
       ($0.ListPeerCatalogRequest value) => value.writeToBuffer(),
@@ -474,6 +486,18 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.ListServicesResponse> listServices($0.Empty request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$listServices, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListRecipesResponse> listRecipes($0.ListRecipesRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listRecipes, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GetRecipeResponse> getRecipe($0.GetRecipeRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getRecipe, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ResolveRecipeResponse> resolveRecipe($0.ResolveRecipeRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$resolveRecipe, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.ListPeerCatalogResponse> listPeerCatalog($0.ListPeerCatalogRequest request, {$grpc.CallOptions? options}) {
@@ -879,6 +903,27 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
         ($0.ListServicesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListRecipesRequest, $0.ListRecipesResponse>(
+        'ListRecipes',
+        listRecipes_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ListRecipesRequest.fromBuffer(value),
+        ($0.ListRecipesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetRecipeRequest, $0.GetRecipeResponse>(
+        'GetRecipe',
+        getRecipe_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.GetRecipeRequest.fromBuffer(value),
+        ($0.GetRecipeResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ResolveRecipeRequest, $0.ResolveRecipeResponse>(
+        'ResolveRecipe',
+        resolveRecipe_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ResolveRecipeRequest.fromBuffer(value),
+        ($0.ResolveRecipeResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.ListPeerCatalogRequest, $0.ListPeerCatalogResponse>(
         'ListPeerCatalog',
         listPeerCatalog_Pre,
@@ -1155,6 +1200,18 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return listServices(call, await request);
   }
 
+  $async.Future<$0.ListRecipesResponse> listRecipes_Pre($grpc.ServiceCall call, $async.Future<$0.ListRecipesRequest> request) async {
+    return listRecipes(call, await request);
+  }
+
+  $async.Future<$0.GetRecipeResponse> getRecipe_Pre($grpc.ServiceCall call, $async.Future<$0.GetRecipeRequest> request) async {
+    return getRecipe(call, await request);
+  }
+
+  $async.Future<$0.ResolveRecipeResponse> resolveRecipe_Pre($grpc.ServiceCall call, $async.Future<$0.ResolveRecipeRequest> request) async {
+    return resolveRecipe(call, await request);
+  }
+
   $async.Future<$0.ListPeerCatalogResponse> listPeerCatalog_Pre($grpc.ServiceCall call, $async.Future<$0.ListPeerCatalogRequest> request) async {
     return listPeerCatalog(call, await request);
   }
@@ -1246,6 +1303,9 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.ServiceInstanceResponse> inspectService($grpc.ServiceCall call, $0.ServiceNameRequest request);
   $async.Future<$0.ServiceLogsResponse> getServiceLogs($grpc.ServiceCall call, $0.GetServiceLogsRequest request);
   $async.Future<$0.ListServicesResponse> listServices($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.ListRecipesResponse> listRecipes($grpc.ServiceCall call, $0.ListRecipesRequest request);
+  $async.Future<$0.GetRecipeResponse> getRecipe($grpc.ServiceCall call, $0.GetRecipeRequest request);
+  $async.Future<$0.ResolveRecipeResponse> resolveRecipe($grpc.ServiceCall call, $0.ResolveRecipeRequest request);
   $async.Future<$0.ListPeerCatalogResponse> listPeerCatalog($grpc.ServiceCall call, $0.ListPeerCatalogRequest request);
   $async.Future<$0.GetPeerCapabilitySummaryResponse> getPeerCapabilitySummary($grpc.ServiceCall call, $0.GetPeerCapabilitySummaryRequest request);
   $async.Future<$0.RemoteServiceControlResponse> remotePullService($grpc.ServiceCall call, $0.RemotePullServiceRequest request);

@@ -29,6 +29,23 @@ final $typed_data.Uint8List serviceRuntimeKindDescriptor = $convert.base64Decode
     'QQABIfChtTRVJWSUNFX1JVTlRJTUVfS0lORF9ET0NLRVIQARIhCh1TRVJWSUNFX1JVTlRJTUVf'
     'S0lORF9XQVNNVElNRRAC');
 
+@$core.Deprecated('Use recipeRuntimeKindDescriptor instead')
+const RecipeRuntimeKind$json = {
+  '1': 'RecipeRuntimeKind',
+  '2': [
+    {'1': 'RECIPE_RUNTIME_KIND_UNSPECIFIED', '2': 0},
+    {'1': 'RECIPE_RUNTIME_KIND_DOCKER', '2': 1},
+    {'1': 'RECIPE_RUNTIME_KIND_WASMTIME', '2': 2},
+    {'1': 'RECIPE_RUNTIME_KIND_LINK', '2': 3},
+  ],
+};
+
+/// Descriptor for `RecipeRuntimeKind`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List recipeRuntimeKindDescriptor = $convert.base64Decode(
+    'ChFSZWNpcGVSdW50aW1lS2luZBIjCh9SRUNJUEVfUlVOVElNRV9LSU5EX1VOU1BFQ0lGSUVEEA'
+    'ASHgoaUkVDSVBFX1JVTlRJTUVfS0lORF9ET0NLRVIQARIgChxSRUNJUEVfUlVOVElNRV9LSU5E'
+    'X1dBU01USU1FEAISHAoYUkVDSVBFX1JVTlRJTUVfS0lORF9MSU5LEAM=');
+
 @$core.Deprecated('Use emptyDescriptor instead')
 const Empty$json = {
   '1': 'Empty',
@@ -1119,6 +1136,140 @@ const ListServicesResponse$json = {
 final $typed_data.Uint8List listServicesResponseDescriptor = $convert.base64Decode(
     'ChRMaXN0U2VydmljZXNSZXNwb25zZRIjCg1zZXJ2aWNlc19qc29uGAEgASgJUgxzZXJ2aWNlc0'
     'pzb24=');
+
+@$core.Deprecated('Use recipeSummaryDescriptor instead')
+const RecipeSummary$json = {
+  '1': 'RecipeSummary',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    {'1': 'description', '3': 3, '4': 1, '5': 9, '10': 'description'},
+    {'1': 'runtime', '3': 4, '4': 1, '5': 14, '6': '.fungi_daemon.RecipeRuntimeKind', '10': 'runtime'},
+    {'1': 'stability', '3': 5, '4': 1, '5': 9, '10': 'stability'},
+    {'1': 'source_label', '3': 6, '4': 1, '5': 9, '10': 'sourceLabel'},
+    {'1': 'release_version', '3': 7, '4': 1, '5': 9, '10': 'releaseVersion'},
+  ],
+};
+
+/// Descriptor for `RecipeSummary`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List recipeSummaryDescriptor = $convert.base64Decode(
+    'Cg1SZWNpcGVTdW1tYXJ5Eg4KAmlkGAEgASgJUgJpZBISCgRuYW1lGAIgASgJUgRuYW1lEiAKC2'
+    'Rlc2NyaXB0aW9uGAMgASgJUgtkZXNjcmlwdGlvbhI5CgdydW50aW1lGAQgASgOMh8uZnVuZ2lf'
+    'ZGFlbW9uLlJlY2lwZVJ1bnRpbWVLaW5kUgdydW50aW1lEhwKCXN0YWJpbGl0eRgFIAEoCVIJc3'
+    'RhYmlsaXR5EiEKDHNvdXJjZV9sYWJlbBgGIAEoCVILc291cmNlTGFiZWwSJwoPcmVsZWFzZV92'
+    'ZXJzaW9uGAcgASgJUg5yZWxlYXNlVmVyc2lvbg==');
+
+@$core.Deprecated('Use recipeDetailDescriptor instead')
+const RecipeDetail$json = {
+  '1': 'RecipeDetail',
+  '2': [
+    {'1': 'summary', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.RecipeSummary', '10': 'summary'},
+    {'1': 'tags', '3': 2, '4': 3, '5': 9, '10': 'tags'},
+    {'1': 'homepage', '3': 3, '4': 1, '5': 9, '10': 'homepage'},
+    {'1': 'cached_manifest_path', '3': 4, '4': 1, '5': 9, '10': 'cachedManifestPath'},
+    {'1': 'cached_readme_path', '3': 5, '4': 1, '5': 9, '10': 'cachedReadmePath'},
+    {'1': 'remote_manifest_url', '3': 6, '4': 1, '5': 9, '10': 'remoteManifestUrl'},
+    {'1': 'remote_readme_url', '3': 7, '4': 1, '5': 9, '10': 'remoteReadmeUrl'},
+  ],
+};
+
+/// Descriptor for `RecipeDetail`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List recipeDetailDescriptor = $convert.base64Decode(
+    'CgxSZWNpcGVEZXRhaWwSNQoHc3VtbWFyeRgBIAEoCzIbLmZ1bmdpX2RhZW1vbi5SZWNpcGVTdW'
+    '1tYXJ5UgdzdW1tYXJ5EhIKBHRhZ3MYAiADKAlSBHRhZ3MSGgoIaG9tZXBhZ2UYAyABKAlSCGhv'
+    'bWVwYWdlEjAKFGNhY2hlZF9tYW5pZmVzdF9wYXRoGAQgASgJUhJjYWNoZWRNYW5pZmVzdFBhdG'
+    'gSLAoSY2FjaGVkX3JlYWRtZV9wYXRoGAUgASgJUhBjYWNoZWRSZWFkbWVQYXRoEi4KE3JlbW90'
+    'ZV9tYW5pZmVzdF91cmwYBiABKAlSEXJlbW90ZU1hbmlmZXN0VXJsEioKEXJlbW90ZV9yZWFkbW'
+    'VfdXJsGAcgASgJUg9yZW1vdGVSZWFkbWVVcmw=');
+
+@$core.Deprecated('Use listRecipesRequestDescriptor instead')
+const ListRecipesRequest$json = {
+  '1': 'ListRecipesRequest',
+  '2': [
+    {'1': 'refresh', '3': 1, '4': 1, '5': 8, '10': 'refresh'},
+  ],
+};
+
+/// Descriptor for `ListRecipesRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listRecipesRequestDescriptor = $convert.base64Decode(
+    'ChJMaXN0UmVjaXBlc1JlcXVlc3QSGAoHcmVmcmVzaBgBIAEoCFIHcmVmcmVzaA==');
+
+@$core.Deprecated('Use listRecipesResponseDescriptor instead')
+const ListRecipesResponse$json = {
+  '1': 'ListRecipesResponse',
+  '2': [
+    {'1': 'recipes', '3': 1, '4': 3, '5': 11, '6': '.fungi_daemon.RecipeSummary', '10': 'recipes'},
+  ],
+};
+
+/// Descriptor for `ListRecipesResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List listRecipesResponseDescriptor = $convert.base64Decode(
+    'ChNMaXN0UmVjaXBlc1Jlc3BvbnNlEjUKB3JlY2lwZXMYASADKAsyGy5mdW5naV9kYWVtb24uUm'
+    'VjaXBlU3VtbWFyeVIHcmVjaXBlcw==');
+
+@$core.Deprecated('Use getRecipeRequestDescriptor instead')
+const GetRecipeRequest$json = {
+  '1': 'GetRecipeRequest',
+  '2': [
+    {'1': 'recipe_id', '3': 1, '4': 1, '5': 9, '10': 'recipeId'},
+    {'1': 'refresh', '3': 2, '4': 1, '5': 8, '10': 'refresh'},
+  ],
+};
+
+/// Descriptor for `GetRecipeRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getRecipeRequestDescriptor = $convert.base64Decode(
+    'ChBHZXRSZWNpcGVSZXF1ZXN0EhsKCXJlY2lwZV9pZBgBIAEoCVIIcmVjaXBlSWQSGAoHcmVmcm'
+    'VzaBgCIAEoCFIHcmVmcmVzaA==');
+
+@$core.Deprecated('Use getRecipeResponseDescriptor instead')
+const GetRecipeResponse$json = {
+  '1': 'GetRecipeResponse',
+  '2': [
+    {'1': 'detail', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.RecipeDetail', '10': 'detail'},
+  ],
+};
+
+/// Descriptor for `GetRecipeResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getRecipeResponseDescriptor = $convert.base64Decode(
+    'ChFHZXRSZWNpcGVSZXNwb25zZRIyCgZkZXRhaWwYASABKAsyGi5mdW5naV9kYWVtb24uUmVjaX'
+    'BlRGV0YWlsUgZkZXRhaWw=');
+
+@$core.Deprecated('Use resolveRecipeRequestDescriptor instead')
+const ResolveRecipeRequest$json = {
+  '1': 'ResolveRecipeRequest',
+  '2': [
+    {'1': 'recipe_id', '3': 1, '4': 1, '5': 9, '10': 'recipeId'},
+    {'1': 'service_name', '3': 2, '4': 1, '5': 9, '10': 'serviceName'},
+    {'1': 'peer_id', '3': 3, '4': 1, '5': 9, '10': 'peerId'},
+    {'1': 'refresh', '3': 4, '4': 1, '5': 8, '10': 'refresh'},
+  ],
+};
+
+/// Descriptor for `ResolveRecipeRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List resolveRecipeRequestDescriptor = $convert.base64Decode(
+    'ChRSZXNvbHZlUmVjaXBlUmVxdWVzdBIbCglyZWNpcGVfaWQYASABKAlSCHJlY2lwZUlkEiEKDH'
+    'NlcnZpY2VfbmFtZRgCIAEoCVILc2VydmljZU5hbWUSFwoHcGVlcl9pZBgDIAEoCVIGcGVlcklk'
+    'EhgKB3JlZnJlc2gYBCABKAhSB3JlZnJlc2g=');
+
+@$core.Deprecated('Use resolveRecipeResponseDescriptor instead')
+const ResolveRecipeResponse$json = {
+  '1': 'ResolveRecipeResponse',
+  '2': [
+    {'1': 'detail', '3': 1, '4': 1, '5': 11, '6': '.fungi_daemon.RecipeDetail', '10': 'detail'},
+    {'1': 'manifest_yaml', '3': 2, '4': 1, '5': 9, '10': 'manifestYaml'},
+    {'1': 'manifest_base_dir', '3': 3, '4': 1, '5': 9, '10': 'manifestBaseDir'},
+    {'1': 'resolved_manifest_path', '3': 4, '4': 1, '5': 9, '10': 'resolvedManifestPath'},
+    {'1': 'warnings', '3': 5, '4': 3, '5': 9, '10': 'warnings'},
+  ],
+};
+
+/// Descriptor for `ResolveRecipeResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List resolveRecipeResponseDescriptor = $convert.base64Decode(
+    'ChVSZXNvbHZlUmVjaXBlUmVzcG9uc2USMgoGZGV0YWlsGAEgASgLMhouZnVuZ2lfZGFlbW9uLl'
+    'JlY2lwZURldGFpbFIGZGV0YWlsEiMKDW1hbmlmZXN0X3lhbWwYAiABKAlSDG1hbmlmZXN0WWFt'
+    'bBIqChFtYW5pZmVzdF9iYXNlX2RpchgDIAEoCVIPbWFuaWZlc3RCYXNlRGlyEjQKFnJlc29sdm'
+    'VkX21hbmlmZXN0X3BhdGgYBCABKAlSFHJlc29sdmVkTWFuaWZlc3RQYXRoEhoKCHdhcm5pbmdz'
+    'GAUgAygJUgh3YXJuaW5ncw==');
 
 @$core.Deprecated('Use listPeerCatalogRequestDescriptor instead')
 const ListPeerCatalogRequest$json = {
