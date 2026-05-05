@@ -89,6 +89,7 @@ class ExistingDaemonCheckResult {
 class FungiController extends GetxController {
   static const documentationUrl = 'https://fungi.rs/docs/intro';
   static const daemonDisabledStorageKey = 'daemon_disabled';
+  static const _recipeRequestTimeout = Duration(seconds: 20);
 
   FungiDaemonClient fungiClient;
   late final DaemonServiceManager daemonManager;
@@ -1822,6 +1823,7 @@ class FungiController extends GetxController {
   Future<List<RecipeSummary>> listServiceRecipes({bool refresh = false}) async {
     final response = await fungiClient.listRecipes(
       ListRecipesRequest()..refresh = refresh,
+      options: grpc.CallOptions(timeout: _recipeRequestTimeout),
     );
     return response.recipes;
   }
@@ -1834,6 +1836,7 @@ class FungiController extends GetxController {
       GetRecipeRequest()
         ..recipeId = recipeId
         ..refresh = refresh,
+      options: grpc.CallOptions(timeout: _recipeRequestTimeout),
     );
     if (!response.hasDetail()) {
       throw Exception('Recipe detail was missing from the daemon response');
@@ -1853,6 +1856,7 @@ class FungiController extends GetxController {
         ..serviceName = serviceName ?? ''
         ..peerId = peerId ?? ''
         ..refresh = refresh,
+      options: grpc.CallOptions(timeout: _recipeRequestTimeout),
     );
     if (!response.hasDetail()) {
       throw Exception('Recipe detail was missing from the daemon response');

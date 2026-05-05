@@ -406,11 +406,6 @@ Future<void> showCreateServiceDialog(
                                   source = _CreateServiceSource.recipe;
                                   errorMessage = '';
                                 });
-                                if (!recipesRequested) {
-                                  Future<void>.microtask(
-                                    () => loadRecipes(setState),
-                                  );
-                                }
                               },
                       ),
                     ],
