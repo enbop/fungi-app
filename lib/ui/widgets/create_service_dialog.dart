@@ -151,6 +151,7 @@ Future<void> showCreateServiceDialog(
   var loadingRecipeDetail = false;
   var errorMessage = '';
   var isSubmitting = false;
+  var dialogActive = true;
 
   Future<void> loadRecipeDetail(
     StateSetter setState,
@@ -166,7 +167,7 @@ Future<void> showCreateServiceDialog(
         recipeId: recipeId,
         refresh: refresh,
       );
-      if (!(Get.isDialogOpen ?? false)) {
+      if (!dialogActive) {
         return;
       }
       setState(() {
@@ -174,7 +175,7 @@ Future<void> showCreateServiceDialog(
         loadingRecipeDetail = false;
       });
     } catch (e) {
-      if (!(Get.isDialogOpen ?? false)) {
+      if (!dialogActive) {
         return;
       }
       setState(() {
@@ -194,7 +195,7 @@ Future<void> showCreateServiceDialog(
       final fetchedRecipes = await controller.listServiceRecipes(
         refresh: refresh,
       );
-      if (!(Get.isDialogOpen ?? false)) {
+      if (!dialogActive) {
         return;
       }
       setState(() {
@@ -213,7 +214,7 @@ Future<void> showCreateServiceDialog(
         await loadRecipeDetail(setState, recipeId, refresh: refresh);
       }
     } catch (e) {
-      if (!(Get.isDialogOpen ?? false)) {
+      if (!dialogActive) {
         return;
       }
       setState(() {
@@ -223,24 +224,116 @@ Future<void> showCreateServiceDialog(
     }
   }
 
-  await showDialog<void>(
-    context: context,
-    builder: (dialogContext) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          if (source == _CreateServiceSource.recipe && !recipesRequested) {
-            Future<void>.microtask(() => loadRecipes(setState));
-          }
+  try {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            if (source == _CreateServiceSource.recipe && !recipesRequested) {
+              Future<void>.microtask(() => loadRecipes(setState));
+            }
 
-          final isRemote = target == _CreateServiceTarget.remote;
-          final remoteUnavailable = isRemote && devices.isEmpty;
-          final isRecipe = source == _CreateServiceSource.recipe;
+            final isRemote = target == _CreateServiceTarget.remote;
+            final remoteUnavailable = isRemote && devices.isEmpty;
+            final isRecipe = source == _CreateServiceSource.recipe;
 
-          Future<void> submit() async {
-            if (isRecipe) {
-              if (selectedRecipeId == null || selectedRecipeId!.isEmpty) {
+            Future<void> submit() async {
+              if (isRecipe) {
+                if (selectedRecipeId == null || selectedRecipeId!.isEmpty) {
+                  setState(() {
+                    errorMessage = 'Choose a recipe first';
+                  });
+                  return;
+                }
+
+                if (isRemote && selectedPeerId == null) {
+                  setState(() {
+                    errorMessage = 'Choose a target device first';
+                  });
+                  return;
+                }
+
                 setState(() {
-                  errorMessage = 'Choose a recipe first';
+                  errorMessage = '';
+                  isSubmitting = true;
+                });
+
+                try {
+                  final resolved = await controller.resolveServiceRecipe(
+                    recipeId: selectedRecipeId!,
+                    serviceName: serviceNameController.text.trim().isEmpty
+                        ? null
+                        : serviceNameController.text.trim(),
+                    peerId: isRemote ? selectedPeerId : null,
+                  );
+
+                  if (!dialogContext.mounted) {
+                    return;
+                  }
+
+                  setState(() {
+                    isSubmitting = false;
+                  });
+
+                  // ignore: use_build_context_synchronously
+                  final shouldContinue = await _showRecipeWarningsDialog(
+                    dialogContext,
+                    resolved.warnings,
+                  );
+                  if (!shouldContinue) {
+                    return;
+                  }
+
+                  setState(() {
+                    isSubmitting = true;
+                  });
+
+                  final success = isRemote
+                      ? await controller.createRemoteServiceFromResolvedRecipe(
+                          peerId: selectedPeerId!,
+                          resolved: resolved,
+                        )
+                      : await controller.createLocalServiceFromResolvedRecipe(
+                          resolved,
+                        );
+
+                  if (!dialogContext.mounted) {
+                    return;
+                  }
+
+                  setState(() {
+                    isSubmitting = false;
+                  });
+
+                  if (success) {
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(dialogContext).pop();
+                  }
+                } catch (e) {
+                  if (!dialogContext.mounted) {
+                    return;
+                  }
+                  setState(() {
+                    isSubmitting = false;
+                    errorMessage = 'Failed to add recipe service: $e';
+                  });
+                }
+                return;
+              }
+
+              final manifestPath = manifestPathController.text.trim();
+              if (manifestPath.isEmpty) {
+                setState(() {
+                  errorMessage = 'Select a YAML manifest first';
+                });
+                return;
+              }
+
+              final file = File(manifestPath);
+              if (!await file.exists()) {
+                setState(() {
+                  errorMessage = 'Manifest file not found';
                 });
                 return;
               }
@@ -257,372 +350,285 @@ Future<void> showCreateServiceDialog(
                 isSubmitting = true;
               });
 
-              try {
-                final resolved = await controller.resolveServiceRecipe(
-                  recipeId: selectedRecipeId!,
-                  serviceName: serviceNameController.text.trim().isEmpty
-                      ? null
-                      : serviceNameController.text.trim(),
-                  peerId: isRemote ? selectedPeerId : null,
-                );
+              final success = isRemote
+                  ? await controller.pullRemoteServiceFromPath(
+                      peerId: selectedPeerId!,
+                      manifestPath: manifestPath,
+                    )
+                  : await controller.pullLocalServiceFromPath(manifestPath);
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setState(() {
-                  isSubmitting = false;
-                });
-
-                // ignore: use_build_context_synchronously
-                final shouldContinue = await _showRecipeWarningsDialog(
-                  dialogContext,
-                  resolved.warnings,
-                );
-                if (!shouldContinue) {
-                  return;
-                }
-
-                setState(() {
-                  isSubmitting = true;
-                });
-
-                final success = isRemote
-                    ? await controller.createRemoteServiceFromResolvedRecipe(
-                        peerId: selectedPeerId!,
-                        resolved: resolved,
-                      )
-                    : await controller.createLocalServiceFromResolvedRecipe(
-                        resolved,
-                      );
-
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setState(() {
-                  isSubmitting = false;
-                });
-
-                if (success) {
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(dialogContext).pop();
-                }
-              } catch (e) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-                setState(() {
-                  isSubmitting = false;
-                  errorMessage = 'Failed to add recipe service: $e';
-                });
+              if (!dialogContext.mounted) {
+                return;
               }
-              return;
-            }
 
-            final manifestPath = manifestPathController.text.trim();
-            if (manifestPath.isEmpty) {
               setState(() {
-                errorMessage = 'Select a YAML manifest first';
+                isSubmitting = false;
               });
-              return;
+
+              if (success) {
+                Navigator.of(dialogContext).pop();
+              }
             }
 
-            final file = File(manifestPath);
-            if (!await file.exists()) {
-              setState(() {
-                errorMessage = 'Manifest file not found';
-              });
-              return;
-            }
-
-            if (isRemote && selectedPeerId == null) {
-              setState(() {
-                errorMessage = 'Choose a target device first';
-              });
-              return;
-            }
-
-            setState(() {
-              errorMessage = '';
-              isSubmitting = true;
-            });
-
-            final success = isRemote
-                ? await controller.pullRemoteServiceFromPath(
-                    peerId: selectedPeerId!,
-                    manifestPath: manifestPath,
-                  )
-                : await controller.pullLocalServiceFromPath(manifestPath);
-
-            if (!dialogContext.mounted) {
-              return;
-            }
-
-            setState(() {
-              isSubmitting = false;
-            });
-
-            if (success) {
-              Navigator.of(dialogContext).pop();
-            }
-          }
-
-          return AlertDialog(
-            title: const Text('Add Service'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Choose whether to add a local manifest or start from an official recipe, then pick whether to create it on this device or on another saved device.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      ChoiceChip(
-                        label: const Text('Manifest'),
-                        selected: source == _CreateServiceSource.manifest,
-                        onSelected: isSubmitting
-                            ? null
-                            : (_) {
-                                setState(() {
-                                  source = _CreateServiceSource.manifest;
-                                  errorMessage = '';
-                                });
-                              },
-                      ),
-                      ChoiceChip(
-                        label: const Text('Recipe'),
-                        selected: source == _CreateServiceSource.recipe,
-                        onSelected: isSubmitting
-                            ? null
-                            : (_) {
-                                setState(() {
-                                  source = _CreateServiceSource.recipe;
-                                  errorMessage = '';
-                                });
-                              },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      ChoiceChip(
-                        label: const Text('Local'),
-                        selected: target == _CreateServiceTarget.local,
-                        onSelected: isSubmitting
-                            ? null
-                            : (_) {
-                                setState(() {
-                                  target = _CreateServiceTarget.local;
-                                  errorMessage = '';
-                                });
-                              },
-                      ),
-                      ChoiceChip(
-                        label: const Text('Remote'),
-                        selected: target == _CreateServiceTarget.remote,
-                        onSelected: isSubmitting
-                            ? null
-                            : (_) {
-                                setState(() {
-                                  target = _CreateServiceTarget.remote;
-                                  errorMessage = '';
-                                  selectedPeerId ??= devices.isNotEmpty
-                                      ? devices.first.peerId
-                                      : null;
-                                });
-                              },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  if (isRemote) ...[
-                    if (devices.isEmpty)
-                      Text(
-                        'Save a device in Devices before adding a remote service.',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      )
-                    else
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedPeerId,
-                        decoration: const InputDecoration(
-                          labelText: 'Target device',
-                        ),
-                        items: devices
-                            .map((peer) {
-                              return DropdownMenuItem<String>(
-                                value: peer.peerId,
-                                child: Text(_createServiceDeviceLabel(peer)),
-                              );
-                            })
-                            .toList(growable: false),
-                        onChanged: isSubmitting
-                            ? null
-                            : (value) {
-                                setState(() {
-                                  selectedPeerId = value;
-                                });
-                              },
-                      ),
-                    const SizedBox(height: 12),
-                  ],
-                  if (isRecipe) ...[
-                    Row(
+            return AlertDialog(
+              title: const Text('Add Service'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Choose whether to add a local manifest or start from an official recipe, then pick whether to create it on this device or on another saved device.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
                       children: [
-                        Expanded(
-                          child: Text(
-                            'Recipes come from the official daemon-backed source and resolve into a manifest before creation.',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: isSubmitting || loadingRecipes
+                        ChoiceChip(
+                          label: const Text('Manifest'),
+                          selected: source == _CreateServiceSource.manifest,
+                          onSelected: isSubmitting
                               ? null
-                              : () => loadRecipes(setState, refresh: true),
-                          child: const Text('Refresh'),
+                              : (_) {
+                                  setState(() {
+                                    source = _CreateServiceSource.manifest;
+                                    errorMessage = '';
+                                  });
+                                },
+                        ),
+                        ChoiceChip(
+                          label: const Text('Recipe'),
+                          selected: source == _CreateServiceSource.recipe,
+                          onSelected: isSubmitting
+                              ? null
+                              : (_) {
+                                  setState(() {
+                                    source = _CreateServiceSource.recipe;
+                                    errorMessage = '';
+                                  });
+                                },
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      initialValue: selectedRecipeId,
-                      decoration: const InputDecoration(labelText: 'Recipe'),
-                      items: recipes
-                          .map(
-                            (recipe) => DropdownMenuItem<String>(
-                              value: recipe.id,
-                              child: Text(
-                                '${recipe.name} (${_recipeRuntimeLabel(recipe)})',
-                              ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Local'),
+                          selected: target == _CreateServiceTarget.local,
+                          onSelected: isSubmitting
+                              ? null
+                              : (_) {
+                                  setState(() {
+                                    target = _CreateServiceTarget.local;
+                                    errorMessage = '';
+                                  });
+                                },
+                        ),
+                        ChoiceChip(
+                          label: const Text('Remote'),
+                          selected: target == _CreateServiceTarget.remote,
+                          onSelected: isSubmitting
+                              ? null
+                              : (_) {
+                                  setState(() {
+                                    target = _CreateServiceTarget.remote;
+                                    errorMessage = '';
+                                    selectedPeerId ??= devices.isNotEmpty
+                                        ? devices.first.peerId
+                                        : null;
+                                  });
+                                },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (isRemote) ...[
+                      if (devices.isEmpty)
+                        Text(
+                          'Save a device in Devices before adding a remote service.',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        )
+                      else
+                        DropdownButtonFormField<String>(
+                          initialValue: selectedPeerId,
+                          decoration: const InputDecoration(
+                            labelText: 'Target device',
+                          ),
+                          items: devices
+                              .map((peer) {
+                                return DropdownMenuItem<String>(
+                                  value: peer.peerId,
+                                  child: Text(_createServiceDeviceLabel(peer)),
+                                );
+                              })
+                              .toList(growable: false),
+                          onChanged: isSubmitting
+                              ? null
+                              : (value) {
+                                  setState(() {
+                                    selectedPeerId = value;
+                                  });
+                                },
+                        ),
+                      const SizedBox(height: 12),
+                    ],
+                    if (isRecipe) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Recipes come from the official daemon-backed source and resolve into a manifest before creation.',
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
-                          )
-                          .toList(growable: false),
-                      onChanged: isSubmitting || loadingRecipes
-                          ? null
-                          : (value) {
-                              if (value == null || value == selectedRecipeId) {
-                                return;
-                              }
-                              setState(() {
-                                selectedRecipeId = value;
-                                selectedRecipeDetail = null;
-                                errorMessage = '';
-                              });
-                              Future<void>.microtask(
-                                () => loadRecipeDetail(setState, value),
-                              );
-                            },
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: serviceNameController,
-                      enabled: !isSubmitting,
-                      decoration: const InputDecoration(
-                        labelText: 'Service name',
-                        hintText: 'Leave blank to use the recipe ID',
+                          ),
+                          TextButton(
+                            onPressed: isSubmitting || loadingRecipes
+                                ? null
+                                : () => loadRecipes(setState, refresh: true),
+                            child: const Text('Refresh'),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (loadingRecipes || loadingRecipeDetail)
-                      const Center(child: CircularProgressIndicator())
-                    else if (selectedRecipeDetail != null)
-                      _buildRecipeDetailCard(context, selectedRecipeDetail!)
-                    else if (recipesRequested && recipes.isEmpty)
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedRecipeId,
+                        decoration: const InputDecoration(labelText: 'Recipe'),
+                        items: recipes
+                            .map(
+                              (recipe) => DropdownMenuItem<String>(
+                                value: recipe.id,
+                                child: Text(
+                                  '${recipe.name} (${_recipeRuntimeLabel(recipe)})',
+                                ),
+                              ),
+                            )
+                            .toList(growable: false),
+                        onChanged: isSubmitting || loadingRecipes
+                            ? null
+                            : (value) {
+                                if (value == null ||
+                                    value == selectedRecipeId) {
+                                  return;
+                                }
+                                setState(() {
+                                  selectedRecipeId = value;
+                                  selectedRecipeDetail = null;
+                                  errorMessage = '';
+                                });
+                                Future<void>.microtask(
+                                  () => loadRecipeDetail(setState, value),
+                                );
+                              },
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: serviceNameController,
+                        enabled: !isSubmitting,
+                        decoration: const InputDecoration(
+                          labelText: 'Service name',
+                          hintText: 'Leave blank to use the recipe ID',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (loadingRecipes || loadingRecipeDetail)
+                        const Center(child: CircularProgressIndicator())
+                      else if (selectedRecipeDetail != null)
+                        _buildRecipeDetailCard(context, selectedRecipeDetail!)
+                      else if (recipesRequested && recipes.isEmpty)
+                        Text(
+                          'No recipes are currently available.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                    ] else ...[
+                      TextField(
+                        controller: manifestPathController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Service manifest',
+                          hintText: 'Select a YAML file',
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: isSubmitting
+                            ? null
+                            : () async {
+                                final result = await FilePicker.platform
+                                    .pickFiles(
+                                      type: FileType.custom,
+                                      allowedExtensions: const ['yaml', 'yml'],
+                                      lockParentWindow: true,
+                                    );
+                                final path = result?.files.single.path;
+                                if (path == null || path.isEmpty) {
+                                  return;
+                                }
+                                setState(() {
+                                  manifestPathController.text = path;
+                                  errorMessage = '';
+                                });
+                              },
+                        icon: const Icon(Icons.upload_file),
+                        label: const Text('Choose YAML'),
+                      ),
+                    ],
+                    if (errorMessage.isNotEmpty) ...[
+                      const SizedBox(height: 12),
                       Text(
-                        'No recipes are currently available.',
+                        errorMessage,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                    if (remoteUnavailable) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Remote add stays available here, but it needs a saved device first.',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                  ] else ...[
-                    TextField(
-                      controller: manifestPathController,
-                      readOnly: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Service manifest',
-                        hintText: 'Select a YAML file',
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton.icon(
-                      onPressed: isSubmitting
-                          ? null
-                          : () async {
-                              final result = await FilePicker.platform
-                                  .pickFiles(
-                                    type: FileType.custom,
-                                    allowedExtensions: const ['yaml', 'yml'],
-                                    lockParentWindow: true,
-                                  );
-                              final path = result?.files.single.path;
-                              if (path == null || path.isEmpty) {
-                                return;
-                              }
-                              setState(() {
-                                manifestPathController.text = path;
-                                errorMessage = '';
-                              });
-                            },
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text('Choose YAML'),
-                    ),
+                    ],
                   ],
-                  if (errorMessage.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      errorMessage,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ],
-                  if (remoteUnavailable) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      'Remote add stays available here, but it needs a saved device first.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: isSubmitting
-                    ? null
-                    : () => Navigator.of(dialogContext).pop(),
-                child: const Text('Cancel'),
-              ),
-              FilledButton.icon(
-                onPressed: isSubmitting || remoteUnavailable ? null : submit,
-                icon: isSubmitting
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(isRecipe ? Icons.auto_awesome : Icons.add_circle),
-                label: Text(
-                  isRemote
-                      ? (isRecipe ? 'Create on Device' : 'Add to Device')
-                      : (isRecipe
-                            ? 'Create on This Device'
-                            : 'Add to This Device'),
                 ),
               ),
-            ],
-          );
-        },
-      );
-    },
-  );
+              actions: [
+                TextButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton.icon(
+                  onPressed: isSubmitting || remoteUnavailable ? null : submit,
+                  icon: isSubmitting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(isRecipe ? Icons.auto_awesome : Icons.add_circle),
+                  label: Text(
+                    isRemote
+                        ? (isRecipe ? 'Create on Device' : 'Add to Device')
+                        : (isRecipe
+                              ? 'Create on This Device'
+                              : 'Add to This Device'),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  } finally {
+    dialogActive = false;
+  }
 }
