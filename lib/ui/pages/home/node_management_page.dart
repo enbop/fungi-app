@@ -530,17 +530,29 @@ class _ManagedServicesCompactList extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                alignment: WrapAlignment.end,
-                children: [
-                  ServiceStatusBadge(
-                    label: service.running ? 'Running' : service.state,
-                    active: service.running,
-                  ),
-                  ServicePillLabel(label: service.runtime),
-                ],
+              SizedBox(
+                width: 176,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 86,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ServiceStatusBadge(
+                          label: service.running ? 'Running' : service.state,
+                          active: service.running,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ServicePillLabel(label: service.runtime),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
