@@ -284,8 +284,8 @@ class HomePage extends StatelessWidget {
                       color: tabBarColor,
                       child: TabBar(
                         tabs: const <Widget>[
-                          Tab(text: "Home", height: 30),
-                          Tab(text: "Peers", height: 30),
+                          Tab(text: "Services", height: 30),
+                          Tab(text: "Devices", height: 30),
                           Tab(text: "Local", height: 30),
                           Tab(text: "Settings", height: 30),
                         ],

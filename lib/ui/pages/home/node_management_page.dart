@@ -2,12 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
+import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:fungi_app/ui/widgets/node_management_dialogs.dart';
 import 'package:fungi_app/ui/widgets/service_management_widgets.dart';
-import 'package:fungi_app/ui/widgets/text.dart';
+import 'package:fungi_app/ui/widgets/ui_primitives.dart';
 import 'package:get/get.dart';
+
+String _deviceDisplayName(DeviceInfo peer) {
+  return peer.name.isNotEmpty
+      ? peer.name
+      : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId);
+}
+
+String _remoteServiceReference(DeviceInfo peer, LocalServiceView service) {
+  final serviceName = service.name.trim();
+  if (serviceName.isEmpty) {
+    return _deviceDisplayName(peer);
+  }
+
+  if (serviceName.contains('@')) {
+    return serviceName;
+  }
+
+  return '$serviceName@${_deviceDisplayName(peer)}';
+}
 
 class NodeManagementPage extends StatefulWidget {
   const NodeManagementPage({super.key});
@@ -46,18 +66,23 @@ class _NodeManagementPageState extends State<NodeManagementPage>
                 child: Row(
                   children: [
                     Text(
-                      'Peers',
+                      'Devices',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(width: 6),
                     const HelpTooltip(
-                      title: 'Peers',
+                      title: 'Devices',
                       message:
-                          'Shows peers from the address book, their connection state, and manage their services.',
+                          'Shows your saved devices and lets you manage the services running on them.',
                     ),
                   ],
                 ),
               ),
+              InlineAddButton(
+                onPressed: () => showNodeEditorDialog(),
+                label: 'Add',
+              ),
+              const SizedBox(width: 4),
               IconButton(
                 onPressed: controller.nodeManagementLoading.value
                     ? null
@@ -66,15 +91,6 @@ class _NodeManagementPageState extends State<NodeManagementPage>
                 tooltip: 'Refresh',
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => showNodeEditorDialog(),
-              icon: const Icon(Icons.add_circle),
-              label: const Text('Add Peer'),
-            ),
           ),
           const SizedBox(height: 16),
           if (controller.nodeManagementLoading.value && peers.isEmpty)
@@ -117,7 +133,7 @@ class _PeerCard extends GetView<FungiController> {
     required this.onExpansionChanged,
   });
 
-  final PeerInfo peer;
+  final DeviceInfo peer;
   final bool expanded;
   final ValueChanged<bool> onExpansionChanged;
 
@@ -129,9 +145,7 @@ class _PeerCard extends GetView<FungiController> {
       final isRefreshing = controller.isPeerManagedServicesLoading(peer.peerId);
       final refreshError = controller.peerManagedServicesError(peer.peerId);
       final latency = controller.bestLatencyForPeer(peer.peerId);
-      final title = peer.alias.isNotEmpty
-          ? peer.alias
-          : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId);
+      final title = _deviceDisplayName(peer);
 
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -146,12 +160,26 @@ class _PeerCard extends GetView<FungiController> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 IconButton(
-                  tooltip: 'Edit peer',
+                  tooltip: 'Device details',
+                  onPressed: () => showModalBottomSheet<void>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => _DeviceDetailsSheet(
+                      peer: peer,
+                      connections: connections,
+                      latency: latency,
+                      refreshError: refreshError,
+                    ),
+                  ),
+                  icon: const Icon(Icons.info_outline),
+                ),
+                IconButton(
+                  tooltip: 'Edit device',
                   onPressed: () => showNodeEditorDialog(initialPeer: peer),
                   icon: const Icon(Icons.edit_outlined),
                 ),
                 IconButton(
-                  tooltip: 'Refresh peer',
+                  tooltip: 'Refresh device',
                   onPressed: isRefreshing
                       ? null
                       : () => controller.refreshPeerManagedServicesData(
@@ -171,7 +199,11 @@ class _PeerCard extends GetView<FungiController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 4),
-                TruncatedId(id: peer.peerId),
+                if (peer.hostname.isNotEmpty && peer.hostname != title)
+                  Text(
+                    peer.hostname,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 8,
@@ -179,26 +211,17 @@ class _PeerCard extends GetView<FungiController> {
                   alignment: WrapAlignment.start,
                   runAlignment: WrapAlignment.start,
                   children: [
-                    Chip(
-                      label: Text(
-                        connections.isEmpty ? 'offline' : 'connected',
-                      ),
+                    ServiceStatusBadge(
+                      label: connections.isEmpty ? 'Offline' : 'Connected',
+                      active: connections.isNotEmpty,
                     ),
-                    Chip(label: Text('${connections.length} connections')),
-                    Chip(label: Text('${managedServices.length} services')),
-                    if (latency != null) Chip(label: Text('$latency ms')),
-                    if (isRefreshing) const Chip(label: Text('refreshing')),
+                    ServicePillLabel(
+                      label: '${managedServices.length} services',
+                    ),
+                    if (isRefreshing)
+                      const ServicePillLabel(label: 'Refreshing'),
                     if (refreshError.isNotEmpty)
-                      Chip(
-                        avatar: const Icon(Icons.error_outline, size: 18),
-                        label: const Text('refresh failed'),
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.errorContainer,
-                        labelStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onErrorContainer,
-                        ),
-                      ),
+                      const AttentionBadge(label: 'Needs attention'),
                   ],
                 ),
               ],
@@ -209,29 +232,10 @@ class _PeerCard extends GetView<FungiController> {
                 const LinearProgressIndicator(),
                 const SizedBox(height: 12),
               ],
-              if (refreshError.isNotEmpty) ...[
-                _PeerRefreshError(message: refreshError),
+              if (refreshError.isNotEmpty && managedServices.isEmpty) ...[
+                const _DeviceRefreshNotice(),
                 const SizedBox(height: 12),
               ],
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.start,
-                  runAlignment: WrapAlignment.start,
-                  children: [
-                    if (peer.hostname.isNotEmpty)
-                      Chip(label: Text(peer.hostname)),
-                    if (peer.os.isNotEmpty) Chip(label: Text(peer.os)),
-                    if (peer.version.isNotEmpty)
-                      Chip(label: Text('v${peer.version}')),
-                    if (peer.publicIp.isNotEmpty)
-                      Chip(label: Text(peer.publicIp)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -243,10 +247,10 @@ class _PeerCard extends GetView<FungiController> {
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: () => showRemoteServicePullDialog(peer: peer),
-                  icon: const Icon(Icons.add_circle),
-                  label: const Text('Add Service'),
+                child: InlineAddButton(
+                  onPressed: () =>
+                      showCreateServiceDialog(context, initialPeer: peer),
+                  label: 'Add Service',
                 ),
               ),
               if (managedServices.isNotEmpty) ...[
@@ -260,56 +264,7 @@ class _PeerCard extends GetView<FungiController> {
               ] else ...[
                 const SizedBox(height: 8),
                 const ManagementEmptyStateCard(
-                  message: 'No managed services on this peer yet.',
-                ),
-              ],
-              if (connections.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                const ManagementSectionTitle(title: 'Connections'),
-                ...connections.map(
-                  (connection) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: ManagementItemCard(
-                      borderRadius: 10,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.start,
-                              runAlignment: WrapAlignment.start,
-                              children: [
-                                Chip(label: Text(connection.direction)),
-                                Chip(
-                                  label: Text(
-                                    connection.isRelay ? 'relay' : 'direct',
-                                  ),
-                                ),
-                                if (connection.hasLastRttMs())
-                                  Chip(
-                                    label: Text('${connection.lastRttMs} ms'),
-                                  ),
-                                if (connection.activeStreamsTotal > 0)
-                                  Chip(
-                                    label: Text(
-                                      '${connection.activeStreamsTotal} streams',
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            connection.remoteAddr,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  message: 'No managed services on this device yet.',
                 ),
               ],
             ],
@@ -320,10 +275,8 @@ class _PeerCard extends GetView<FungiController> {
   }
 }
 
-class _PeerRefreshError extends StatelessWidget {
-  const _PeerRefreshError({required this.message});
-
-  final String message;
+class _DeviceRefreshNotice extends StatelessWidget {
+  const _DeviceRefreshNotice();
 
   @override
   Widget build(BuildContext context) {
@@ -337,10 +290,187 @@ class _PeerRefreshError extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        message,
+        'Services could not be refreshed. Open Details for diagnostic information.',
         style: Theme.of(
           context,
         ).textTheme.bodySmall?.copyWith(color: colorScheme.onErrorContainer),
+      ),
+    );
+  }
+}
+
+class _DeviceDetailsSheet extends StatelessWidget {
+  const _DeviceDetailsSheet({
+    required this.peer,
+    required this.connections,
+    required this.latency,
+    required this.refreshError,
+  });
+
+  final DeviceInfo peer;
+  final List<ConnectionSnapshot> connections;
+  final int? latency;
+  final String refreshError;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = _deviceDisplayName(peer);
+
+    return SafeArea(
+      child: FractionallySizedBox(
+        heightFactor: 0.85,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 4),
+              Text(
+                'Device details',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView(
+                  children: [
+                    _DeviceDetailRow(label: 'Device ID', value: peer.peerId),
+                    if (peer.hostname.isNotEmpty)
+                      _DeviceDetailRow(label: 'Hostname', value: peer.hostname),
+                    if (peer.os.isNotEmpty)
+                      _DeviceDetailRow(label: 'OS', value: peer.os),
+                    if (peer.version.isNotEmpty)
+                      _DeviceDetailRow(label: 'Version', value: peer.version),
+                    if (peer.publicIp.isNotEmpty)
+                      _DeviceDetailRow(
+                        label: 'Public IP',
+                        value: peer.publicIp,
+                      ),
+                    if (peer.privateIps.isNotEmpty)
+                      _DeviceDetailRow(
+                        label: 'Private IPs',
+                        value: peer.privateIps.join(', '),
+                      ),
+                    _DeviceDetailRow(
+                      label: 'Connection State',
+                      value: connections.isEmpty ? 'Offline' : 'Connected',
+                    ),
+                    _DeviceDetailRow(
+                      label: 'Connections',
+                      value: '${connections.length}',
+                    ),
+                    if (latency != null)
+                      _DeviceDetailRow(
+                        label: 'Best Latency',
+                        value: '$latency ms',
+                      ),
+                    if (peer.multiaddrs.isNotEmpty)
+                      _DeviceDetailRow(
+                        label: 'Multiaddrs',
+                        value: peer.multiaddrs.join('\n'),
+                      ),
+                    if (refreshError.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Last Refresh Error',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.errorContainer,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: SelectableText(
+                          refreshError,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onErrorContainer,
+                              ),
+                        ),
+                      ),
+                    ],
+                    if (connections.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Connections',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      ...connections.map(
+                        (connection) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: ManagementItemCard(
+                            borderRadius: 10,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    ServicePillLabel(
+                                      label: connection.direction,
+                                    ),
+                                    ServicePillLabel(
+                                      label: connection.isRelay
+                                          ? 'Relay'
+                                          : 'Direct',
+                                    ),
+                                    if (connection.hasLastRttMs())
+                                      ServicePillLabel(
+                                        label: '${connection.lastRttMs} ms',
+                                      ),
+                                    if (connection.activeStreamsTotal > 0)
+                                      ServicePillLabel(
+                                        label:
+                                            '${connection.activeStreamsTotal} streams',
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                SelectableText(
+                                  connection.remoteAddr,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DeviceDetailRow extends StatelessWidget {
+  const _DeviceDetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 4),
+          SelectableText(value, style: Theme.of(context).textTheme.bodyMedium),
+        ],
       ),
     );
   }
@@ -358,12 +488,12 @@ class _NodeEmptyState extends GetView<FungiController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'No known peers yet.',
+              'No known devices yet.',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 6),
             Text(
-              'Add a peer manually or discover one with mDNS. Once a peer is saved, you can inspect its services and try adding a service manifest to it.',
+              'Add a device manually or discover one with mDNS. Once a device is saved, you can manage the services running on it.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 14),
@@ -374,7 +504,7 @@ class _NodeEmptyState extends GetView<FungiController> {
                 FilledButton.icon(
                   onPressed: () => showNodeEditorDialog(),
                   icon: const Icon(Icons.add_link),
-                  label: const Text('Add Peer'),
+                  label: const Text('Add Device'),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => showNodeEditorDialog(),
@@ -393,12 +523,13 @@ class _NodeEmptyState extends GetView<FungiController> {
 class _RemoteServiceCard extends GetView<FungiController> {
   const _RemoteServiceCard({required this.peer, required this.service});
 
-  final PeerInfo peer;
+  final DeviceInfo peer;
   final LocalServiceView service;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      final serviceReference = _remoteServiceReference(peer, service);
       final actionKey = controller.remoteServiceActionKey(
         peer.peerId,
         service.name,
@@ -411,7 +542,10 @@ class _RemoteServiceCard extends GetView<FungiController> {
         header: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(service.name, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              serviceReference,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             if (service.source.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
@@ -422,10 +556,9 @@ class _RemoteServiceCard extends GetView<FungiController> {
           ],
         ),
         badges: [
+          const ServicePillLabel(label: 'Remote'),
           ServiceStatusBadge(label: service.state, active: service.running),
           ServicePillLabel(label: service.runtime),
-          if (service.id.isNotEmpty && service.id != service.name)
-            ServicePillLabel(label: 'ID ${service.id}'),
           ServicePillLabel(label: '${service.localEndpoints.length} endpoints'),
         ],
         sections: [

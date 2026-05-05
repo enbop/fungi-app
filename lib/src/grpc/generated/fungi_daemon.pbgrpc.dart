@@ -37,17 +37,17 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/Hostname',
       ($0.Empty value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.HostnameResponse.fromBuffer(value));
-  static final _$getIncomingAllowedPeers = $grpc.ClientMethod<$0.Empty, $0.IncomingAllowedPeersListResponse>(
-      '/fungi_daemon.FungiDaemon/GetIncomingAllowedPeers',
+  static final _$listTrustedDevices = $grpc.ClientMethod<$0.Empty, $0.TrustedDevicesListResponse>(
+      '/fungi_daemon.FungiDaemon/ListTrustedDevices',
       ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.IncomingAllowedPeersListResponse.fromBuffer(value));
-  static final _$addIncomingAllowedPeer = $grpc.ClientMethod<$0.AddIncomingAllowedPeerRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/AddIncomingAllowedPeer',
-      ($0.AddIncomingAllowedPeerRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.TrustedDevicesListResponse.fromBuffer(value));
+  static final _$trustDevice = $grpc.ClientMethod<$0.TrustDeviceRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/TrustDevice',
+      ($0.TrustDeviceRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$removeIncomingAllowedPeer = $grpc.ClientMethod<$0.RemoveIncomingAllowedPeerRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveIncomingAllowedPeer',
-      ($0.RemoveIncomingAllowedPeerRequest value) => value.writeToBuffer(),
+  static final _$untrustDevice = $grpc.ClientMethod<$0.UntrustDeviceRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/UntrustDevice',
+      ($0.UntrustDeviceRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
   static final _$getRelayConfig = $grpc.ClientMethod<$0.Empty, $0.RelayConfigResponse>(
       '/fungi_daemon.FungiDaemon/GetRelayConfig',
@@ -84,22 +84,6 @@ class FungiDaemonClient extends $grpc.Client {
   static final _$removeRuntimeAllowedHostPath = $grpc.ClientMethod<$0.RuntimeAllowedHostPathRequest, $0.Empty>(
       '/fungi_daemon.FungiDaemon/RemoveRuntimeAllowedHostPath',
       ($0.RuntimeAllowedHostPathRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$addRuntimeAllowedPort = $grpc.ClientMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/AddRuntimeAllowedPort',
-      ($0.RuntimeAllowedPortRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$removeRuntimeAllowedPort = $grpc.ClientMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveRuntimeAllowedPort',
-      ($0.RuntimeAllowedPortRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$addRuntimeAllowedPortRange = $grpc.ClientMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/AddRuntimeAllowedPortRange',
-      ($0.RuntimeAllowedPortRangeRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$removeRuntimeAllowedPortRange = $grpc.ClientMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveRuntimeAllowedPortRange',
-      ($0.RuntimeAllowedPortRangeRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
   static final _$getFileTransferServiceEnabled = $grpc.ClientMethod<$0.Empty, $0.FileTransferServiceEnabledResponse>(
       '/fungi_daemon.FungiDaemon/GetFileTransferServiceEnabled',
@@ -169,25 +153,25 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/RemoveTcpListeningRule',
       ($0.RemoveTcpListeningRuleRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$listMdnsDevices = $grpc.ClientMethod<$0.Empty, $0.PeerInfoListResponse>(
+  static final _$listMdnsDevices = $grpc.ClientMethod<$0.Empty, $0.DeviceInfoListResponse>(
       '/fungi_daemon.FungiDaemon/ListMdnsDevices',
       ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.PeerInfoListResponse.fromBuffer(value));
-  static final _$listAddressBookPeers = $grpc.ClientMethod<$0.Empty, $0.PeerInfoListResponse>(
-      '/fungi_daemon.FungiDaemon/ListAddressBookPeers',
+      ($core.List<$core.int> value) => $0.DeviceInfoListResponse.fromBuffer(value));
+  static final _$listDevices = $grpc.ClientMethod<$0.Empty, $0.DeviceInfoListResponse>(
+      '/fungi_daemon.FungiDaemon/ListDevices',
       ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.PeerInfoListResponse.fromBuffer(value));
-  static final _$updateAddressBookPeer = $grpc.ClientMethod<$0.UpdateAddressBookPeerRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/UpdateAddressBookPeer',
-      ($0.UpdateAddressBookPeerRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DeviceInfoListResponse.fromBuffer(value));
+  static final _$updateDevice = $grpc.ClientMethod<$0.UpdateDeviceRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/UpdateDevice',
+      ($0.UpdateDeviceRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$getAddressBookPeer = $grpc.ClientMethod<$0.GetAddressBookPeerRequest, $0.PeerInfoResponse>(
-      '/fungi_daemon.FungiDaemon/GetAddressBookPeer',
-      ($0.GetAddressBookPeerRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.PeerInfoResponse.fromBuffer(value));
-  static final _$removeAddressBookPeer = $grpc.ClientMethod<$0.RemoveAddressBookPeerRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveAddressBookPeer',
-      ($0.RemoveAddressBookPeerRequest value) => value.writeToBuffer(),
+  static final _$getDevice = $grpc.ClientMethod<$0.GetDeviceRequest, $0.DeviceInfoResponse>(
+      '/fungi_daemon.FungiDaemon/GetDevice',
+      ($0.GetDeviceRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DeviceInfoResponse.fromBuffer(value));
+  static final _$removeDevice = $grpc.ClientMethod<$0.RemoveDeviceRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/RemoveDevice',
+      ($0.RemoveDeviceRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
   static final _$pingPeer = $grpc.ClientMethod<$0.PingPeerRequest, $0.PingPeerEvent>(
       '/fungi_daemon.FungiDaemon/PingPeer',
@@ -304,16 +288,16 @@ class FungiDaemonClient extends $grpc.Client {
     return $createUnaryCall(_$hostname, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.IncomingAllowedPeersListResponse> getIncomingAllowedPeers($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getIncomingAllowedPeers, request, options: options);
+  $grpc.ResponseFuture<$0.TrustedDevicesListResponse> listTrustedDevices($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listTrustedDevices, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.Empty> addIncomingAllowedPeer($0.AddIncomingAllowedPeerRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$addIncomingAllowedPeer, request, options: options);
+  $grpc.ResponseFuture<$0.Empty> trustDevice($0.TrustDeviceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$trustDevice, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.Empty> removeIncomingAllowedPeer($0.RemoveIncomingAllowedPeerRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeIncomingAllowedPeer, request, options: options);
+  $grpc.ResponseFuture<$0.Empty> untrustDevice($0.UntrustDeviceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$untrustDevice, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.RelayConfigResponse> getRelayConfig($0.Empty request, {$grpc.CallOptions? options}) {
@@ -350,22 +334,6 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.Empty> removeRuntimeAllowedHostPath($0.RuntimeAllowedHostPathRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$removeRuntimeAllowedHostPath, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> addRuntimeAllowedPort($0.RuntimeAllowedPortRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$addRuntimeAllowedPort, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> removeRuntimeAllowedPort($0.RuntimeAllowedPortRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeRuntimeAllowedPort, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> addRuntimeAllowedPortRange($0.RuntimeAllowedPortRangeRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$addRuntimeAllowedPortRange, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> removeRuntimeAllowedPortRange($0.RuntimeAllowedPortRangeRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeRuntimeAllowedPortRange, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled($0.Empty request, {$grpc.CallOptions? options}) {
@@ -436,24 +404,24 @@ class FungiDaemonClient extends $grpc.Client {
     return $createUnaryCall(_$removeTcpListeningRule, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.PeerInfoListResponse> listMdnsDevices($0.Empty request, {$grpc.CallOptions? options}) {
+  $grpc.ResponseFuture<$0.DeviceInfoListResponse> listMdnsDevices($0.Empty request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$listMdnsDevices, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.PeerInfoListResponse> listAddressBookPeers($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$listAddressBookPeers, request, options: options);
+  $grpc.ResponseFuture<$0.DeviceInfoListResponse> listDevices($0.Empty request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listDevices, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.Empty> updateAddressBookPeer($0.UpdateAddressBookPeerRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$updateAddressBookPeer, request, options: options);
+  $grpc.ResponseFuture<$0.Empty> updateDevice($0.UpdateDeviceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateDevice, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.PeerInfoResponse> getAddressBookPeer($0.GetAddressBookPeerRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getAddressBookPeer, request, options: options);
+  $grpc.ResponseFuture<$0.DeviceInfoResponse> getDevice($0.GetDeviceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getDevice, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.Empty> removeAddressBookPeer($0.RemoveAddressBookPeerRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeAddressBookPeer, request, options: options);
+  $grpc.ResponseFuture<$0.Empty> removeDevice($0.RemoveDeviceRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$removeDevice, request, options: options);
   }
 
   $grpc.ResponseStream<$0.PingPeerEvent> pingPeer($0.PingPeerRequest request, {$grpc.CallOptions? options}) {
@@ -582,26 +550,26 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
         ($0.HostnameResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.IncomingAllowedPeersListResponse>(
-        'GetIncomingAllowedPeers',
-        getIncomingAllowedPeers_Pre,
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.TrustedDevicesListResponse>(
+        'ListTrustedDevices',
+        listTrustedDevices_Pre,
         false,
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.IncomingAllowedPeersListResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.AddIncomingAllowedPeerRequest, $0.Empty>(
-        'AddIncomingAllowedPeer',
-        addIncomingAllowedPeer_Pre,
+        ($0.TrustedDevicesListResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.TrustDeviceRequest, $0.Empty>(
+        'TrustDevice',
+        trustDevice_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.AddIncomingAllowedPeerRequest.fromBuffer(value),
+        ($core.List<$core.int> value) => $0.TrustDeviceRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RemoveIncomingAllowedPeerRequest, $0.Empty>(
-        'RemoveIncomingAllowedPeer',
-        removeIncomingAllowedPeer_Pre,
+    $addMethod($grpc.ServiceMethod<$0.UntrustDeviceRequest, $0.Empty>(
+        'UntrustDevice',
+        untrustDevice_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.RemoveIncomingAllowedPeerRequest.fromBuffer(value),
+        ($core.List<$core.int> value) => $0.UntrustDeviceRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Empty, $0.RelayConfigResponse>(
         'GetRelayConfig',
@@ -665,34 +633,6 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         false,
         ($core.List<$core.int> value) => $0.RuntimeAllowedHostPathRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
-        'AddRuntimeAllowedPort',
-        addRuntimeAllowedPort_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRequest, $0.Empty>(
-        'RemoveRuntimeAllowedPort',
-        removeRuntimeAllowedPort_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
-        'AddRuntimeAllowedPortRange',
-        addRuntimeAllowedPortRange_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRangeRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RuntimeAllowedPortRangeRequest, $0.Empty>(
-        'RemoveRuntimeAllowedPortRange',
-        removeRuntimeAllowedPortRange_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.RuntimeAllowedPortRangeRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Empty, $0.FileTransferServiceEnabledResponse>(
         'GetFileTransferServiceEnabled',
@@ -813,40 +753,40 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.RemoveTcpListeningRuleRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.PeerInfoListResponse>(
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.DeviceInfoListResponse>(
         'ListMdnsDevices',
         listMdnsDevices_Pre,
         false,
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.PeerInfoListResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.PeerInfoListResponse>(
-        'ListAddressBookPeers',
-        listAddressBookPeers_Pre,
+        ($0.DeviceInfoListResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.Empty, $0.DeviceInfoListResponse>(
+        'ListDevices',
+        listDevices_Pre,
         false,
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.PeerInfoListResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.UpdateAddressBookPeerRequest, $0.Empty>(
-        'UpdateAddressBookPeer',
-        updateAddressBookPeer_Pre,
+        ($0.DeviceInfoListResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.UpdateDeviceRequest, $0.Empty>(
+        'UpdateDevice',
+        updateDevice_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.UpdateAddressBookPeerRequest.fromBuffer(value),
+        ($core.List<$core.int> value) => $0.UpdateDeviceRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.GetAddressBookPeerRequest, $0.PeerInfoResponse>(
-        'GetAddressBookPeer',
-        getAddressBookPeer_Pre,
+    $addMethod($grpc.ServiceMethod<$0.GetDeviceRequest, $0.DeviceInfoResponse>(
+        'GetDevice',
+        getDevice_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.GetAddressBookPeerRequest.fromBuffer(value),
-        ($0.PeerInfoResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RemoveAddressBookPeerRequest, $0.Empty>(
-        'RemoveAddressBookPeer',
-        removeAddressBookPeer_Pre,
+        ($core.List<$core.int> value) => $0.GetDeviceRequest.fromBuffer(value),
+        ($0.DeviceInfoResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RemoveDeviceRequest, $0.Empty>(
+        'RemoveDevice',
+        removeDevice_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.RemoveAddressBookPeerRequest.fromBuffer(value),
+        ($core.List<$core.int> value) => $0.RemoveDeviceRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.PingPeerRequest, $0.PingPeerEvent>(
         'PingPeer',
@@ -1027,16 +967,16 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return hostname(call, await request);
   }
 
-  $async.Future<$0.IncomingAllowedPeersListResponse> getIncomingAllowedPeers_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getIncomingAllowedPeers(call, await request);
+  $async.Future<$0.TrustedDevicesListResponse> listTrustedDevices_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return listTrustedDevices(call, await request);
   }
 
-  $async.Future<$0.Empty> addIncomingAllowedPeer_Pre($grpc.ServiceCall call, $async.Future<$0.AddIncomingAllowedPeerRequest> request) async {
-    return addIncomingAllowedPeer(call, await request);
+  $async.Future<$0.Empty> trustDevice_Pre($grpc.ServiceCall call, $async.Future<$0.TrustDeviceRequest> request) async {
+    return trustDevice(call, await request);
   }
 
-  $async.Future<$0.Empty> removeIncomingAllowedPeer_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveIncomingAllowedPeerRequest> request) async {
-    return removeIncomingAllowedPeer(call, await request);
+  $async.Future<$0.Empty> untrustDevice_Pre($grpc.ServiceCall call, $async.Future<$0.UntrustDeviceRequest> request) async {
+    return untrustDevice(call, await request);
   }
 
   $async.Future<$0.RelayConfigResponse> getRelayConfig_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
@@ -1073,22 +1013,6 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
 
   $async.Future<$0.Empty> removeRuntimeAllowedHostPath_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedHostPathRequest> request) async {
     return removeRuntimeAllowedHostPath(call, await request);
-  }
-
-  $async.Future<$0.Empty> addRuntimeAllowedPort_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRequest> request) async {
-    return addRuntimeAllowedPort(call, await request);
-  }
-
-  $async.Future<$0.Empty> removeRuntimeAllowedPort_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRequest> request) async {
-    return removeRuntimeAllowedPort(call, await request);
-  }
-
-  $async.Future<$0.Empty> addRuntimeAllowedPortRange_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRangeRequest> request) async {
-    return addRuntimeAllowedPortRange(call, await request);
-  }
-
-  $async.Future<$0.Empty> removeRuntimeAllowedPortRange_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedPortRangeRequest> request) async {
-    return removeRuntimeAllowedPortRange(call, await request);
   }
 
   $async.Future<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
@@ -1159,24 +1083,24 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return removeTcpListeningRule(call, await request);
   }
 
-  $async.Future<$0.PeerInfoListResponse> listMdnsDevices_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+  $async.Future<$0.DeviceInfoListResponse> listMdnsDevices_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
     return listMdnsDevices(call, await request);
   }
 
-  $async.Future<$0.PeerInfoListResponse> listAddressBookPeers_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return listAddressBookPeers(call, await request);
+  $async.Future<$0.DeviceInfoListResponse> listDevices_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
+    return listDevices(call, await request);
   }
 
-  $async.Future<$0.Empty> updateAddressBookPeer_Pre($grpc.ServiceCall call, $async.Future<$0.UpdateAddressBookPeerRequest> request) async {
-    return updateAddressBookPeer(call, await request);
+  $async.Future<$0.Empty> updateDevice_Pre($grpc.ServiceCall call, $async.Future<$0.UpdateDeviceRequest> request) async {
+    return updateDevice(call, await request);
   }
 
-  $async.Future<$0.PeerInfoResponse> getAddressBookPeer_Pre($grpc.ServiceCall call, $async.Future<$0.GetAddressBookPeerRequest> request) async {
-    return getAddressBookPeer(call, await request);
+  $async.Future<$0.DeviceInfoResponse> getDevice_Pre($grpc.ServiceCall call, $async.Future<$0.GetDeviceRequest> request) async {
+    return getDevice(call, await request);
   }
 
-  $async.Future<$0.Empty> removeAddressBookPeer_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveAddressBookPeerRequest> request) async {
-    return removeAddressBookPeer(call, await request);
+  $async.Future<$0.Empty> removeDevice_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveDeviceRequest> request) async {
+    return removeDevice(call, await request);
   }
 
   $async.Stream<$0.PingPeerEvent> pingPeer_Pre($grpc.ServiceCall call, $async.Future<$0.PingPeerRequest> request) async* {
@@ -1275,9 +1199,9 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.PeerIdResponse> peerId($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.ConfigFilePathResponse> configFilePath($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.HostnameResponse> hostname($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.IncomingAllowedPeersListResponse> getIncomingAllowedPeers($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> addIncomingAllowedPeer($grpc.ServiceCall call, $0.AddIncomingAllowedPeerRequest request);
-  $async.Future<$0.Empty> removeIncomingAllowedPeer($grpc.ServiceCall call, $0.RemoveIncomingAllowedPeerRequest request);
+  $async.Future<$0.TrustedDevicesListResponse> listTrustedDevices($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.Empty> trustDevice($grpc.ServiceCall call, $0.TrustDeviceRequest request);
+  $async.Future<$0.Empty> untrustDevice($grpc.ServiceCall call, $0.UntrustDeviceRequest request);
   $async.Future<$0.RelayConfigResponse> getRelayConfig($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> setRelayEnabled($grpc.ServiceCall call, $0.RelayEnabledRequest request);
   $async.Future<$0.Empty> setUseCommunityRelays($grpc.ServiceCall call, $0.UseCommunityRelaysRequest request);
@@ -1287,10 +1211,6 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.LocalRuntimeStatusResponse> getLocalRuntimeStatus($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> addRuntimeAllowedHostPath($grpc.ServiceCall call, $0.RuntimeAllowedHostPathRequest request);
   $async.Future<$0.Empty> removeRuntimeAllowedHostPath($grpc.ServiceCall call, $0.RuntimeAllowedHostPathRequest request);
-  $async.Future<$0.Empty> addRuntimeAllowedPort($grpc.ServiceCall call, $0.RuntimeAllowedPortRequest request);
-  $async.Future<$0.Empty> removeRuntimeAllowedPort($grpc.ServiceCall call, $0.RuntimeAllowedPortRequest request);
-  $async.Future<$0.Empty> addRuntimeAllowedPortRange($grpc.ServiceCall call, $0.RuntimeAllowedPortRangeRequest request);
-  $async.Future<$0.Empty> removeRuntimeAllowedPortRange($grpc.ServiceCall call, $0.RuntimeAllowedPortRangeRequest request);
   $async.Future<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.FileTransferServiceRootDirResponse> getFileTransferServiceRootDir($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> startFileTransferService($grpc.ServiceCall call, $0.StartFileTransferServiceRequest request);
@@ -1308,11 +1228,11 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.Empty> removeTcpForwardingRule($grpc.ServiceCall call, $0.RemoveTcpForwardingRuleRequest request);
   $async.Future<$0.TcpListeningRuleResponse> addTcpListeningRule($grpc.ServiceCall call, $0.AddTcpListeningRuleRequest request);
   $async.Future<$0.Empty> removeTcpListeningRule($grpc.ServiceCall call, $0.RemoveTcpListeningRuleRequest request);
-  $async.Future<$0.PeerInfoListResponse> listMdnsDevices($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.PeerInfoListResponse> listAddressBookPeers($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> updateAddressBookPeer($grpc.ServiceCall call, $0.UpdateAddressBookPeerRequest request);
-  $async.Future<$0.PeerInfoResponse> getAddressBookPeer($grpc.ServiceCall call, $0.GetAddressBookPeerRequest request);
-  $async.Future<$0.Empty> removeAddressBookPeer($grpc.ServiceCall call, $0.RemoveAddressBookPeerRequest request);
+  $async.Future<$0.DeviceInfoListResponse> listMdnsDevices($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.DeviceInfoListResponse> listDevices($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.Empty> updateDevice($grpc.ServiceCall call, $0.UpdateDeviceRequest request);
+  $async.Future<$0.DeviceInfoResponse> getDevice($grpc.ServiceCall call, $0.GetDeviceRequest request);
+  $async.Future<$0.Empty> removeDevice($grpc.ServiceCall call, $0.RemoveDeviceRequest request);
   $async.Stream<$0.PingPeerEvent> pingPeer($grpc.ServiceCall call, $0.PingPeerRequest request);
   $async.Future<$0.ListConnectionsResponse> listConnections($grpc.ServiceCall call, $0.ListConnectionsRequest request);
   $async.Future<$0.ListActiveStreamsResponse> listActiveStreams($grpc.ServiceCall call, $0.ListActiveStreamsRequest request);

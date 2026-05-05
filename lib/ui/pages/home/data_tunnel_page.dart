@@ -92,7 +92,7 @@ class ClientDataTunnelSection extends GetView<FungiController> {
                       children: [
                         if (peerLabel != rule.remotePeerId)
                           Text(
-                            "Alias: $peerLabel",
+                            "Device: $peerLabel",
                             style: Theme.of(context).textTheme.bodySmall?.apply(
                               color: Theme.of(
                                 context,
@@ -227,7 +227,7 @@ class ServerDataTunnelSection extends GetView<FungiController> {
                           ),
                         if (rule.allowedPeers.isNotEmpty)
                           Text(
-                            "Allowed peers: ${rule.allowedPeers.length}",
+                            "Trusted devices: ${rule.allowedPeers.length}",
                             style: Theme.of(context).textTheme.bodySmall?.apply(
                               color: Theme.of(
                                 context,

@@ -5,36 +5,37 @@ import 'package:get/get.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import '../widgets/device_selector_dialog.dart';
 
-void showAllowedPeersList() {
+void showTrustedDevicesList() {
   final controller = Get.find<FungiController>();
   SmartDialog.show(
     builder: (context) {
       return AlertDialog(
-        title: const Text('Incoming Allowed Peers'),
+        title: const Text('Trusted Devices'),
         content: SizedBox(
           width: double.maxFinite,
           child: Obx(() {
-            if (controller.incomingAllowedPeers.isEmpty) {
+            if (controller.trustedDevices.isEmpty) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: Text('No peers allowed'),
+                  child: Text('No trusted devices'),
                 ),
               );
             }
 
             return ListView.builder(
               shrinkWrap: true,
-              itemCount: controller.incomingAllowedPeers.length,
+              itemCount: controller.trustedDevices.length,
               itemBuilder: (context, index) {
-                final peerInfo = controller.incomingAllowedPeers[index];
+                final deviceInfo = controller.trustedDevices[index];
 
-                String displayName = peerInfo.peerId;
-                String subtitle = peerInfo.peerId;
+                String displayName = deviceInfo.peerId;
+                String subtitle = deviceInfo.peerId;
 
-                if (peerInfo.hostname.isNotEmpty) {
-                  displayName = peerInfo.hostname;
-                  subtitle = peerInfo.peerId;
+                if (deviceInfo.name.isNotEmpty) {
+                  displayName = deviceInfo.name;
+                } else if (deviceInfo.hostname.isNotEmpty) {
+                  displayName = deviceInfo.hostname;
                 }
 
                 return ListTile(
@@ -61,7 +62,7 @@ void showAllowedPeersList() {
                       size: 20,
                     ),
                     onPressed: () {
-                      controller.removeIncomingAllowedPeer(peerInfo.peerId);
+                      controller.removeTrustedDevice(deviceInfo.peerId);
                     },
                   ),
                   dense: true,
@@ -72,8 +73,8 @@ void showAllowedPeersList() {
         ),
         actions: [
           TextButton(
-            onPressed: () => showAddAllowedPeerDialog(),
-            child: const Text('Add Peer'),
+            onPressed: () => showTrustDeviceDialog(),
+            child: const Text('Trust Device'),
           ),
           TextButton(
             onPressed: () => SmartDialog.dismiss(),
@@ -85,42 +86,46 @@ void showAllowedPeersList() {
   );
 }
 
-void showAddAllowedPeerDialog() {
+void showTrustDeviceDialog() {
   final textPeerIdController = TextEditingController();
-  final textAliasController = TextEditingController();
-  final Rx<PeerInfo> selectedPeer = PeerInfo().obs;
+  final textNameController = TextEditingController();
+  final Rx<DeviceInfo> selectedPeer = DeviceInfo().obs;
   final errorMessage = RxString('');
   final controller = Get.find<FungiController>();
 
   SmartDialog.show(
     builder: (context) {
       return AlertDialog(
-        title: const Text('Add Peer'),
+        title: const Text('Trust Device'),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             TextButton.icon(
               icon: const Icon(Icons.bookmarks_outlined),
-              label: const Text('Select from Address Book'),
+              label: const Text('Select from Saved Devices'),
               onPressed: () async {
                 final newSelectedPeer = await showAddressBookSelectorDialog();
                 if (newSelectedPeer == null) return;
                 selectedPeer.value = newSelectedPeer;
                 textPeerIdController.text = selectedPeer.value.peerId;
-                textAliasController.text = selectedPeer.value.hostname;
+                textNameController.text = selectedPeer.value.name.isNotEmpty
+                    ? selectedPeer.value.name
+                    : selectedPeer.value.hostname;
               },
             ),
             TextButton.icon(
               icon: const Icon(Icons.devices),
-              label: const Text('Select from Local Devices(mDNS)'),
+              label: const Text('Select from Local Devices (mDNS)'),
               onPressed: () async {
                 final newSelectedPeer =
                     await showMdnsLocalDevicesSelectorDialog();
                 if (newSelectedPeer == null) return;
                 selectedPeer.value = newSelectedPeer;
                 textPeerIdController.text = selectedPeer.value.peerId;
-                textAliasController.text = selectedPeer.value.hostname;
+                textNameController.text = selectedPeer.value.name.isNotEmpty
+                    ? selectedPeer.value.name
+                    : selectedPeer.value.hostname;
               },
             ),
             SizedBox(height: 8),
@@ -128,8 +133,8 @@ void showAddAllowedPeerDialog() {
               () => TextField(
                 controller: textPeerIdController,
                 decoration: InputDecoration(
-                  labelText: 'Peer ID',
-                  hintText: 'Enter peer ID',
+                  labelText: 'Device ID',
+                  hintText: 'Enter device ID',
                   helperText:
                       selectedPeer.value.peerId == textPeerIdController.text
                       ? selectedPeer.value.hostname
@@ -139,9 +144,9 @@ void showAddAllowedPeerDialog() {
             ),
             const SizedBox(height: 8),
             TextField(
-              controller: textAliasController,
+              controller: textNameController,
               decoration: const InputDecoration(
-                labelText: 'Alias',
+                labelText: 'Device Name',
                 hintText: 'Enter a friendly name for this device',
               ),
             ),
@@ -166,29 +171,29 @@ void showAddAllowedPeerDialog() {
           TextButton(
             onPressed: () async {
               final peerId = textPeerIdController.text.trim();
-              final alias = textAliasController.text.trim();
+              final name = textNameController.text.trim();
 
               if (peerId.isEmpty) {
-                errorMessage.value = 'Peer ID cannot be empty';
+                errorMessage.value = 'Device ID cannot be empty';
                 return;
               }
-              if (alias.isEmpty) {
-                errorMessage.value = 'Alias cannot be empty';
+              if (name.isEmpty) {
+                errorMessage.value = 'Device name cannot be empty';
                 return;
               }
 
               if (selectedPeer.value.peerId != peerId) {
                 // reset the selectedPeer
-                selectedPeer.value = PeerInfo();
+                selectedPeer.value = DeviceInfo();
               }
 
               selectedPeer.value.peerId = peerId;
-              selectedPeer.value.alias = alias;
+              selectedPeer.value.name = name;
               try {
-                await controller.addIncomingAllowedPeer(selectedPeer.value);
+                await controller.addTrustedDevice(selectedPeer.value);
                 SmartDialog.dismiss();
               } catch (e) {
-                errorMessage.value = 'Failed to add peer: $e';
+                errorMessage.value = 'Failed to trust device: $e';
               }
             },
             child: const Text('Add'),
@@ -201,8 +206,8 @@ void showAddAllowedPeerDialog() {
 
 void showAddFileClientDialog() {
   final textPeerIdController = TextEditingController();
-  final textAliasController = TextEditingController();
-  final Rx<PeerInfo> selectedPeer = PeerInfo().obs;
+  final textNameController = TextEditingController();
+  final Rx<DeviceInfo> selectedPeer = DeviceInfo().obs;
   final enabled = RxBool(true);
   final errorMessage = RxString('');
   final controller = Get.find<FungiController>();
@@ -210,32 +215,36 @@ void showAddFileClientDialog() {
   SmartDialog.show(
     builder: (context) {
       return AlertDialog(
-        title: const Text('Add Peer'),
+        title: const Text('Add Device'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextButton.icon(
               icon: const Icon(Icons.bookmarks_outlined),
-              label: const Text('Select from Address Book'),
+              label: const Text('Select from Saved Devices'),
               onPressed: () async {
                 final newSelectedPeer = await showAddressBookSelectorDialog();
                 if (newSelectedPeer == null) return;
                 selectedPeer.value = newSelectedPeer;
                 textPeerIdController.text = selectedPeer.value.peerId;
-                textAliasController.text = selectedPeer.value.hostname;
+                textNameController.text = selectedPeer.value.name.isNotEmpty
+                    ? selectedPeer.value.name
+                    : selectedPeer.value.hostname;
               },
             ),
             TextButton.icon(
               icon: const Icon(Icons.devices),
-              label: const Text('Select from Local Devices(mDNS)'),
+              label: const Text('Select from Local Devices (mDNS)'),
               onPressed: () async {
                 final newSelectedPeer =
                     await showMdnsLocalDevicesSelectorDialog();
                 if (newSelectedPeer == null) return;
                 selectedPeer.value = newSelectedPeer;
                 textPeerIdController.text = selectedPeer.value.peerId;
-                textAliasController.text = selectedPeer.value.hostname;
+                textNameController.text = selectedPeer.value.name.isNotEmpty
+                    ? selectedPeer.value.name
+                    : selectedPeer.value.hostname;
               },
             ),
             SizedBox(height: 8),
@@ -243,8 +252,8 @@ void showAddFileClientDialog() {
               () => TextField(
                 controller: textPeerIdController,
                 decoration: InputDecoration(
-                  labelText: 'Peer ID',
-                  hintText: 'Enter peer ID',
+                  labelText: 'Device ID',
+                  hintText: 'Enter device ID',
                   helperText:
                       selectedPeer.value.peerId == textPeerIdController.text
                       ? selectedPeer.value.hostname
@@ -254,12 +263,12 @@ void showAddFileClientDialog() {
               ),
             ),
             TextField(
-              controller: textAliasController,
+              controller: textNameController,
               decoration: const InputDecoration(
-                labelText: 'Device Alias',
-                hintText: 'Enter a device alias',
+                labelText: 'Device Name',
+                hintText: 'Enter a device name',
                 helperText:
-                    'Device alias will be displayed as filename in mount directory',
+                    'Device name will be displayed as filename in mount directory',
               ),
             ),
             Row(
@@ -298,15 +307,15 @@ void showAddFileClientDialog() {
           TextButton(
             onPressed: () async {
               if (textPeerIdController.text.isEmpty) {
-                errorMessage.value = 'Peer ID cannot be empty';
+                errorMessage.value = 'Device ID cannot be empty';
                 return;
               }
               if (selectedPeer.value.peerId != textPeerIdController.text) {
                 // reset the selectedPeer
-                selectedPeer.value = PeerInfo();
+                selectedPeer.value = DeviceInfo();
               }
               selectedPeer.value.peerId = textPeerIdController.text;
-              selectedPeer.value.alias = textAliasController.text;
+              selectedPeer.value.name = textNameController.text;
               try {
                 await controller.addFileTransferClient(
                   enabled: enabled.value,
@@ -314,7 +323,7 @@ void showAddFileClientDialog() {
                 );
                 SmartDialog.dismiss();
               } catch (e) {
-                errorMessage.value = 'Failed to add peer: $e';
+                errorMessage.value = 'Failed to add device: $e';
               }
             },
             child: const Text('Add'),
@@ -330,7 +339,7 @@ void showAddForwardingRuleDialog() {
   final localPortController = TextEditingController();
   final peerIdController = TextEditingController();
   final remotePortController = TextEditingController();
-  final Rx<PeerInfo> selectedPeer = PeerInfo().obs;
+  final Rx<DeviceInfo> selectedPeer = DeviceInfo().obs;
   final errorMessage = RxString('');
 
   final controller = Get.find<FungiController>();
@@ -353,7 +362,7 @@ void showAddForwardingRuleDialog() {
               SizedBox(height: 16),
               TextButton.icon(
                 icon: const Icon(Icons.bookmarks_outlined),
-                label: const Text('Select from Address Book'),
+                label: const Text('Select from Saved Devices'),
                 onPressed: () async {
                   final newSelectedPeer = await showAddressBookSelectorDialog();
                   if (newSelectedPeer == null) return;
@@ -363,7 +372,7 @@ void showAddForwardingRuleDialog() {
               ),
               TextButton.icon(
                 icon: const Icon(Icons.devices),
-                label: const Text('Select from Local Devices(mDNS)'),
+                label: const Text('Select from Local Devices (mDNS)'),
                 onPressed: () async {
                   final newSelectedPeer =
                       await showMdnsLocalDevicesSelectorDialog();
@@ -394,7 +403,7 @@ void showAddForwardingRuleDialog() {
                 () => TextField(
                   controller: peerIdController,
                   decoration: InputDecoration(
-                    labelText: "Remote Peer ID",
+                    labelText: "Remote Device ID",
                     hintText: "12D3KooW...",
                     helperText:
                         selectedPeer.value.peerId == peerIdController.text
@@ -449,7 +458,7 @@ void showAddForwardingRuleDialog() {
 
               if (selectedPeer.value.peerId != peerIdController.text) {
                 // reset the selectedPeer
-                selectedPeer.value = PeerInfo();
+                selectedPeer.value = DeviceInfo();
               }
 
               selectedPeer.value.peerId = peerIdController.text;

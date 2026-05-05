@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/controllers/log_viewer_controller.dart';
+import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
 import 'package:fungi_app/ui/pages/home/drive_page.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:fungi_app/ui/pages/settings/log_viewer_dialog.dart';
@@ -202,6 +203,17 @@ class Settings extends GetView<FungiController> {
             title: Text('Legacy'),
             tiles: <SettingsTile>[
               SettingsTile.navigation(
+                leading: Icon(Icons.swap_horiz),
+                title: Text('Legacy Port Forwarding'),
+                value: Text('Deprecated'),
+                description: Text(
+                  'Open the raw port forwarding UI in a dialog. This path will be removed in a future release.',
+                ),
+                onPressed: (context) {
+                  _showLegacyPortForwardingDialog(context);
+                },
+              ),
+              SettingsTile.navigation(
                 leading: Icon(Icons.folder_shared),
                 title: Text('Legacy File Transfer'),
                 value: Text('Deprecated'),
@@ -287,9 +299,7 @@ class Settings extends GetView<FungiController> {
         actions: [
           TextButton(
             onPressed: () {
-              Clipboard.setData(
-                ClipboardData(text: details),
-              );
+              Clipboard.setData(ClipboardData(text: details));
               SmartDialog.showToast('Version details copied to clipboard');
             },
             child: const Text('Copy'),
@@ -347,6 +357,59 @@ class Settings extends GetView<FungiController> {
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(12),
                   child: FileTransferPage(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLegacyPortForwardingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: SizedBox(
+          width: 920,
+          height: 720,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Legacy Port Forwarding',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'This raw port-forwarding path is deprecated and will be removed in a future release.',
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              const Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(12),
+                  child: ClientDataTunnelSection(showTitle: false),
                 ),
               ),
             ],

@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:get/get.dart';
 
 import 'dart:math';
 
-import '../../src/grpc/generated/fungi_daemon.pb.dart';
-
-Future<PeerInfo?> showAddressBookSelectorDialog() async {
+Future<DeviceInfo?> showAddressBookSelectorDialog() async {
   final dialogId =
       DateTime.now().millisecondsSinceEpoch.toString() +
       Random().nextInt(100).toString();
 
   final controller = Get.find<FungiController>();
-  return await SmartDialog.show<PeerInfo>(
+  return await SmartDialog.show<DeviceInfo>(
     tag: dialogId,
     builder: (context) => DeviceSelectorDialogWidget(
-      title: "Select From Address Book",
+      title: 'Select Saved Device',
       dialogId: dialogId,
       devices: controller.addressBook,
     ),
@@ -26,19 +25,19 @@ Future<PeerInfo?> showAddressBookSelectorDialog() async {
   );
 }
 
-Future<PeerInfo?> showMdnsLocalDevicesSelectorDialog() async {
+Future<DeviceInfo?> showMdnsLocalDevicesSelectorDialog() async {
   final dialogId =
       DateTime.now().millisecondsSinceEpoch.toString() +
       Random().nextInt(100).toString();
   final controller = Get.find<FungiController>();
 
   final devices = await controller.fungiClient.listMdnsDevices(Empty());
-  return await SmartDialog.show<PeerInfo>(
+  return await SmartDialog.show<DeviceInfo>(
     tag: dialogId,
     builder: (context) => DeviceSelectorDialogWidget(
-      title: "Select From Local Devices(mDNS)",
+      title: 'Select Local Device (mDNS)',
       dialogId: dialogId,
-      devices: devices.peers,
+      devices: devices.devices,
       showOnlineStatus: true,
     ),
     alignment: Alignment.center,
@@ -50,7 +49,7 @@ Future<PeerInfo?> showMdnsLocalDevicesSelectorDialog() async {
 class DeviceSelectorDialogWidget extends StatelessWidget {
   final String title;
   final String dialogId;
-  final List<PeerInfo> devices;
+  final List<DeviceInfo> devices;
   final bool showOnlineStatus;
 
   const DeviceSelectorDialogWidget({
@@ -209,9 +208,9 @@ class DeviceSelectorDialogWidget extends StatelessWidget {
                   color: Colors.grey[600],
                 ),
               ),
-              if (device.alias.isNotEmpty)
+              if (device.name.isNotEmpty)
                 Text(
-                  'Alias: ${device.alias}',
+                  'Name: ${device.name}',
                   style: TextStyle(
                     fontFamily: 'monospace',
                     color: Colors.grey[600],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
+import 'package:fungi_app/ui/widgets/ui_primitives.dart';
 
 class ServiceManagementCard extends StatelessWidget {
   const ServiceManagementCard({
@@ -78,18 +79,14 @@ class ServiceStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final color = active ? colorScheme.tertiary : colorScheme.outline;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
-      ),
+    return CompactBadge(
+      label: label,
+      backgroundColor: active
+          ? colorScheme.tertiaryContainer
+          : colorScheme.surfaceContainerHighest,
+      foregroundColor: active
+          ? colorScheme.onTertiaryContainer
+          : colorScheme.onSurfaceVariant,
     );
   }
 }
@@ -101,14 +98,23 @@ class ServicePillLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+    return CompactBadge(label: label);
+  }
+}
+
+class AttentionBadge extends StatelessWidget {
+  const AttentionBadge({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return CompactBadge(
+      label: label,
+      backgroundColor: colorScheme.errorContainer,
+      foregroundColor: colorScheme.onErrorContainer,
     );
   }
 }
