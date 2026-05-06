@@ -866,6 +866,12 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
     );
     final pendingAction = controller.remoteServicePendingActions[actionKey];
     final isBusy = pendingAction != null;
+    final deviceOnline = controller
+        .connectionsForPeer(entry.peer.peerId)
+        .isNotEmpty;
+    final statusLabel = deviceOnline
+        ? (service.running ? 'Running' : service.state)
+        : 'Unavailable';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -910,10 +916,7 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
                 );
               }),
             ],
-            _ServiceDetailRow(
-              label: 'Status',
-              value: service.running ? 'Running' : service.state,
-            ),
+            _ServiceDetailRow(label: 'Status', value: statusLabel),
             _ServiceDetailRow(label: 'Runtime', value: service.runtime),
             const SizedBox(height: 8),
             SizedBox(
@@ -936,7 +939,7 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
                       label: const Text('Disconnect'),
                     ),
                   OutlinedButton.icon(
-                    onPressed: service.running || isBusy
+                    onPressed: service.running || isBusy || !deviceOnline
                         ? null
                         : () => controller.startRemoteService(
                             peerId: entry.peer.peerId,
@@ -952,7 +955,7 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
                     label: const Text('Start'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: !service.running || isBusy
+                    onPressed: !service.running || isBusy || !deviceOnline
                         ? null
                         : () => controller.stopRemoteService(
                             peerId: entry.peer.peerId,
@@ -968,7 +971,7 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
                     label: const Text('Stop'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: service.running || isBusy
+                    onPressed: isBusy
                         ? null
                         : () => controller.removeRemoteService(
                             peerId: entry.peer.peerId,

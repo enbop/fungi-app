@@ -2058,7 +2058,8 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
-      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshPeerManagedServicesData(peerId: peerId, cached: true);
+      _refreshPeerManagedServicesInBackground(peerId: peerId);
       await refreshAvailableServicesData(
         peerId: peerId,
         cached: false,
