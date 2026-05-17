@@ -155,7 +155,7 @@ Future<void> showCreateServiceDialog(
   var recipeInstanceDirty = false;
   String? recipeInstanceSuggestion;
 
-  void maybeSuggestRecipeInstance(String? recipeId) {
+  void updateRecipeInstanceIfNeeded(String? recipeId) {
     if (recipeId == null || recipeId.isEmpty) {
       return;
     }
@@ -229,7 +229,7 @@ Future<void> showCreateServiceDialog(
       });
       final recipeId = selectedRecipeId;
       if (recipeId != null) {
-        maybeSuggestRecipeInstance(recipeId);
+        updateRecipeInstanceIfNeeded(recipeId);
         await loadRecipeDetail(setState, recipeId, refresh: refresh);
       }
     } catch (e) {
@@ -541,7 +541,7 @@ Future<void> showCreateServiceDialog(
                                   selectedRecipeDetail = null;
                                   errorMessage = '';
                                 });
-                                maybeSuggestRecipeInstance(value);
+                                updateRecipeInstanceIfNeeded(value);
                                 Future<void>.microtask(
                                   () => loadRecipeDetail(setState, value),
                                 );
@@ -552,9 +552,12 @@ Future<void> showCreateServiceDialog(
                         controller: serviceNameController,
                         enabled: !isSubmitting,
                         onChanged: (value) {
+                          final trimmedValue = value.trim();
+                          final trimmedSuggestion =
+                              (recipeInstanceSuggestion ?? '').trim();
                           recipeInstanceDirty =
-                              value.trim() !=
-                              (recipeInstanceSuggestion ?? '');
+                              trimmedValue.isNotEmpty &&
+                              trimmedValue != trimmedSuggestion;
                         },
                         decoration: const InputDecoration(
                           labelText: 'Instance name',
