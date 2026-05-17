@@ -152,6 +152,24 @@ Future<void> showCreateServiceDialog(
   var errorMessage = '';
   var isSubmitting = false;
   var dialogActive = true;
+  var recipeInstanceDirty = false;
+  String? recipeInstanceSuggestion;
+
+  void maybeSuggestRecipeInstance(String? recipeId) {
+    if (recipeId == null || recipeId.isEmpty) {
+      return;
+    }
+
+    final trimmed = serviceNameController.text.trim();
+    final previousSuggestion = recipeInstanceSuggestion;
+    if (!recipeInstanceDirty ||
+        trimmed.isEmpty ||
+        trimmed == previousSuggestion) {
+      serviceNameController.text = recipeId;
+      recipeInstanceDirty = false;
+    }
+    recipeInstanceSuggestion = recipeId;
+  }
 
   Future<void> loadRecipeDetail(
     StateSetter setState,
@@ -211,6 +229,7 @@ Future<void> showCreateServiceDialog(
       });
       final recipeId = selectedRecipeId;
       if (recipeId != null) {
+        maybeSuggestRecipeInstance(recipeId);
         await loadRecipeDetail(setState, recipeId, refresh: refresh);
       }
     } catch (e) {
@@ -247,6 +266,14 @@ Future<void> showCreateServiceDialog(
                   return;
                 }
 
+                final instanceName = serviceNameController.text.trim();
+                if (instanceName.isEmpty) {
+                  setState(() {
+                    errorMessage = 'Enter an instance name first';
+                  });
+                  return;
+                }
+
                 if (isRemote && selectedPeerId == null) {
                   setState(() {
                     errorMessage = 'Choose a target device first';
@@ -262,9 +289,7 @@ Future<void> showCreateServiceDialog(
                 try {
                   final resolved = await controller.resolveServiceRecipe(
                     recipeId: selectedRecipeId!,
-                    serviceName: serviceNameController.text.trim().isEmpty
-                        ? null
-                        : serviceNameController.text.trim(),
+                    serviceName: instanceName,
                     peerId: isRemote ? selectedPeerId : null,
                   );
 
@@ -316,7 +341,7 @@ Future<void> showCreateServiceDialog(
                   }
                   setState(() {
                     isSubmitting = false;
-                    errorMessage = 'Failed to add recipe service: $e';
+                    errorMessage = 'Failed to apply recipe: $e';
                   });
                 }
                 return;
@@ -325,7 +350,7 @@ Future<void> showCreateServiceDialog(
               final manifestPath = manifestPathController.text.trim();
               if (manifestPath.isEmpty) {
                 setState(() {
-                  errorMessage = 'Select a YAML manifest first';
+                  errorMessage = 'Select a service file first';
                 });
                 return;
               }
@@ -333,7 +358,7 @@ Future<void> showCreateServiceDialog(
               final file = File(manifestPath);
               if (!await file.exists()) {
                 setState(() {
-                  errorMessage = 'Manifest file not found';
+                  errorMessage = 'Service file not found';
                 });
                 return;
               }
@@ -371,14 +396,14 @@ Future<void> showCreateServiceDialog(
             }
 
             return AlertDialog(
-              title: const Text('Add Service'),
+              title: const Text('Apply Service'),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Choose whether to add a local manifest or start from an official recipe, then pick whether to create it on this device or on another saved device.',
+                      'Apply a local service file or start from an official recipe, then choose whether to apply it on this device or a saved device.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 16),
@@ -387,7 +412,7 @@ Future<void> showCreateServiceDialog(
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Manifest'),
+                          label: const Text('Service File'),
                           selected: source == _CreateServiceSource.manifest,
                           onSelected: isSubmitting
                               ? null
@@ -450,7 +475,7 @@ Future<void> showCreateServiceDialog(
                     if (isRemote) ...[
                       if (devices.isEmpty)
                         Text(
-                          'Save a device in Devices before adding a remote service.',
+                          'Save a device in Devices before applying to another device.',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),
@@ -484,7 +509,7 @@ Future<void> showCreateServiceDialog(
                         children: [
                           Expanded(
                             child: Text(
-                              'Recipes come from the official daemon-backed source and resolve into a manifest before creation.',
+                              'Recipes come from the daemon-backed official catalog and resolve into an effective service file before apply.',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ),
@@ -522,6 +547,7 @@ Future<void> showCreateServiceDialog(
                                   selectedRecipeDetail = null;
                                   errorMessage = '';
                                 });
+                                maybeSuggestRecipeInstance(value);
                                 Future<void>.microtask(
                                   () => loadRecipeDetail(setState, value),
                                 );
@@ -531,9 +557,14 @@ Future<void> showCreateServiceDialog(
                       TextField(
                         controller: serviceNameController,
                         enabled: !isSubmitting,
+                        onChanged: (value) {
+                          recipeInstanceDirty =
+                              value.trim() !=
+                              (recipeInstanceSuggestion ?? '');
+                        },
                         decoration: const InputDecoration(
-                          labelText: 'Service name',
-                          hintText: 'Leave blank to use the recipe ID',
+                          labelText: 'Instance name',
+                          hintText: 'Defaults to the recipe ID',
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -551,8 +582,9 @@ Future<void> showCreateServiceDialog(
                         controller: manifestPathController,
                         readOnly: true,
                         decoration: const InputDecoration(
-                          labelText: 'Service manifest',
-                          hintText: 'Select a YAML file',
+                          labelText: 'Service file',
+                          hintText:
+                              'Select a .fungi.md file (legacy YAML still works)',
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -563,7 +595,12 @@ Future<void> showCreateServiceDialog(
                                 final result = await FilePicker.platform
                                     .pickFiles(
                                       type: FileType.custom,
-                                      allowedExtensions: const ['yaml', 'yml'],
+                                      allowedExtensions: const [
+                                        'md',
+                                        'markdown',
+                                        'yaml',
+                                        'yml',
+                                      ],
                                       lockParentWindow: true,
                                     );
                                 final path = result?.files.single.path;
@@ -576,7 +613,7 @@ Future<void> showCreateServiceDialog(
                                 });
                               },
                         icon: const Icon(Icons.upload_file),
-                        label: const Text('Choose YAML'),
+                        label: const Text('Choose Service File'),
                       ),
                     ],
                     if (errorMessage.isNotEmpty) ...[
@@ -591,7 +628,7 @@ Future<void> showCreateServiceDialog(
                     if (remoteUnavailable) ...[
                       const SizedBox(height: 12),
                       Text(
-                        'Remote add stays available here, but it needs a saved device first.',
+                        'Remote apply stays available here, but it needs a saved device first.',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -616,10 +653,8 @@ Future<void> showCreateServiceDialog(
                       : Icon(isRecipe ? Icons.auto_awesome : Icons.add_circle),
                   label: Text(
                     isRemote
-                        ? (isRecipe ? 'Create on Device' : 'Add to Device')
-                        : (isRecipe
-                              ? 'Create on This Device'
-                              : 'Add to This Device'),
+                        ? 'Apply to Device'
+                        : 'Apply Here',
                   ),
                 ),
               ],

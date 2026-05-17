@@ -1870,7 +1870,7 @@ class FungiController extends GetxController {
     try {
       final file = File(manifestPath);
       if (!await file.exists()) {
-        throw Exception('Manifest file not found: $manifestPath');
+        throw Exception('Service file not found: $manifestPath');
       }
 
       final manifestYaml = await file.readAsString();
@@ -1885,10 +1885,10 @@ class FungiController extends GetxController {
         cached: false,
         showLoading: false,
       );
-      Get.snackbar('Success', 'Service added to device');
+      Get.snackbar('Success', 'Service applied to device');
       return true;
     } catch (e) {
-      Get.snackbar('Remote pull failed', '$e');
+      Get.snackbar('Remote apply failed', '$e');
       return false;
     }
   }
@@ -1953,10 +1953,10 @@ class FungiController extends GetxController {
       );
       await refreshLocalServicesPageData();
       await refreshNodeManagementData();
-      Get.snackbar('Success', 'Service added');
+      Get.snackbar('Success', 'Service applied');
       return true;
     } catch (e) {
-      Get.snackbar('Recipe add failed', '$e');
+      Get.snackbar('Recipe apply failed', '$e');
       return false;
     }
   }
@@ -1977,10 +1977,10 @@ class FungiController extends GetxController {
         cached: false,
         showLoading: false,
       );
-      Get.snackbar('Success', 'Service added to device');
+      Get.snackbar('Success', 'Service applied to device');
       return true;
     } catch (e) {
-      Get.snackbar('Remote recipe add failed', '$e');
+      Get.snackbar('Remote recipe apply failed', '$e');
       return false;
     }
   }
@@ -2188,7 +2188,7 @@ class FungiController extends GetxController {
     try {
       final file = File(manifestPath);
       if (!await file.exists()) {
-        throw Exception('Manifest file not found: $manifestPath');
+        throw Exception('Service file not found: $manifestPath');
       }
 
       final manifestYaml = await file.readAsString();
@@ -2199,10 +2199,10 @@ class FungiController extends GetxController {
       );
       await refreshLocalServicesPageData();
       await refreshNodeManagementData();
-      Get.snackbar('Success', 'Service added');
+      Get.snackbar('Success', 'Service applied');
       return true;
     } catch (e) {
-      Get.snackbar('Pull failed', '$e');
+      Get.snackbar('Apply failed', '$e');
       return false;
     }
   }
