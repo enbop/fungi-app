@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/controllers/log_viewer_controller.dart';
-import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
-import 'package:fungi_app/ui/pages/home/drive_page.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:fungi_app/ui/pages/settings/log_viewer_dialog.dart';
 import 'package:get/get.dart';
@@ -56,34 +54,11 @@ class Settings extends GetView<FungiController> {
                 },
               ),
               SettingsTile.navigation(
-                leading: Icon(Icons.file_open),
-                title: Text('Config file path'),
-                value: _TruncatedSettingsValue(
-                  value: controller.configFilePath.value,
-                ),
-                onPressed: (context) {
-                  Clipboard.setData(
-                    ClipboardData(text: controller.configFilePath.value),
-                  );
-                  SmartDialog.showToast('Path copied to clipboard');
-                },
-              ),
-              SettingsTile.navigation(
                 leading: Icon(Icons.folder_open),
-                title: Text('Log file path'),
-                value: _TruncatedSettingsValue(
-                  value: controller.logDirPath.value,
-                ),
+                title: Text('Path locations'),
+                value: Text('Config and logs'),
                 onPressed: (context) {
-                  if (controller.logDirPath.value.isEmpty) {
-                    SmartDialog.showToast('Log path is not available yet');
-                    return;
-                  }
-
-                  Clipboard.setData(
-                    ClipboardData(text: controller.logDirPath.value),
-                  );
-                  SmartDialog.showToast('Path copied to clipboard');
+                  _showPathLocationsDialog(context);
                 },
               ),
               SettingsTile.navigation(
@@ -160,30 +135,30 @@ class Settings extends GetView<FungiController> {
             SettingsSection(
               title: Text('Desktop'),
               tiles: <SettingsTile>[
-                SettingsTile.switchTile(
-                  initialValue: controller.launchAtLoginEnabled.value,
+                _desktopSwitchTile(
+                  value: controller.launchAtLoginEnabled.value,
                   enabled:
                       controller.launchAtLoginSupported.value &&
                       !controller.launchAtLoginLoading.value,
-                  leading: Icon(Icons.power_settings_new),
-                  title: Text('Launch at login'),
+                  leading: const Icon(Icons.power_settings_new),
+                  title: const Text('Launch at login'),
                   description: Text(_launchAtLoginDescription),
-                  onToggle: (value) async {
+                  onChanged: (value) async {
                     await controller.setLaunchAtLoginEnabled(value);
                   },
                 ),
                 if (controller.launchAtLoginEnabled.value)
-                  SettingsTile.switchTile(
-                    initialValue: controller.launchAtLoginHideToTray.value,
+                  _desktopSwitchTile(
+                    value: controller.launchAtLoginHideToTray.value,
                     enabled:
                         controller.launchAtLoginSupported.value &&
                         !controller.launchAtLoginLoading.value,
-                    leading: Icon(Icons.visibility_off),
-                    title: Text('Hide app after launch at login'),
-                    description: Text(
+                    leading: const Icon(Icons.visibility_off),
+                    title: const Text('Hide app after launch at login'),
+                    description: const Text(
                       'Start in the tray after login instead of keeping the main window open.',
                     ),
-                    onToggle: (value) async {
+                    onChanged: (value) async {
                       await controller.setLaunchAtLoginHideToTray(value);
                     },
                   ),
@@ -203,33 +178,6 @@ class Settings extends GetView<FungiController> {
                 ),
               ],
             ),
-          SettingsSection(
-            title: Text('Legacy'),
-            tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                leading: Icon(Icons.swap_horiz),
-                title: Text('Legacy Tunnel'),
-                value: Text('Deprecated'),
-                description: Text(
-                  'Open raw port forwarding and port listening tools in one dialog.',
-                ),
-                onPressed: (context) {
-                  _showLegacyTunnelDialog(context);
-                },
-              ),
-              SettingsTile.navigation(
-                leading: Icon(Icons.folder_shared),
-                title: Text('Legacy File Transfer'),
-                value: Text('Deprecated'),
-                description: Text(
-                  'Open the previous file transfer UI in a dialog. This path will be removed in a future release.',
-                ),
-                onPressed: (context) {
-                  _showLegacyFileTransferDialog(context);
-                },
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -270,6 +218,27 @@ class Settings extends GetView<FungiController> {
     }
 
     return 'Start ${AppBuildInfo.appName} automatically when you sign in.';
+  }
+
+  SettingsTile _desktopSwitchTile({
+    required bool value,
+    required bool enabled,
+    required Widget leading,
+    required Widget title,
+    required Widget description,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SettingsTile.navigation(
+      leading: leading,
+      title: title,
+      description: description,
+      onPressed: enabled ? (_) => onChanged(!value) : null,
+      trailing: _CompactSettingsSwitch(
+        value: value,
+        enabled: enabled,
+        onChanged: onChanged,
+      ),
+    );
   }
 
   SettingsThemeData _settingsTheme(BuildContext context) {
@@ -317,125 +286,40 @@ class Settings extends GetView<FungiController> {
     );
   }
 
-  void _showLegacyFileTransferDialog(BuildContext context) {
+  void _showPathLocationsDialog(BuildContext context) {
+    final configFilePath = controller.configFilePath.value;
+    final logDirPath = controller.logDirPath.value;
+
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        child: SizedBox(
-          width: 920,
-          height: 720,
+      builder: (_) => AlertDialog(
+        title: const Text('Path locations'),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Legacy File Transfer',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'This module is deprecated and will be removed in a future release.',
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
+              _PathLocationSection(
+                label: 'Config file',
+                value: configFilePath,
+                emptyMessage: 'Config path is not available yet.',
               ),
-              const Divider(height: 1),
-              const Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(12),
-                  child: FileTransferPage(),
-                ),
+              const SizedBox(height: 16),
+              _PathLocationSection(
+                label: 'Logs directory',
+                value: logDirPath,
+                emptyMessage: 'Log path is not available yet.',
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showLegacyTunnelDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        child: SizedBox(
-          width: 920,
-          height: 720,
-          child: DefaultTabController(
-            length: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'Legacy Tunnel',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Raw tunnel tools are deprecated and kept here for advanced compatibility.',
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-                const TabBar(
-                  tabs: [
-                    Tab(text: 'Port Forwarding'),
-                    Tab(text: 'Port Listening'),
-                  ],
-                ),
-                const Divider(height: 1),
-                const Expanded(
-                  child: TabBarView(
-                    children: [
-                      SingleChildScrollView(
-                        padding: EdgeInsets.all(12),
-                        child: ClientDataTunnelSection(showTitle: false),
-                      ),
-                      SingleChildScrollView(
-                        padding: EdgeInsets.all(12),
-                        child: ServerDataTunnelSection(showTitle: false),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -481,26 +365,78 @@ class Settings extends GetView<FungiController> {
   }
 }
 
-class _TruncatedSettingsValue extends StatelessWidget {
-  const _TruncatedSettingsValue({required this.value});
+class _CompactSettingsSwitch extends StatelessWidget {
+  const _CompactSettingsSwitch({
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+  });
 
-  final String value;
+  final bool value;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final display = value.isEmpty ? 'Unavailable' : value;
-    return Tooltip(
-      message: display,
-      waitDuration: const Duration(milliseconds: 500),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 360),
-        child: Text(
-          display,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.right,
+    return Transform.scale(
+      scale: 0.82,
+      alignment: Alignment.centerRight,
+      child: Switch(value: value, onChanged: enabled ? onChanged : null),
+    );
+  }
+}
+
+class _PathLocationSection extends StatelessWidget {
+  const _PathLocationSection({
+    required this.label,
+    required this.value,
+    required this.emptyMessage,
+  });
+
+  final String label;
+  final String value;
+  final String emptyMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasValue = value.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SelectableText(
+                  hasValue ? value : emptyMessage,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'Copy',
+                visualDensity: VisualDensity.compact,
+                onPressed: hasValue
+                    ? () {
+                        Clipboard.setData(ClipboardData(text: value));
+                        SmartDialog.showToast('Path copied to clipboard');
+                      }
+                    : null,
+                icon: const Icon(Icons.copy_all, size: 18),
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

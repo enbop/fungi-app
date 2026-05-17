@@ -31,9 +31,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
   get: ^4.7.2
   settings_ui: ^2.0.2
   get_storage: ^2.1.1
@@ -41,13 +38,11 @@ dependencies:
   window_manager: ^0.4.3
   flutter_smart_dialog: ^4.9.8+9
   tray_manager: ^0.5.0
-  macos_secure_bookmarks: ^0.2.1
   device_info_plus: ^11.5.0
   package_info_plus: ^8.3.0
   path_provider: ^2.1.5
   path: ^1.9.1
   flutter_foreground_task: ^9.1.0
-  permission_handler: ^12.0.1
   grpc: ^4.1.0
   protobuf: ^3.1.0 # dart pub global activate protoc_plugin 21.1.2
   fixnum: ^1.1.1
