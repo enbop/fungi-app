@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/controllers/log_viewer_controller.dart';
-import 'package:fungi_app/ui/pages/home/data_tunnel_page.dart';
-import 'package:fungi_app/ui/pages/home/drive_page.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:fungi_app/ui/pages/settings/log_viewer_dialog.dart';
 import 'package:get/get.dart';
@@ -180,33 +178,6 @@ class Settings extends GetView<FungiController> {
                 ),
               ],
             ),
-          SettingsSection(
-            title: Text('Legacy'),
-            tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                leading: Icon(Icons.swap_horiz),
-                title: Text('Legacy Tunnel'),
-                value: Text('Deprecated'),
-                description: Text(
-                  'Open raw port forwarding and port listening tools in one dialog.',
-                ),
-                onPressed: (context) {
-                  _showLegacyTunnelDialog(context);
-                },
-              ),
-              SettingsTile.navigation(
-                leading: Icon(Icons.folder_shared),
-                title: Text('Legacy File Transfer'),
-                value: Text('Deprecated'),
-                description: Text(
-                  'Open the previous file transfer UI in a dialog. This path will be removed in a future release.',
-                ),
-                onPressed: (context) {
-                  _showLegacyFileTransferDialog(context);
-                },
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -349,129 +320,6 @@ class Settings extends GetView<FungiController> {
             child: const Text('Close'),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showLegacyFileTransferDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        child: SizedBox(
-          width: 920,
-          height: 720,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Legacy File Transfer',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'This module is deprecated and will be removed in a future release.',
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              const Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(12),
-                  child: FileTransferPage(),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showLegacyTunnelDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        child: SizedBox(
-          width: 920,
-          height: 720,
-          child: DefaultTabController(
-            length: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'Legacy Tunnel',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Raw tunnel tools are deprecated and kept here for advanced compatibility.',
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-                const TabBar(
-                  tabs: [
-                    Tab(text: 'Port Forwarding'),
-                    Tab(text: 'Port Listening'),
-                  ],
-                ),
-                const Divider(height: 1),
-                const Expanded(
-                  child: TabBarView(
-                    children: [
-                      SingleChildScrollView(
-                        padding: EdgeInsets.all(12),
-                        child: ClientDataTunnelSection(showTitle: false),
-                      ),
-                      SingleChildScrollView(
-                        padding: EdgeInsets.all(12),
-                        child: ServerDataTunnelSection(showTitle: false),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
