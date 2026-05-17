@@ -27,8 +27,8 @@ String _recipeRuntimeLabel(RecipeSummary recipe) {
       return 'Docker';
     case RecipeRuntimeKind.RECIPE_RUNTIME_KIND_WASMTIME:
       return 'Wasmtime';
-    case RecipeRuntimeKind.RECIPE_RUNTIME_KIND_LINK:
-      return 'Link';
+    case RecipeRuntimeKind.RECIPE_RUNTIME_KIND_TCP:
+      return 'TCP';
     case RecipeRuntimeKind.RECIPE_RUNTIME_KIND_UNSPECIFIED:
       return 'Unknown';
   }
