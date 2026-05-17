@@ -253,7 +253,7 @@ class DashboardPage extends GetView<FungiController> {
                 if (showHeaderCreateAction) ...[
                   InlineAddButton(
                     onPressed: () => showCreateServiceDialog(context),
-                    label: 'Add',
+                    label: 'Apply',
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -479,7 +479,7 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
             Text(
               hasDevices
                   ? 'This device has no local services yet, and your saved devices are not currently publishing any Web or TCP services you can use here.'
-                  : 'Create a service on this device, or save a device that can host one remotely.',
+                  : 'Apply a service on this device, or save a device that can host one remotely.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 14),
@@ -490,7 +490,7 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
                 FilledButton.icon(
                   onPressed: onCreateService,
                   icon: const Icon(Icons.add_circle),
-                  label: const Text('Create Service'),
+                  label: const Text('Apply Service'),
                 ),
                 OutlinedButton.icon(
                   onPressed: () =>
