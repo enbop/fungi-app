@@ -267,12 +267,6 @@ Future<void> showCreateServiceDialog(
                 }
 
                 final instanceName = serviceNameController.text.trim();
-                if (instanceName.isEmpty) {
-                  setState(() {
-                    errorMessage = 'Enter an instance name first';
-                  });
-                  return;
-                }
 
                 if (isRemote && selectedPeerId == null) {
                   setState(() {
@@ -289,7 +283,7 @@ Future<void> showCreateServiceDialog(
                 try {
                   final resolved = await controller.resolveServiceRecipe(
                     recipeId: selectedRecipeId!,
-                    serviceName: instanceName,
+                    serviceName: instanceName.isEmpty ? null : instanceName,
                     peerId: isRemote ? selectedPeerId : null,
                   );
 
