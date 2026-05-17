@@ -583,8 +583,7 @@ Future<void> showCreateServiceDialog(
                         readOnly: true,
                         decoration: const InputDecoration(
                           labelText: 'Service file',
-                          hintText:
-                              'Select a .fungi.md file (legacy YAML still works)',
+                          hintText: 'Select a .fungi.md service file',
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -598,8 +597,6 @@ Future<void> showCreateServiceDialog(
                                       allowedExtensions: const [
                                         'md',
                                         'markdown',
-                                        'yaml',
-                                        'yml',
                                       ],
                                       lockParentWindow: true,
                                     );
