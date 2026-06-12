@@ -7,9 +7,10 @@ class ServiceStatusView {
   final bool running;
 
   factory ServiceStatusView.fromJson(Map<String, dynamic> json) {
+    final phase = json['phase'] as String?;
     return ServiceStatusView(
-      state: json['state'] as String? ?? 'unknown',
-      running: json['running'] as bool? ?? false,
+      state: json['state'] as String? ?? phase ?? 'unknown',
+      running: json['running'] as bool? ?? phase == 'running',
     );
   }
 }
@@ -70,8 +71,14 @@ class LocalServiceView {
       runtime: json['runtime'] as String? ?? 'unknown',
       source: _decodeServiceSource(json['source']),
       state:
-          json['state'] as String? ?? status['state'] as String? ?? 'unknown',
-      running: json['running'] as bool? ?? status['running'] as bool? ?? false,
+          json['state'] as String? ??
+          status['state'] as String? ??
+          status['phase'] as String? ??
+          'unknown',
+      running:
+          json['running'] as bool? ??
+          status['running'] as bool? ??
+          status['phase'] == 'running',
       localEndpoints: decodeJsonList(
         json['local_endpoints'] ?? json['exposed_endpoints'] ?? json['ports'],
         LocalServicePortView.fromJson,
@@ -163,24 +170,35 @@ class RemoteServiceListEntryView {
       displayName:
           json['display_name'] as String? ??
           json['service_name'] as String? ??
+          json['name'] as String? ??
           '',
-      serviceName: json['service_name'] as String? ?? '',
+      serviceName:
+          json['service_name'] as String? ?? json['name'] as String? ?? '',
       runtime: json['runtime'] as String? ?? 'unknown',
       transportKind:
           (json['transport'] as Map<String, dynamic>?)?['kind'] as String? ??
           'tcp',
       usageKind: (json['usage'] as Map<String, dynamic>?)?['kind'] as String?,
       usagePath: (json['usage'] as Map<String, dynamic>?)?['path'] as String?,
-      state: json['state'] as String? ?? 'unknown',
-      running: json['running'] as bool? ?? false,
+      state:
+          json['state'] as String? ??
+          (json['status'] as Map<String, dynamic>?)?['state'] as String? ??
+          (json['status'] as Map<String, dynamic>?)?['phase'] as String? ??
+          'unknown',
+      running:
+          json['running'] as bool? ??
+          (json['status'] as Map<String, dynamic>?)?['running'] as bool? ??
+          (json['status'] as Map<String, dynamic>?)?['phase'] == 'running',
       published: json['published'] as bool? ?? false,
       serviceId:
-          json['service_id'] as String? ?? json['service_name'] as String?,
+          json['service_id'] as String? ??
+          json['service_name'] as String? ??
+          json['name'] as String?,
       accessAttached: json['access_attached'] as bool? ?? false,
       catalogId: json['catalog_id'] as String?,
       iconUrl: json['icon_url'] as String?,
       publishedEndpoints: decodeJsonList(
-        json['published_endpoints'],
+        json['published_endpoints'] ?? json['endpoints'],
         CatalogServiceEndpointView.fromJson,
       ),
       localAccessEndpoints: decodeJsonList(

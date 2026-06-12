@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -81,7 +82,7 @@ class FungiController extends GetxController {
   static const documentationUrl = 'https://fungi.rs/docs/intro';
   static const daemonDisabledStorageKey = 'daemon_disabled';
   static const _recipeRequestTimeout = Duration(seconds: 20);
-  static const _peerCatalogRequestTimeout = Duration(seconds: 10);
+  static const _deviceServiceSnapshotRequestTimeout = Duration(seconds: 10);
   static const _remotePeerServicesRequestTimeout = Duration(seconds: 8);
 
   FungiDaemonClient fungiClient;
@@ -1236,40 +1237,34 @@ class FungiController extends GetxController {
           continue;
         }
         try {
-          final catalogResponse = await fungiClient.listDevicePublishedServices(
-            ListDeviceServicesRequest()
-              ..deviceId = currentPeerId
-              ..cached = cached,
-            options: grpc.CallOptions(timeout: _peerCatalogRequestTimeout),
+          final servicesJson = await _loadDeviceServiceSnapshotServicesJson(
+            currentPeerId,
+            refresh: !cached,
+            timeout: _deviceServiceSnapshotRequestTimeout,
           );
-          final services = decodeJsonStringList(catalogResponse.servicesJson, (
-            serviceJson,
-          ) {
-            final serviceName = serviceJson['service_name'] as String? ?? '';
+          final services = decodeJsonStringList(servicesJson, (serviceJson) {
+            final serviceName =
+                serviceJson['name'] as String? ??
+                serviceJson['service_name'] as String? ??
+                '';
             final access = accessByService['$currentPeerId::$serviceName'];
 
-            return RemoteServiceListEntryView.fromJson({
-              'display_name': serviceName,
-              'service_name': serviceName,
-              'runtime': serviceJson['runtime']?.toString(),
-              'transport': serviceJson['transport'],
-              'usage': serviceJson['usage'],
-              'state':
-                  (serviceJson['status'] as Map<String, dynamic>?)?['state'],
-              'running':
-                  (serviceJson['status'] as Map<String, dynamic>?)?['running'],
-              'published': true,
-              'service_id': serviceName,
-              'access_attached': access != null,
-              'catalog_id': serviceJson['catalog_id'],
-              'icon_url': serviceJson['icon_url'],
-              'published_endpoints': serviceJson['endpoints'] ?? const [],
-              'local_access_endpoints': access?['endpoints'] ?? const [],
-            });
+            return RemoteServiceListEntryView.fromJson(
+              Map<String, dynamic>.from(serviceJson)
+                ..['display_name'] = serviceName
+                ..['service_name'] = serviceName
+                ..['published'] = true
+                ..['service_id'] = serviceName
+                ..['access_attached'] = access != null
+                ..['published_endpoints'] = serviceJson['endpoints'] ?? const []
+                ..['local_access_endpoints'] = access?['endpoints'] ?? const [],
+            );
           });
           next[currentPeerId] = services;
         } catch (e) {
-          debugPrint('Failed to load peer catalog for $currentPeerId: $e');
+          debugPrint(
+            'Failed to load device service snapshot for $currentPeerId: $e',
+          );
           next.putIfAbsent(currentPeerId, () => const []);
         }
       }
@@ -1340,19 +1335,18 @@ class FungiController extends GetxController {
     _setPeerManagedServicesError(peerId, '');
 
     try {
-      final response = await fungiClient.listDeviceManagedServices(
-        ListDeviceServicesRequest()
-          ..deviceId = peerId
-          ..cached = cached,
-        options: grpc.CallOptions(timeout: _remotePeerServicesRequestTimeout),
+      final servicesJson = await _loadDeviceServiceSnapshotServicesJson(
+        peerId,
+        refresh: !cached,
+        timeout: _remotePeerServicesRequestTimeout,
       );
       final services = decodeJsonStringList(
-        response.servicesJson,
+        servicesJson,
         LocalServiceView.fromJson,
       )..sort((left, right) => left.name.compareTo(right.name));
       _setPeerManagedServices(peerId, services);
     } catch (e) {
-      debugPrint('Failed to load managed services for $peerId: $e');
+      debugPrint('Failed to load device service snapshot for $peerId: $e');
       if (!peerManagedServices.containsKey(peerId)) {
         _setPeerManagedServices(peerId, const []);
       }
@@ -1360,6 +1354,28 @@ class FungiController extends GetxController {
     } finally {
       _setPeerManagedServicesLoading(peerId, false);
     }
+  }
+
+  Future<String> _loadDeviceServiceSnapshotServicesJson(
+    String peerId, {
+    required bool refresh,
+    required Duration timeout,
+  }) async {
+    final response = await fungiClient.getDeviceServiceSnapshot(
+      DeviceServiceSnapshotRequest()
+        ..deviceId = peerId
+        ..refresh = refresh,
+      options: grpc.CallOptions(timeout: timeout),
+    );
+    final snapshot = decodeJsonStringObject(
+      response.snapshotJson,
+      (json) => json,
+    );
+    final services = snapshot?['services'];
+    if (services is! List) {
+      return '[]';
+    }
+    return jsonEncode(services);
   }
 
   void _setPeerManagedServices(String peerId, List<LocalServiceView> services) {
