@@ -87,8 +87,8 @@ class LocalServiceView {
   }
 }
 
-class CatalogServiceEndpointView {
-  const CatalogServiceEndpointView({
+class RemoteServiceEndpointView {
+  const RemoteServiceEndpointView({
     required this.name,
     required this.protocol,
     required this.servicePort,
@@ -98,8 +98,8 @@ class CatalogServiceEndpointView {
   final String protocol;
   final int servicePort;
 
-  factory CatalogServiceEndpointView.fromJson(Map<String, dynamic> json) {
-    return CatalogServiceEndpointView(
+  factory RemoteServiceEndpointView.fromJson(Map<String, dynamic> json) {
+    return RemoteServiceEndpointView(
       name: json['name'] as String? ?? '',
       protocol: json['protocol'] as String? ?? '',
       servicePort: json['service_port'] as int? ?? 0,
@@ -140,12 +140,10 @@ class RemoteServiceListEntryView {
     required this.usagePath,
     required this.state,
     required this.running,
-    required this.published,
     required this.serviceId,
     required this.accessAttached,
-    required this.catalogId,
     required this.iconUrl,
-    required this.publishedEndpoints,
+    required this.remoteEndpoints,
     required this.localAccessEndpoints,
   });
 
@@ -157,12 +155,10 @@ class RemoteServiceListEntryView {
   final String? usagePath;
   final String state;
   final bool running;
-  final bool published;
   final String? serviceId;
   final bool accessAttached;
-  final String? catalogId;
   final String? iconUrl;
-  final List<CatalogServiceEndpointView> publishedEndpoints;
+  final List<RemoteServiceEndpointView> remoteEndpoints;
   final List<ServiceAccessEndpointView> localAccessEndpoints;
 
   factory RemoteServiceListEntryView.fromJson(Map<String, dynamic> json) {
@@ -189,17 +185,15 @@ class RemoteServiceListEntryView {
           json['running'] as bool? ??
           (json['status'] as Map<String, dynamic>?)?['running'] as bool? ??
           (json['status'] as Map<String, dynamic>?)?['phase'] == 'running',
-      published: json['published'] as bool? ?? false,
       serviceId:
           json['service_id'] as String? ??
           json['service_name'] as String? ??
           json['name'] as String?,
       accessAttached: json['access_attached'] as bool? ?? false,
-      catalogId: json['catalog_id'] as String?,
       iconUrl: json['icon_url'] as String?,
-      publishedEndpoints: decodeJsonList(
-        json['published_endpoints'] ?? json['endpoints'],
-        CatalogServiceEndpointView.fromJson,
+      remoteEndpoints: decodeJsonList(
+        json['remote_endpoints'] ?? json['endpoints'],
+        RemoteServiceEndpointView.fromJson,
       ),
       localAccessEndpoints: decodeJsonList(
         json['local_access_endpoints'],

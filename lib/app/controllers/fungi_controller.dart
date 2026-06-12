@@ -122,10 +122,10 @@ class FungiController extends GetxController {
   final addressBook = <DeviceInfo>[].obs;
   final runtimeConfig = RuntimeConfigResponse().obs;
   final localServices = <LocalServiceView>[].obs;
-  final peerCatalogServices = <String, List<RemoteServiceListEntryView>>{}.obs;
-  final peerManagedServices = <String, List<LocalServiceView>>{}.obs;
-  final peerManagedServicesLoading = <String, bool>{}.obs;
-  final peerManagedServicesErrors = <String, String>{}.obs;
+  final peerRemoteServices = <String, List<RemoteServiceListEntryView>>{}.obs;
+  final peerDeviceServices = <String, List<LocalServiceView>>{}.obs;
+  final peerDeviceServicesLoading = <String, bool>{}.obs;
+  final peerDeviceServicesErrors = <String, String>{}.obs;
   final peerConnections = <String, List<ConnectionSnapshot>>{}.obs;
 
   final localServicesLoading = false.obs;
@@ -623,27 +623,27 @@ class FungiController extends GetxController {
 
   Future<void> deletePeer(String peerId) async {
     try {
-      await refreshPeerManagedServicesData(peerId: peerId);
-      final managedServices = managedServicesForPeer(peerId);
-      if (managedServices.isNotEmpty) {
-        throw Exception('Peer still has ${managedServices.length} service(s)');
+      await refreshPeerDeviceServicesData(peerId: peerId);
+      final deviceServices = deviceServicesForPeer(peerId);
+      if (deviceServices.isNotEmpty) {
+        throw Exception('Peer still has ${deviceServices.length} service(s)');
       }
 
       await removeAddressBookPeer(peerId);
-      final nextManagedServices = Map<String, List<LocalServiceView>>.from(
-        peerManagedServices,
+      final nextDeviceServices = Map<String, List<LocalServiceView>>.from(
+        peerDeviceServices,
       )..remove(peerId);
-      peerManagedServices.value = nextManagedServices;
+      peerDeviceServices.value = nextDeviceServices;
 
-      final nextManagedServicesLoading = Map<String, bool>.from(
-        peerManagedServicesLoading,
+      final nextDeviceServicesLoading = Map<String, bool>.from(
+        peerDeviceServicesLoading,
       )..remove(peerId);
-      peerManagedServicesLoading.value = nextManagedServicesLoading;
+      peerDeviceServicesLoading.value = nextDeviceServicesLoading;
 
-      final nextManagedServicesErrors = Map<String, String>.from(
-        peerManagedServicesErrors,
+      final nextDeviceServicesErrors = Map<String, String>.from(
+        peerDeviceServicesErrors,
       )..remove(peerId);
-      peerManagedServicesErrors.value = nextManagedServicesErrors;
+      peerDeviceServicesErrors.value = nextDeviceServicesErrors;
 
       final nextConnections = Map<String, List<ConnectionSnapshot>>.from(
         peerConnections,
@@ -721,11 +721,11 @@ class FungiController extends GetxController {
       await Future.wait([
         refreshLocalServicesData(),
         refreshAvailableServicesData(cached: true),
-        refreshPeerManagedServicesData(cached: true),
-        refreshNodeManagementData(refreshManagedServices: false),
+        refreshPeerDeviceServicesData(cached: true),
+        refreshNodeManagementData(refreshDeviceServices: false),
         refreshRuntimeConfig(),
       ]);
-      _refreshPeerManagedServicesInBackground();
+      _refreshPeerDeviceServicesInBackground();
     } catch (e) {
       daemonConnectionState.value = DaemonConnectionState.failed;
       daemonError.value = e.toString();
@@ -1226,7 +1226,7 @@ class FungiController extends GetxController {
       final next = peerId == null
           ? <String, List<RemoteServiceListEntryView>>{}
           : Map<String, List<RemoteServiceListEntryView>>.from(
-              peerCatalogServices,
+              peerRemoteServices,
             );
       final peerIds = peerId == null
           ? addressBook.map((peer) => peer.peerId).toList(growable: false)
@@ -1253,10 +1253,9 @@ class FungiController extends GetxController {
               Map<String, dynamic>.from(serviceJson)
                 ..['display_name'] = serviceName
                 ..['service_name'] = serviceName
-                ..['published'] = true
                 ..['service_id'] = serviceName
                 ..['access_attached'] = access != null
-                ..['published_endpoints'] = serviceJson['endpoints'] ?? const []
+                ..['remote_endpoints'] = serviceJson['endpoints'] ?? const []
                 ..['local_access_endpoints'] = access?['endpoints'] ?? const [],
             );
           });
@@ -1268,7 +1267,7 @@ class FungiController extends GetxController {
           next.putIfAbsent(currentPeerId, () => const []);
         }
       }
-      peerCatalogServices.value = next;
+      peerRemoteServices.value = next;
     } catch (e) {
       if (peerId == null) {
         availableServicesError.value = 'Failed to load available services: $e';
@@ -1284,7 +1283,7 @@ class FungiController extends GetxController {
   }
 
   Future<void> refreshNodeManagementData({
-    bool refreshManagedServices = true,
+    bool refreshDeviceServices = true,
   }) async {
     nodeManagementLoading.value = true;
 
@@ -1298,8 +1297,8 @@ class FungiController extends GetxController {
         grouped.putIfAbsent(connection.peerId, () => []).add(connection);
       }
       peerConnections.value = grouped;
-      if (refreshManagedServices) {
-        await refreshPeerManagedServicesData(cached: false);
+      if (refreshDeviceServices) {
+        await refreshPeerDeviceServicesData(cached: false);
       }
     } catch (e) {
       debugPrint('Failed to refresh node management data: $e');
@@ -1308,7 +1307,7 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<void> refreshPeerManagedServicesData({
+  Future<void> refreshPeerDeviceServicesData({
     String? peerId,
     bool cached = false,
   }) async {
@@ -1318,21 +1317,21 @@ class FungiController extends GetxController {
 
     await Future.wait(
       peers.map((peerId) {
-        return _refreshPeerManagedServicesForPeer(peerId, cached: cached);
+        return _refreshPeerDeviceServicesForPeer(peerId, cached: cached);
       }),
     );
   }
 
-  void _refreshPeerManagedServicesInBackground({String? peerId}) {
-    unawaited(refreshPeerManagedServicesData(peerId: peerId, cached: false));
+  void _refreshPeerDeviceServicesInBackground({String? peerId}) {
+    unawaited(refreshPeerDeviceServicesData(peerId: peerId, cached: false));
   }
 
-  Future<void> _refreshPeerManagedServicesForPeer(
+  Future<void> _refreshPeerDeviceServicesForPeer(
     String peerId, {
     required bool cached,
   }) async {
-    _setPeerManagedServicesLoading(peerId, true);
-    _setPeerManagedServicesError(peerId, '');
+    _setPeerDeviceServicesLoading(peerId, true);
+    _setPeerDeviceServicesError(peerId, '');
 
     try {
       final servicesJson = await _loadDeviceServiceSnapshotServicesJson(
@@ -1344,15 +1343,15 @@ class FungiController extends GetxController {
         servicesJson,
         LocalServiceView.fromJson,
       )..sort((left, right) => left.name.compareTo(right.name));
-      _setPeerManagedServices(peerId, services);
+      _setPeerDeviceServices(peerId, services);
     } catch (e) {
       debugPrint('Failed to load device service snapshot for $peerId: $e');
-      if (!peerManagedServices.containsKey(peerId)) {
-        _setPeerManagedServices(peerId, const []);
+      if (!peerDeviceServices.containsKey(peerId)) {
+        _setPeerDeviceServices(peerId, const []);
       }
-      _setPeerManagedServicesError(peerId, e.toString());
+      _setPeerDeviceServicesError(peerId, e.toString());
     } finally {
-      _setPeerManagedServicesLoading(peerId, false);
+      _setPeerDeviceServicesLoading(peerId, false);
     }
   }
 
@@ -1378,30 +1377,30 @@ class FungiController extends GetxController {
     return jsonEncode(services);
   }
 
-  void _setPeerManagedServices(String peerId, List<LocalServiceView> services) {
-    final next = Map<String, List<LocalServiceView>>.from(peerManagedServices);
+  void _setPeerDeviceServices(String peerId, List<LocalServiceView> services) {
+    final next = Map<String, List<LocalServiceView>>.from(peerDeviceServices);
     next[peerId] = services;
-    peerManagedServices.value = next;
+    peerDeviceServices.value = next;
   }
 
-  void _setPeerManagedServicesLoading(String peerId, bool loading) {
-    final next = Map<String, bool>.from(peerManagedServicesLoading);
+  void _setPeerDeviceServicesLoading(String peerId, bool loading) {
+    final next = Map<String, bool>.from(peerDeviceServicesLoading);
     if (loading) {
       next[peerId] = true;
     } else {
       next.remove(peerId);
     }
-    peerManagedServicesLoading.value = next;
+    peerDeviceServicesLoading.value = next;
   }
 
-  void _setPeerManagedServicesError(String peerId, String error) {
-    final next = Map<String, String>.from(peerManagedServicesErrors);
+  void _setPeerDeviceServicesError(String peerId, String error) {
+    final next = Map<String, String>.from(peerDeviceServicesErrors);
     if (error.isEmpty) {
       next.remove(peerId);
     } else {
       next[peerId] = error;
     }
-    peerManagedServicesErrors.value = next;
+    peerDeviceServicesErrors.value = next;
   }
 
   List<PeerServicesSectionView> get availableServiceSections {
@@ -1411,23 +1410,23 @@ class FungiController extends GetxController {
             peerId: peer.peerId,
             alias: peer.name,
             hostname: peer.hostname,
-            services: peerCatalogServices[peer.peerId] ?? const [],
+            services: peerRemoteServices[peer.peerId] ?? const [],
           ),
         )
         .where((section) => section.services.isNotEmpty)
         .toList(growable: false);
   }
 
-  List<LocalServiceView> managedServicesForPeer(String peerId) {
-    return peerManagedServices[peerId] ?? const [];
+  List<LocalServiceView> deviceServicesForPeer(String peerId) {
+    return peerDeviceServices[peerId] ?? const [];
   }
 
-  bool isPeerManagedServicesLoading(String peerId) {
-    return peerManagedServicesLoading[peerId] ?? false;
+  bool isPeerDeviceServicesLoading(String peerId) {
+    return peerDeviceServicesLoading[peerId] ?? false;
   }
 
-  String peerManagedServicesError(String peerId) {
-    return peerManagedServicesErrors[peerId] ?? '';
+  String peerDeviceServicesError(String peerId) {
+    return peerDeviceServicesErrors[peerId] ?? '';
   }
 
   Iterable<String> remoteServiceReferenceCandidates(String peerId) sync* {
@@ -1448,7 +1447,7 @@ class FungiController extends GetxController {
     }
   }
 
-  RemoteServiceListEntryView? _matchCatalogServiceForPeer(
+  RemoteServiceListEntryView? _matchRemoteServiceForPeer(
     String peerId,
     String serviceName,
   ) {
@@ -1457,7 +1456,7 @@ class FungiController extends GetxController {
       return null;
     }
 
-    final services = peerCatalogServices[peerId] ?? const [];
+    final services = peerRemoteServices[peerId] ?? const [];
     for (final service in services) {
       if (service.serviceName == normalizedServiceName ||
           service.serviceId == normalizedServiceName) {
@@ -1475,18 +1474,18 @@ class FungiController extends GetxController {
   }
 
   String normalizeRemoteServiceName(String peerId, String serviceName) {
-    final matched = _matchCatalogServiceForPeer(peerId, serviceName);
+    final matched = _matchRemoteServiceForPeer(peerId, serviceName);
     return matched?.serviceName ?? serviceName.trim();
   }
 
-  RemoteServiceListEntryView? catalogServiceForPeer(
+  RemoteServiceListEntryView? remoteServiceForPeer(
     String peerId,
     String serviceName,
   ) {
-    return _matchCatalogServiceForPeer(peerId, serviceName);
+    return _matchRemoteServiceForPeer(peerId, serviceName);
   }
 
-  Future<void> attachCatalogServiceAccess({
+  Future<void> attachRemoteServiceAccess({
     required String peerId,
     required String serviceName,
   }) async {
@@ -1505,14 +1504,14 @@ class FungiController extends GetxController {
         cached: true,
         showLoading: false,
       );
-      _refreshPeerManagedServicesInBackground(peerId: peerId);
+      _refreshPeerDeviceServicesInBackground(peerId: peerId);
       Get.snackbar('Success', 'Connected locally');
     } catch (e) {
       Get.snackbar('Connect failed', '$e');
     }
   }
 
-  Future<void> detachCatalogServiceAccess({
+  Future<void> detachRemoteServiceAccess({
     required String peerId,
     required String serviceName,
   }) async {
@@ -1531,14 +1530,14 @@ class FungiController extends GetxController {
         cached: true,
         showLoading: false,
       );
-      _refreshPeerManagedServicesInBackground(peerId: peerId);
+      _refreshPeerDeviceServicesInBackground(peerId: peerId);
       Get.snackbar('Success', 'Disconnected');
     } catch (e) {
       Get.snackbar('Disconnect failed', '$e');
     }
   }
 
-  Future<void> openCatalogWebService({
+  Future<void> openRemoteWebService({
     required String peerId,
     required String serviceName,
   }) async {
@@ -1547,9 +1546,9 @@ class FungiController extends GetxController {
       serviceName,
     );
     try {
-      var service = catalogServiceForPeer(peerId, normalizedServiceName);
+      var service = remoteServiceForPeer(peerId, normalizedServiceName);
       if (service == null) {
-        throw Exception('Service not found in current catalog');
+        throw Exception('Service not found in current device snapshot');
       }
       if (!service.isWeb) {
         throw Exception('Only web services can be opened in the browser');
@@ -1566,13 +1565,13 @@ class FungiController extends GetxController {
           cached: true,
           showLoading: false,
         );
-        service = catalogServiceForPeer(peerId, normalizedServiceName);
+        service = remoteServiceForPeer(peerId, normalizedServiceName);
         if (service == null) {
           throw Exception('Failed to refresh local access state');
         }
       }
 
-      final uri = catalogWebLaunchUri(service);
+      final uri = remoteWebLaunchUri(service);
       if (uri == null) {
         throw Exception('No local web endpoint available');
       }
@@ -1605,7 +1604,7 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..manifestYaml = manifestYaml,
       );
-      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshPeerDeviceServicesData(peerId: peerId);
       await refreshAvailableServicesData(
         peerId: peerId,
         cached: false,
@@ -1697,7 +1696,7 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..manifestYaml = resolved.manifestYaml,
       );
-      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshPeerDeviceServicesData(peerId: peerId);
       await refreshAvailableServicesData(
         peerId: peerId,
         cached: false,
@@ -1728,7 +1727,7 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
-      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshPeerDeviceServicesData(peerId: peerId);
       await refreshAvailableServicesData(
         peerId: peerId,
         cached: false,
@@ -1756,7 +1755,7 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
-      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshPeerDeviceServicesData(peerId: peerId);
       await refreshAvailableServicesData(
         peerId: peerId,
         cached: false,
@@ -1784,8 +1783,8 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
-      await refreshPeerManagedServicesData(peerId: peerId, cached: true);
-      _refreshPeerManagedServicesInBackground(peerId: peerId);
+      await refreshPeerDeviceServicesData(peerId: peerId, cached: true);
+      _refreshPeerDeviceServicesInBackground(peerId: peerId);
       await refreshAvailableServicesData(
         peerId: peerId,
         cached: false,
@@ -1808,7 +1807,7 @@ class FungiController extends GetxController {
     }
   }
 
-  Uri? catalogWebLaunchUri(RemoteServiceListEntryView service) {
+  Uri? remoteWebLaunchUri(RemoteServiceListEntryView service) {
     if (!service.isWeb || service.localAccessEndpoints.isEmpty) {
       return null;
     }

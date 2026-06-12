@@ -130,9 +130,9 @@ class _PeerCard extends GetView<FungiController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final connections = controller.connectionsForPeer(peer.peerId);
-      final managedServices = controller.managedServicesForPeer(peer.peerId);
-      final isRefreshing = controller.isPeerManagedServicesLoading(peer.peerId);
-      final refreshError = controller.peerManagedServicesError(peer.peerId);
+      final deviceServices = controller.deviceServicesForPeer(peer.peerId);
+      final isRefreshing = controller.isPeerDeviceServicesLoading(peer.peerId);
+      final refreshError = controller.peerDeviceServicesError(peer.peerId);
       final latency = controller.bestLatencyForPeer(peer.peerId);
       final title = _deviceDisplayName(peer);
 
@@ -193,7 +193,7 @@ class _PeerCard extends GetView<FungiController> {
                   tooltip: 'Refresh device',
                   onPressed: isRefreshing
                       ? null
-                      : () => controller.refreshPeerManagedServicesData(
+                      : () => controller.refreshPeerDeviceServicesData(
                           peerId: peer.peerId,
                         ),
                   icon: isRefreshing
@@ -227,7 +227,7 @@ class _PeerCard extends GetView<FungiController> {
                       active: connections.isNotEmpty,
                     ),
                     ServicePillLabel(
-                      label: '${managedServices.length} services',
+                      label: '${deviceServices.length} services',
                     ),
                     if (isRefreshing)
                       const ServicePillLabel(label: 'Refreshing'),
@@ -243,7 +243,7 @@ class _PeerCard extends GetView<FungiController> {
                 const LinearProgressIndicator(),
                 const SizedBox(height: 12),
               ],
-              if (refreshError.isNotEmpty && managedServices.isEmpty) ...[
+              if (refreshError.isNotEmpty && deviceServices.isEmpty) ...[
                 const _DeviceRefreshNotice(),
                 const SizedBox(height: 12),
               ],
@@ -256,13 +256,13 @@ class _PeerCard extends GetView<FungiController> {
                 ),
               ),
               const SizedBox(height: 8),
-              if (managedServices.isNotEmpty) ...[
+              if (deviceServices.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                _ManagedServicesCompactList(services: managedServices),
+                _DeviceServicesCompactList(services: deviceServices),
               ] else ...[
                 const SizedBox(height: 8),
                 Text(
-                  'No managed services on this device yet.',
+                  'No services have been seen on this device yet.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -519,8 +519,8 @@ class _NodeEmptyState extends GetView<FungiController> {
   }
 }
 
-class _ManagedServicesCompactList extends StatelessWidget {
-  const _ManagedServicesCompactList({required this.services});
+class _DeviceServicesCompactList extends StatelessWidget {
+  const _DeviceServicesCompactList({required this.services});
 
   final List<LocalServiceView> services;
 

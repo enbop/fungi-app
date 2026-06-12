@@ -133,10 +133,10 @@ class DashboardPage extends GetView<FungiController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final sections = controller.availableServiceSections;
-      final remoteEntries = <_DashboardCatalogEntry>[];
-      final catalogByDevice = <String, Map<String, _DashboardCatalogEntry>>{};
-      final managedKeys = <String>{};
-      final remoteManagedEntries = <_DashboardManagedEntry>[];
+      final remoteEntries = <_DashboardRemoteEntry>[];
+      final remoteByDevice = <String, Map<String, _DashboardRemoteEntry>>{};
+      final deviceServiceKeys = <String>{};
+      final remoteDeviceServiceEntries = <_DashboardDeviceServiceEntry>[];
       final localServices = controller.localServices.toList(growable: false)
         ..sort((left, right) {
           final running = (right.running ? 1 : 0) - (left.running ? 1 : 0);
@@ -155,15 +155,15 @@ class DashboardPage extends GetView<FungiController> {
         for (final service in section.services) {
           if (service.isWeb || service.isTcp) {
             remoteEntries.add(
-              _DashboardCatalogEntry(
+              _DashboardRemoteEntry(
                 peerId: section.peerId,
                 deviceLabel: deviceLabel,
                 service: service,
               ),
             );
-            catalogByDevice.putIfAbsent(
+            remoteByDevice.putIfAbsent(
               section.peerId,
-              () => <String, _DashboardCatalogEntry>{},
+              () => <String, _DashboardRemoteEntry>{},
             )[service.serviceName] = remoteEntries.last;
           }
         }
@@ -175,9 +175,9 @@ class DashboardPage extends GetView<FungiController> {
           alias: peer.name,
           hostname: peer.hostname,
         );
-        final managedServices =
+        final deviceServices =
             controller
-                .managedServicesForPeer(peer.peerId)
+                .deviceServicesForPeer(peer.peerId)
                 .toList(growable: false)
               ..sort((left, right) {
                 final running =
@@ -187,21 +187,21 @@ class DashboardPage extends GetView<FungiController> {
                 }
                 return left.name.compareTo(right.name);
               });
-        for (final service in managedServices) {
-          managedKeys.add('${peer.peerId}::${service.name}');
-          remoteManagedEntries.add(
-            _DashboardManagedEntry(
+        for (final service in deviceServices) {
+          deviceServiceKeys.add('${peer.peerId}::${service.name}');
+          remoteDeviceServiceEntries.add(
+            _DashboardDeviceServiceEntry(
               peer: peer,
               deviceLabel: deviceLabel,
               service: service,
-              catalogEntry: catalogByDevice[peer.peerId]?[service.name],
+              remoteEntry: remoteByDevice[peer.peerId]?[service.name],
             ),
           );
         }
       }
 
-      final publishedOnlyEntries = remoteEntries.where((entry) {
-        return !managedKeys.contains(
+      final snapshotOnlyEntries = remoteEntries.where((entry) {
+        return !deviceServiceKeys.contains(
           '${entry.peerId}::${entry.service.serviceName}',
         );
       });
@@ -211,11 +211,12 @@ class DashboardPage extends GetView<FungiController> {
             ...localServices.map(
               (service) => _DashboardServiceEntry.local(service: service),
             ),
-            ...remoteManagedEntries.map(
-              (entry) => _DashboardServiceEntry.remoteManaged(entry: entry),
+            ...remoteDeviceServiceEntries.map(
+              (entry) =>
+                  _DashboardServiceEntry.remoteDeviceService(entry: entry),
             ),
-            ...publishedOnlyEntries.map(
-              (entry) => _DashboardServiceEntry.remotePublished(entry: entry),
+            ...snapshotOnlyEntries.map(
+              (entry) => _DashboardServiceEntry.remoteSnapshot(entry: entry),
             ),
           ]..sort((left, right) {
             final activeDelta =
@@ -237,7 +238,7 @@ class DashboardPage extends GetView<FungiController> {
       final isRefreshingServices =
           controller.localServicesLoading.value ||
           controller.availableServicesLoading.value ||
-          controller.peerManagedServicesLoading.values.any((value) => value);
+          controller.peerDeviceServicesLoading.values.any((value) => value);
       final showHeaderCreateAction = serviceEntries.isNotEmpty;
 
       return ListView(
@@ -302,8 +303,10 @@ class DashboardPage extends GetView<FungiController> {
               if (entry.isLocal) {
                 return _LocalServiceCard(service: entry.localService!);
               }
-              if (entry.isRemoteManaged) {
-                return _RemoteManagedServiceCard(entry: entry.managedEntry!);
+              if (entry.isRemoteDeviceService) {
+                return _RemoteDeviceServiceCard(
+                  entry: entry.deviceServiceEntry!,
+                );
               }
               return _QuickServiceCard(entry: entry.remoteEntry!);
             }),
@@ -313,8 +316,8 @@ class DashboardPage extends GetView<FungiController> {
   }
 }
 
-class _DashboardCatalogEntry {
-  const _DashboardCatalogEntry({
+class _DashboardRemoteEntry {
+  const _DashboardRemoteEntry({
     required this.peerId,
     required this.deviceLabel,
     required this.service,
@@ -325,18 +328,18 @@ class _DashboardCatalogEntry {
   final RemoteServiceListEntryView service;
 }
 
-class _DashboardManagedEntry {
-  const _DashboardManagedEntry({
+class _DashboardDeviceServiceEntry {
+  const _DashboardDeviceServiceEntry({
     required this.peer,
     required this.deviceLabel,
     required this.service,
-    required this.catalogEntry,
+    required this.remoteEntry,
   });
 
   final DeviceInfo peer;
   final String deviceLabel;
   final LocalServiceView service;
-  final _DashboardCatalogEntry? catalogEntry;
+  final _DashboardRemoteEntry? remoteEntry;
 
   String get reference {
     final baseName = service.name.trim();
@@ -355,62 +358,62 @@ class _DashboardServiceEntry {
     : this._(
         localService: service,
         remoteEntry: null,
-        managedEntry: null,
+        deviceServiceEntry: null,
         isLocal: true,
-        isRemoteManaged: false,
+        isRemoteDeviceService: false,
         reference: service.name,
         isActive: service.running,
         kindSort: 0,
       );
 
-  _DashboardServiceEntry.remoteManaged({required _DashboardManagedEntry entry})
-    : this._(
-        localService: null,
-        remoteEntry: null,
-        managedEntry: entry,
-        isLocal: false,
-        isRemoteManaged: true,
-        reference: entry.reference,
-        isActive: entry.service.running,
-        kindSort: 1,
-      );
-
-  _DashboardServiceEntry.remotePublished({
-    required _DashboardCatalogEntry entry,
+  _DashboardServiceEntry.remoteDeviceService({
+    required _DashboardDeviceServiceEntry entry,
   }) : this._(
          localService: null,
-         remoteEntry: entry,
-         managedEntry: null,
+         remoteEntry: null,
+         deviceServiceEntry: entry,
          isLocal: false,
-         isRemoteManaged: false,
-         reference: _DashboardCatalogEntryReference.reference(entry),
-         isActive: entry.service.accessAttached || entry.service.running,
-         kindSort: 2,
+         isRemoteDeviceService: true,
+         reference: entry.reference,
+         isActive: entry.service.running,
+         kindSort: 1,
        );
+
+  _DashboardServiceEntry.remoteSnapshot({required _DashboardRemoteEntry entry})
+    : this._(
+        localService: null,
+        remoteEntry: entry,
+        deviceServiceEntry: null,
+        isLocal: false,
+        isRemoteDeviceService: false,
+        reference: _DashboardRemoteEntryReference.reference(entry),
+        isActive: entry.service.accessAttached || entry.service.running,
+        kindSort: 2,
+      );
 
   const _DashboardServiceEntry._({
     required this.localService,
     required this.remoteEntry,
-    required this.managedEntry,
+    required this.deviceServiceEntry,
     required this.isLocal,
-    required this.isRemoteManaged,
+    required this.isRemoteDeviceService,
     required this.reference,
     required this.isActive,
     required this.kindSort,
   });
 
   final LocalServiceView? localService;
-  final _DashboardCatalogEntry? remoteEntry;
-  final _DashboardManagedEntry? managedEntry;
+  final _DashboardRemoteEntry? remoteEntry;
+  final _DashboardDeviceServiceEntry? deviceServiceEntry;
   final bool isLocal;
-  final bool isRemoteManaged;
+  final bool isRemoteDeviceService;
   final String reference;
   final bool isActive;
   final int kindSort;
 }
 
-class _DashboardCatalogEntryReference {
-  static String reference(_DashboardCatalogEntry entry) {
+class _DashboardRemoteEntryReference {
+  static String reference(_DashboardRemoteEntry entry) {
     return _dashboardRemoteServiceReference(
       service: entry.service,
       deviceLabel: entry.deviceLabel,
@@ -515,7 +518,7 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
 class _QuickServiceCard extends GetView<FungiController> {
   const _QuickServiceCard({required this.entry});
 
-  final _DashboardCatalogEntry entry;
+  final _DashboardRemoteEntry entry;
 
   @override
   Widget build(BuildContext context) {
@@ -571,7 +574,7 @@ class _QuickServiceCard extends GetView<FungiController> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: OutlinedButton.icon(
-                  onPressed: () => controller.detachCatalogServiceAccess(
+                  onPressed: () => controller.detachRemoteServiceAccess(
                     peerId: entry.peerId,
                     serviceName: service.serviceName,
                   ),
@@ -693,7 +696,7 @@ class _ServiceDetailRow extends StatelessWidget {
 class _QuickAccessActions extends GetView<FungiController> {
   const _QuickAccessActions({required this.entry});
 
-  final _DashboardCatalogEntry entry;
+  final _DashboardRemoteEntry entry;
 
   @override
   Widget build(BuildContext context) {
@@ -709,7 +712,7 @@ class _QuickAccessActions extends GetView<FungiController> {
       children: [
         if (service.isWeb && canControl)
           FilledButton(
-            onPressed: () => controller.openCatalogWebService(
+            onPressed: () => controller.openRemoteWebService(
               peerId: entry.peerId,
               serviceName: service.serviceName,
             ),
@@ -718,7 +721,7 @@ class _QuickAccessActions extends GetView<FungiController> {
           )
         else if (canControl && !service.accessAttached)
           FilledButton(
-            onPressed: () => controller.attachCatalogServiceAccess(
+            onPressed: () => controller.attachRemoteServiceAccess(
               peerId: entry.peerId,
               serviceName: service.serviceName,
             ),
@@ -745,13 +748,13 @@ class _QuickAccessActions extends GetView<FungiController> {
 class _QuickServiceDetails extends GetView<FungiController> {
   const _QuickServiceDetails({required this.entry});
 
-  final _DashboardCatalogEntry entry;
+  final _DashboardRemoteEntry entry;
 
   @override
   Widget build(BuildContext context) {
     final service = entry.service;
     final launchUri = service.isWeb
-        ? controller.catalogWebLaunchUri(service)
+        ? controller.remoteWebLaunchUri(service)
         : null;
     final hasLocalAddresses = service.localAccessEndpoints.isNotEmpty;
 
@@ -796,50 +799,53 @@ class _QuickServiceDetails extends GetView<FungiController> {
   }
 }
 
-class _RemoteManagedQuickActions extends GetView<FungiController> {
-  const _RemoteManagedQuickActions({required this.entry, required this.busy});
+class _RemoteDeviceServiceQuickActions extends GetView<FungiController> {
+  const _RemoteDeviceServiceQuickActions({
+    required this.entry,
+    required this.busy,
+  });
 
-  final _DashboardManagedEntry entry;
+  final _DashboardDeviceServiceEntry entry;
   final bool busy;
 
   @override
   Widget build(BuildContext context) {
-    final catalog = entry.catalogEntry?.service;
-    if (catalog == null) {
+    final remote = entry.remoteEntry?.service;
+    if (remote == null) {
       return const Icon(Icons.expand_more);
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (catalog.isWeb)
+        if (remote.isWeb)
           FilledButton(
             onPressed: busy
                 ? null
-                : () => controller.openCatalogWebService(
+                : () => controller.openRemoteWebService(
                     peerId: entry.peer.peerId,
                     serviceName: entry.service.name,
                   ),
             style: _compactServiceButtonStyle(),
             child: const Text('Open'),
           )
-        else if (!catalog.accessAttached)
+        else if (!remote.accessAttached)
           FilledButton(
             onPressed: busy
                 ? null
-                : () => controller.attachCatalogServiceAccess(
+                : () => controller.attachRemoteServiceAccess(
                     peerId: entry.peer.peerId,
                     serviceName: entry.service.name,
                   ),
             style: _compactServiceButtonStyle(),
             child: const Text('Connect'),
           )
-        else if (catalog.localAccessEndpoints.isNotEmpty)
+        else if (remote.localAccessEndpoints.isNotEmpty)
           FilledButton(
             onPressed: () => _showLocalAddressDialog(
               context,
               serviceReference: entry.reference,
-              endpoints: catalog.localAccessEndpoints,
+              endpoints: remote.localAccessEndpoints,
             ),
             style: _compactServiceButtonStyle(),
             child: const Text('Address'),
@@ -851,15 +857,15 @@ class _RemoteManagedQuickActions extends GetView<FungiController> {
   }
 }
 
-class _RemoteManagedServiceCard extends GetView<FungiController> {
-  const _RemoteManagedServiceCard({required this.entry});
+class _RemoteDeviceServiceCard extends GetView<FungiController> {
+  const _RemoteDeviceServiceCard({required this.entry});
 
-  final _DashboardManagedEntry entry;
+  final _DashboardDeviceServiceEntry entry;
 
   @override
   Widget build(BuildContext context) {
     final service = entry.service;
-    final catalog = entry.catalogEntry?.service;
+    final remote = entry.remoteEntry?.service;
     final actionKey = controller.remoteServiceActionKey(
       entry.peer.peerId,
       service.name,
@@ -881,7 +887,7 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
           tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
           childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           leading: ServiceIcon(
-            iconUrl: catalog?.iconUrl,
+            iconUrl: remote?.iconUrl,
             fallbackLabel: entry.reference,
           ),
           title: Text(
@@ -895,15 +901,18 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
               runSpacing: 8,
               children: [
                 const ServiceOriginBadge.remote(),
-                if (catalog != null)
-                  CompactBadge(label: _remoteServiceTypeLabel(catalog)),
+                if (remote != null)
+                  CompactBadge(label: _remoteServiceTypeLabel(remote)),
               ],
             ),
           ),
-          trailing: _RemoteManagedQuickActions(entry: entry, busy: isBusy),
+          trailing: _RemoteDeviceServiceQuickActions(
+            entry: entry,
+            busy: isBusy,
+          ),
           children: [
-            if (catalog != null) ...[
-              _QuickServiceDetails(entry: entry.catalogEntry!),
+            if (remote != null) ...[
+              _QuickServiceDetails(entry: entry.remoteEntry!),
             ] else if (service.localEndpoints.isNotEmpty) ...[
               ...service.localEndpoints.map((endpoint) {
                 return Padding(
@@ -926,11 +935,11 @@ class _RemoteManagedServiceCard extends GetView<FungiController> {
                 runSpacing: 8,
                 alignment: WrapAlignment.start,
                 children: [
-                  if (catalog != null && catalog.accessAttached)
+                  if (remote != null && remote.accessAttached)
                     OutlinedButton.icon(
                       onPressed: isBusy
                           ? null
-                          : () => controller.detachCatalogServiceAccess(
+                          : () => controller.detachRemoteServiceAccess(
                               peerId: entry.peer.peerId,
                               serviceName: service.name,
                             ),
