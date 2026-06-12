@@ -5,7 +5,6 @@ import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/routes/app_pages.dart';
 import 'package:fungi_app/app/tray_manager.dart';
 import 'package:fungi_app/ui/pages/theme/app_theme.dart';
-import 'package:fungi_app/ui/utils/macos_scoped_resource.dart';
 import 'package:fungi_app/ui/utils/mobile_info.dart';
 import 'package:fungi_app/ui/widgets/daemon_connection_overlay.dart';
 import 'package:get/get.dart';
@@ -26,10 +25,6 @@ void main(List<String> args) async {
   await GetStorage.init();
 
   await initMobile();
-
-  if (Platform.isMacOS) {
-    lastFileAccessingSecurityScopedResource();
-  }
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     await windowManager.ensureInitialized();

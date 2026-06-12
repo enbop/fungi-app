@@ -5244,6 +5244,674 @@ class ListServicesResponse extends $pb.GeneratedMessage {
   void clearServicesJson() => clearField(1);
 }
 
+class RecipeSummary extends $pb.GeneratedMessage {
+  factory RecipeSummary({
+    $core.String? id,
+    $core.String? name,
+    $core.String? description,
+    RecipeRuntimeKind? runtime,
+    $core.String? stability,
+    $core.String? sourceLabel,
+    $core.String? releaseVersion,
+  }) {
+    final $result = create();
+    if (id != null) {
+      $result.id = id;
+    }
+    if (name != null) {
+      $result.name = name;
+    }
+    if (description != null) {
+      $result.description = description;
+    }
+    if (runtime != null) {
+      $result.runtime = runtime;
+    }
+    if (stability != null) {
+      $result.stability = stability;
+    }
+    if (sourceLabel != null) {
+      $result.sourceLabel = sourceLabel;
+    }
+    if (releaseVersion != null) {
+      $result.releaseVersion = releaseVersion;
+    }
+    return $result;
+  }
+  RecipeSummary._() : super();
+  factory RecipeSummary.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RecipeSummary.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RecipeSummary', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'name')
+    ..aOS(3, _omitFieldNames ? '' : 'description')
+    ..e<RecipeRuntimeKind>(4, _omitFieldNames ? '' : 'runtime', $pb.PbFieldType.OE, defaultOrMaker: RecipeRuntimeKind.RECIPE_RUNTIME_KIND_UNSPECIFIED, valueOf: RecipeRuntimeKind.valueOf, enumValues: RecipeRuntimeKind.values)
+    ..aOS(5, _omitFieldNames ? '' : 'stability')
+    ..aOS(6, _omitFieldNames ? '' : 'sourceLabel')
+    ..aOS(7, _omitFieldNames ? '' : 'releaseVersion')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RecipeSummary clone() => RecipeSummary()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RecipeSummary copyWith(void Function(RecipeSummary) updates) => super.copyWith((message) => updates(message as RecipeSummary)) as RecipeSummary;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RecipeSummary create() => RecipeSummary._();
+  RecipeSummary createEmptyInstance() => create();
+  static $pb.PbList<RecipeSummary> createRepeated() => $pb.PbList<RecipeSummary>();
+  @$core.pragma('dart2js:noInline')
+  static RecipeSummary getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RecipeSummary>(create);
+  static RecipeSummary? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get description => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set description($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDescription() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDescription() => clearField(3);
+
+  @$pb.TagNumber(4)
+  RecipeRuntimeKind get runtime => $_getN(3);
+  @$pb.TagNumber(4)
+  set runtime(RecipeRuntimeKind v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRuntime() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRuntime() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get stability => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set stability($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasStability() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearStability() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get sourceLabel => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set sourceLabel($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasSourceLabel() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearSourceLabel() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get releaseVersion => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set releaseVersion($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasReleaseVersion() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearReleaseVersion() => clearField(7);
+}
+
+class RecipeDetail extends $pb.GeneratedMessage {
+  factory RecipeDetail({
+    RecipeSummary? summary,
+    $core.Iterable<$core.String>? tags,
+    $core.String? homepage,
+    $core.String? cachedManifestPath,
+    $core.String? cachedReadmePath,
+    $core.String? remoteManifestUrl,
+    $core.String? remoteReadmeUrl,
+  }) {
+    final $result = create();
+    if (summary != null) {
+      $result.summary = summary;
+    }
+    if (tags != null) {
+      $result.tags.addAll(tags);
+    }
+    if (homepage != null) {
+      $result.homepage = homepage;
+    }
+    if (cachedManifestPath != null) {
+      $result.cachedManifestPath = cachedManifestPath;
+    }
+    if (cachedReadmePath != null) {
+      $result.cachedReadmePath = cachedReadmePath;
+    }
+    if (remoteManifestUrl != null) {
+      $result.remoteManifestUrl = remoteManifestUrl;
+    }
+    if (remoteReadmeUrl != null) {
+      $result.remoteReadmeUrl = remoteReadmeUrl;
+    }
+    return $result;
+  }
+  RecipeDetail._() : super();
+  factory RecipeDetail.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RecipeDetail.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RecipeDetail', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOM<RecipeSummary>(1, _omitFieldNames ? '' : 'summary', subBuilder: RecipeSummary.create)
+    ..pPS(2, _omitFieldNames ? '' : 'tags')
+    ..aOS(3, _omitFieldNames ? '' : 'homepage')
+    ..aOS(4, _omitFieldNames ? '' : 'cachedManifestPath')
+    ..aOS(5, _omitFieldNames ? '' : 'cachedReadmePath')
+    ..aOS(6, _omitFieldNames ? '' : 'remoteManifestUrl')
+    ..aOS(7, _omitFieldNames ? '' : 'remoteReadmeUrl')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RecipeDetail clone() => RecipeDetail()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RecipeDetail copyWith(void Function(RecipeDetail) updates) => super.copyWith((message) => updates(message as RecipeDetail)) as RecipeDetail;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RecipeDetail create() => RecipeDetail._();
+  RecipeDetail createEmptyInstance() => create();
+  static $pb.PbList<RecipeDetail> createRepeated() => $pb.PbList<RecipeDetail>();
+  @$core.pragma('dart2js:noInline')
+  static RecipeDetail getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RecipeDetail>(create);
+  static RecipeDetail? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  RecipeSummary get summary => $_getN(0);
+  @$pb.TagNumber(1)
+  set summary(RecipeSummary v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSummary() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSummary() => clearField(1);
+  @$pb.TagNumber(1)
+  RecipeSummary ensureSummary() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.List<$core.String> get tags => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $core.String get homepage => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set homepage($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasHomepage() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearHomepage() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get cachedManifestPath => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set cachedManifestPath($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCachedManifestPath() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCachedManifestPath() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get cachedReadmePath => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set cachedReadmePath($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasCachedReadmePath() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearCachedReadmePath() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get remoteManifestUrl => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set remoteManifestUrl($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasRemoteManifestUrl() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearRemoteManifestUrl() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get remoteReadmeUrl => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set remoteReadmeUrl($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasRemoteReadmeUrl() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearRemoteReadmeUrl() => clearField(7);
+}
+
+class ListRecipesRequest extends $pb.GeneratedMessage {
+  factory ListRecipesRequest({
+    $core.bool? refresh,
+  }) {
+    final $result = create();
+    if (refresh != null) {
+      $result.refresh = refresh;
+    }
+    return $result;
+  }
+  ListRecipesRequest._() : super();
+  factory ListRecipesRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListRecipesRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListRecipesRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOB(1, _omitFieldNames ? '' : 'refresh')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListRecipesRequest clone() => ListRecipesRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListRecipesRequest copyWith(void Function(ListRecipesRequest) updates) => super.copyWith((message) => updates(message as ListRecipesRequest)) as ListRecipesRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListRecipesRequest create() => ListRecipesRequest._();
+  ListRecipesRequest createEmptyInstance() => create();
+  static $pb.PbList<ListRecipesRequest> createRepeated() => $pb.PbList<ListRecipesRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ListRecipesRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListRecipesRequest>(create);
+  static ListRecipesRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get refresh => $_getBF(0);
+  @$pb.TagNumber(1)
+  set refresh($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRefresh() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRefresh() => clearField(1);
+}
+
+class ListRecipesResponse extends $pb.GeneratedMessage {
+  factory ListRecipesResponse({
+    $core.Iterable<RecipeSummary>? recipes,
+  }) {
+    final $result = create();
+    if (recipes != null) {
+      $result.recipes.addAll(recipes);
+    }
+    return $result;
+  }
+  ListRecipesResponse._() : super();
+  factory ListRecipesResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListRecipesResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListRecipesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..pc<RecipeSummary>(1, _omitFieldNames ? '' : 'recipes', $pb.PbFieldType.PM, subBuilder: RecipeSummary.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListRecipesResponse clone() => ListRecipesResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListRecipesResponse copyWith(void Function(ListRecipesResponse) updates) => super.copyWith((message) => updates(message as ListRecipesResponse)) as ListRecipesResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListRecipesResponse create() => ListRecipesResponse._();
+  ListRecipesResponse createEmptyInstance() => create();
+  static $pb.PbList<ListRecipesResponse> createRepeated() => $pb.PbList<ListRecipesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ListRecipesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListRecipesResponse>(create);
+  static ListRecipesResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<RecipeSummary> get recipes => $_getList(0);
+}
+
+class GetRecipeRequest extends $pb.GeneratedMessage {
+  factory GetRecipeRequest({
+    $core.String? recipeId,
+    $core.bool? refresh,
+  }) {
+    final $result = create();
+    if (recipeId != null) {
+      $result.recipeId = recipeId;
+    }
+    if (refresh != null) {
+      $result.refresh = refresh;
+    }
+    return $result;
+  }
+  GetRecipeRequest._() : super();
+  factory GetRecipeRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetRecipeRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetRecipeRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'recipeId')
+    ..aOB(2, _omitFieldNames ? '' : 'refresh')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetRecipeRequest clone() => GetRecipeRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetRecipeRequest copyWith(void Function(GetRecipeRequest) updates) => super.copyWith((message) => updates(message as GetRecipeRequest)) as GetRecipeRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetRecipeRequest create() => GetRecipeRequest._();
+  GetRecipeRequest createEmptyInstance() => create();
+  static $pb.PbList<GetRecipeRequest> createRepeated() => $pb.PbList<GetRecipeRequest>();
+  @$core.pragma('dart2js:noInline')
+  static GetRecipeRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetRecipeRequest>(create);
+  static GetRecipeRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get recipeId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set recipeId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRecipeId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRecipeId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get refresh => $_getBF(1);
+  @$pb.TagNumber(2)
+  set refresh($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRefresh() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRefresh() => clearField(2);
+}
+
+class GetRecipeResponse extends $pb.GeneratedMessage {
+  factory GetRecipeResponse({
+    RecipeDetail? detail,
+  }) {
+    final $result = create();
+    if (detail != null) {
+      $result.detail = detail;
+    }
+    return $result;
+  }
+  GetRecipeResponse._() : super();
+  factory GetRecipeResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetRecipeResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetRecipeResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOM<RecipeDetail>(1, _omitFieldNames ? '' : 'detail', subBuilder: RecipeDetail.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetRecipeResponse clone() => GetRecipeResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetRecipeResponse copyWith(void Function(GetRecipeResponse) updates) => super.copyWith((message) => updates(message as GetRecipeResponse)) as GetRecipeResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetRecipeResponse create() => GetRecipeResponse._();
+  GetRecipeResponse createEmptyInstance() => create();
+  static $pb.PbList<GetRecipeResponse> createRepeated() => $pb.PbList<GetRecipeResponse>();
+  @$core.pragma('dart2js:noInline')
+  static GetRecipeResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetRecipeResponse>(create);
+  static GetRecipeResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  RecipeDetail get detail => $_getN(0);
+  @$pb.TagNumber(1)
+  set detail(RecipeDetail v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDetail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDetail() => clearField(1);
+  @$pb.TagNumber(1)
+  RecipeDetail ensureDetail() => $_ensure(0);
+}
+
+class ResolveRecipeRequest extends $pb.GeneratedMessage {
+  factory ResolveRecipeRequest({
+    $core.String? recipeId,
+    $core.String? serviceName,
+    $core.String? peerId,
+    $core.bool? refresh,
+  }) {
+    final $result = create();
+    if (recipeId != null) {
+      $result.recipeId = recipeId;
+    }
+    if (serviceName != null) {
+      $result.serviceName = serviceName;
+    }
+    if (peerId != null) {
+      $result.peerId = peerId;
+    }
+    if (refresh != null) {
+      $result.refresh = refresh;
+    }
+    return $result;
+  }
+  ResolveRecipeRequest._() : super();
+  factory ResolveRecipeRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ResolveRecipeRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ResolveRecipeRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'recipeId')
+    ..aOS(2, _omitFieldNames ? '' : 'serviceName')
+    ..aOS(3, _omitFieldNames ? '' : 'peerId')
+    ..aOB(4, _omitFieldNames ? '' : 'refresh')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ResolveRecipeRequest clone() => ResolveRecipeRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ResolveRecipeRequest copyWith(void Function(ResolveRecipeRequest) updates) => super.copyWith((message) => updates(message as ResolveRecipeRequest)) as ResolveRecipeRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ResolveRecipeRequest create() => ResolveRecipeRequest._();
+  ResolveRecipeRequest createEmptyInstance() => create();
+  static $pb.PbList<ResolveRecipeRequest> createRepeated() => $pb.PbList<ResolveRecipeRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ResolveRecipeRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ResolveRecipeRequest>(create);
+  static ResolveRecipeRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get recipeId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set recipeId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRecipeId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRecipeId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get serviceName => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set serviceName($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasServiceName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearServiceName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get peerId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set peerId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPeerId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPeerId() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get refresh => $_getBF(3);
+  @$pb.TagNumber(4)
+  set refresh($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRefresh() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRefresh() => clearField(4);
+}
+
+class ResolveRecipeResponse extends $pb.GeneratedMessage {
+  factory ResolveRecipeResponse({
+    RecipeDetail? detail,
+    $core.String? manifestYaml,
+    $core.String? manifestBaseDir,
+    $core.String? resolvedManifestPath,
+    $core.Iterable<$core.String>? warnings,
+  }) {
+    final $result = create();
+    if (detail != null) {
+      $result.detail = detail;
+    }
+    if (manifestYaml != null) {
+      $result.manifestYaml = manifestYaml;
+    }
+    if (manifestBaseDir != null) {
+      $result.manifestBaseDir = manifestBaseDir;
+    }
+    if (resolvedManifestPath != null) {
+      $result.resolvedManifestPath = resolvedManifestPath;
+    }
+    if (warnings != null) {
+      $result.warnings.addAll(warnings);
+    }
+    return $result;
+  }
+  ResolveRecipeResponse._() : super();
+  factory ResolveRecipeResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ResolveRecipeResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ResolveRecipeResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOM<RecipeDetail>(1, _omitFieldNames ? '' : 'detail', subBuilder: RecipeDetail.create)
+    ..aOS(2, _omitFieldNames ? '' : 'manifestYaml')
+    ..aOS(3, _omitFieldNames ? '' : 'manifestBaseDir')
+    ..aOS(4, _omitFieldNames ? '' : 'resolvedManifestPath')
+    ..pPS(5, _omitFieldNames ? '' : 'warnings')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ResolveRecipeResponse clone() => ResolveRecipeResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ResolveRecipeResponse copyWith(void Function(ResolveRecipeResponse) updates) => super.copyWith((message) => updates(message as ResolveRecipeResponse)) as ResolveRecipeResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ResolveRecipeResponse create() => ResolveRecipeResponse._();
+  ResolveRecipeResponse createEmptyInstance() => create();
+  static $pb.PbList<ResolveRecipeResponse> createRepeated() => $pb.PbList<ResolveRecipeResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ResolveRecipeResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ResolveRecipeResponse>(create);
+  static ResolveRecipeResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  RecipeDetail get detail => $_getN(0);
+  @$pb.TagNumber(1)
+  set detail(RecipeDetail v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDetail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDetail() => clearField(1);
+  @$pb.TagNumber(1)
+  RecipeDetail ensureDetail() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.String get manifestYaml => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set manifestYaml($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasManifestYaml() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearManifestYaml() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get manifestBaseDir => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set manifestBaseDir($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasManifestBaseDir() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearManifestBaseDir() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get resolvedManifestPath => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set resolvedManifestPath($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasResolvedManifestPath() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearResolvedManifestPath() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.List<$core.String> get warnings => $_getList(4);
+}
+
 class ListPeerCatalogRequest extends $pb.GeneratedMessage {
   factory ListPeerCatalogRequest({
     $core.String? peerId,
@@ -5356,6 +6024,70 @@ class ListPeerCatalogResponse extends $pb.GeneratedMessage {
   $core.bool hasServicesJson() => $_has(0);
   @$pb.TagNumber(1)
   void clearServicesJson() => clearField(1);
+}
+
+class ListDeviceServicesRequest extends $pb.GeneratedMessage {
+  factory ListDeviceServicesRequest({
+    $core.String? deviceId,
+    $core.bool? cached,
+  }) {
+    final $result = create();
+    if (deviceId != null) {
+      $result.deviceId = deviceId;
+    }
+    if (cached != null) {
+      $result.cached = cached;
+    }
+    return $result;
+  }
+  ListDeviceServicesRequest._() : super();
+  factory ListDeviceServicesRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ListDeviceServicesRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ListDeviceServicesRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'deviceId')
+    ..aOB(2, _omitFieldNames ? '' : 'cached')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ListDeviceServicesRequest clone() => ListDeviceServicesRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ListDeviceServicesRequest copyWith(void Function(ListDeviceServicesRequest) updates) => super.copyWith((message) => updates(message as ListDeviceServicesRequest)) as ListDeviceServicesRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ListDeviceServicesRequest create() => ListDeviceServicesRequest._();
+  ListDeviceServicesRequest createEmptyInstance() => create();
+  static $pb.PbList<ListDeviceServicesRequest> createRepeated() => $pb.PbList<ListDeviceServicesRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ListDeviceServicesRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ListDeviceServicesRequest>(create);
+  static ListDeviceServicesRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get deviceId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set deviceId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDeviceId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDeviceId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get cached => $_getBF(1);
+  @$pb.TagNumber(2)
+  set cached($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasCached() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCached() => clearField(2);
 }
 
 class GetPeerCapabilitySummaryRequest extends $pb.GeneratedMessage {
@@ -5639,10 +6371,14 @@ class RemotePeerRequest extends $pb.GeneratedMessage {
 class RemoteServiceControlResponse extends $pb.GeneratedMessage {
   factory RemoteServiceControlResponse({
     $core.String? serviceName,
+    $core.bool? forgottenLocally,
   }) {
     final $result = create();
     if (serviceName != null) {
       $result.serviceName = serviceName;
+    }
+    if (forgottenLocally != null) {
+      $result.forgottenLocally = forgottenLocally;
     }
     return $result;
   }
@@ -5652,6 +6388,7 @@ class RemoteServiceControlResponse extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RemoteServiceControlResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'fungi_daemon'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'serviceName')
+    ..aOB(2, _omitFieldNames ? '' : 'forgottenLocally')
     ..hasRequiredFields = false
   ;
 
@@ -5684,6 +6421,15 @@ class RemoteServiceControlResponse extends $pb.GeneratedMessage {
   $core.bool hasServiceName() => $_has(0);
   @$pb.TagNumber(1)
   void clearServiceName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get forgottenLocally => $_getBF(1);
+  @$pb.TagNumber(2)
+  set forgottenLocally($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasForgottenLocally() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearForgottenLocally() => clearField(2);
 }
 
 class AttachServiceAccessRequest extends $pb.GeneratedMessage {

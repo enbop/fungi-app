@@ -6,6 +6,7 @@ class EnhancedCard extends StatelessWidget {
   final double elevation;
   final double borderRadius;
   final double borderWidth;
+  final EdgeInsetsGeometry? margin;
 
   const EnhancedCard({
     super.key,
@@ -14,6 +15,7 @@ class EnhancedCard extends StatelessWidget {
     this.elevation = 4,
     this.borderRadius = 8,
     this.borderWidth = 1,
+    this.margin,
   });
 
   @override
@@ -22,6 +24,7 @@ class EnhancedCard extends StatelessWidget {
         accentColor ?? Theme.of(context).colorScheme.primary;
 
     return Card(
+      margin: margin,
       elevation: elevation,
       clipBehavior: Clip.antiAlias,
       color: Theme.of(context).colorScheme.surface,

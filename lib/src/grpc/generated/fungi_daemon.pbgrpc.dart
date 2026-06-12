@@ -225,6 +225,26 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/ListServices',
       ($0.Empty value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
+  static final _$listRecipes = $grpc.ClientMethod<$0.ListRecipesRequest, $0.ListRecipesResponse>(
+      '/fungi_daemon.FungiDaemon/ListRecipes',
+      ($0.ListRecipesRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListRecipesResponse.fromBuffer(value));
+  static final _$getRecipe = $grpc.ClientMethod<$0.GetRecipeRequest, $0.GetRecipeResponse>(
+      '/fungi_daemon.FungiDaemon/GetRecipe',
+      ($0.GetRecipeRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.GetRecipeResponse.fromBuffer(value));
+  static final _$resolveRecipe = $grpc.ClientMethod<$0.ResolveRecipeRequest, $0.ResolveRecipeResponse>(
+      '/fungi_daemon.FungiDaemon/ResolveRecipe',
+      ($0.ResolveRecipeRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ResolveRecipeResponse.fromBuffer(value));
+  static final _$listDevicePublishedServices = $grpc.ClientMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
+      '/fungi_daemon.FungiDaemon/ListDevicePublishedServices',
+      ($0.ListDeviceServicesRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
+  static final _$listDeviceManagedServices = $grpc.ClientMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
+      '/fungi_daemon.FungiDaemon/ListDeviceManagedServices',
+      ($0.ListDeviceServicesRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
   static final _$listPeerCatalog = $grpc.ClientMethod<$0.ListPeerCatalogRequest, $0.ListPeerCatalogResponse>(
       '/fungi_daemon.FungiDaemon/ListPeerCatalog',
       ($0.ListPeerCatalogRequest value) => value.writeToBuffer(),
@@ -247,6 +267,10 @@ class FungiDaemonClient extends $grpc.Client {
       ($core.List<$core.int> value) => $0.RemoteServiceControlResponse.fromBuffer(value));
   static final _$remoteRemoveService = $grpc.ClientMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
       '/fungi_daemon.FungiDaemon/RemoteRemoveService',
+      ($0.RemoteServiceNameRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.RemoteServiceControlResponse.fromBuffer(value));
+  static final _$forgetDeviceService = $grpc.ClientMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+      '/fungi_daemon.FungiDaemon/ForgetDeviceService',
       ($0.RemoteServiceNameRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.RemoteServiceControlResponse.fromBuffer(value));
   static final _$remoteListServices = $grpc.ClientMethod<$0.RemotePeerRequest, $0.ListServicesResponse>(
@@ -476,6 +500,26 @@ class FungiDaemonClient extends $grpc.Client {
     return $createUnaryCall(_$listServices, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.ListRecipesResponse> listRecipes($0.ListRecipesRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listRecipes, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GetRecipeResponse> getRecipe($0.GetRecipeRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getRecipe, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ResolveRecipeResponse> resolveRecipe($0.ResolveRecipeRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$resolveRecipe, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListServicesResponse> listDevicePublishedServices($0.ListDeviceServicesRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listDevicePublishedServices, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ListServicesResponse> listDeviceManagedServices($0.ListDeviceServicesRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$listDeviceManagedServices, request, options: options);
+  }
+
   $grpc.ResponseFuture<$0.ListPeerCatalogResponse> listPeerCatalog($0.ListPeerCatalogRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$listPeerCatalog, request, options: options);
   }
@@ -498,6 +542,10 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.RemoteServiceControlResponse> remoteRemoveService($0.RemoteServiceNameRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$remoteRemoveService, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.RemoteServiceControlResponse> forgetDeviceService($0.RemoteServiceNameRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$forgetDeviceService, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.ListServicesResponse> remoteListServices($0.RemotePeerRequest request, {$grpc.CallOptions? options}) {
@@ -879,6 +927,41 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
         ($0.ListServicesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListRecipesRequest, $0.ListRecipesResponse>(
+        'ListRecipes',
+        listRecipes_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ListRecipesRequest.fromBuffer(value),
+        ($0.ListRecipesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetRecipeRequest, $0.GetRecipeResponse>(
+        'GetRecipe',
+        getRecipe_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.GetRecipeRequest.fromBuffer(value),
+        ($0.GetRecipeResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ResolveRecipeRequest, $0.ResolveRecipeResponse>(
+        'ResolveRecipe',
+        resolveRecipe_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ResolveRecipeRequest.fromBuffer(value),
+        ($0.ResolveRecipeResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
+        'ListDevicePublishedServices',
+        listDevicePublishedServices_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ListDeviceServicesRequest.fromBuffer(value),
+        ($0.ListServicesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
+        'ListDeviceManagedServices',
+        listDeviceManagedServices_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ListDeviceServicesRequest.fromBuffer(value),
+        ($0.ListServicesResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.ListPeerCatalogRequest, $0.ListPeerCatalogResponse>(
         'ListPeerCatalog',
         listPeerCatalog_Pre,
@@ -917,6 +1000,13 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     $addMethod($grpc.ServiceMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
         'RemoteRemoveService',
         remoteRemoveService_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.RemoteServiceNameRequest.fromBuffer(value),
+        ($0.RemoteServiceControlResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.RemoteServiceNameRequest, $0.RemoteServiceControlResponse>(
+        'ForgetDeviceService',
+        forgetDeviceService_Pre,
         false,
         false,
         ($core.List<$core.int> value) => $0.RemoteServiceNameRequest.fromBuffer(value),
@@ -1155,6 +1245,26 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return listServices(call, await request);
   }
 
+  $async.Future<$0.ListRecipesResponse> listRecipes_Pre($grpc.ServiceCall call, $async.Future<$0.ListRecipesRequest> request) async {
+    return listRecipes(call, await request);
+  }
+
+  $async.Future<$0.GetRecipeResponse> getRecipe_Pre($grpc.ServiceCall call, $async.Future<$0.GetRecipeRequest> request) async {
+    return getRecipe(call, await request);
+  }
+
+  $async.Future<$0.ResolveRecipeResponse> resolveRecipe_Pre($grpc.ServiceCall call, $async.Future<$0.ResolveRecipeRequest> request) async {
+    return resolveRecipe(call, await request);
+  }
+
+  $async.Future<$0.ListServicesResponse> listDevicePublishedServices_Pre($grpc.ServiceCall call, $async.Future<$0.ListDeviceServicesRequest> request) async {
+    return listDevicePublishedServices(call, await request);
+  }
+
+  $async.Future<$0.ListServicesResponse> listDeviceManagedServices_Pre($grpc.ServiceCall call, $async.Future<$0.ListDeviceServicesRequest> request) async {
+    return listDeviceManagedServices(call, await request);
+  }
+
   $async.Future<$0.ListPeerCatalogResponse> listPeerCatalog_Pre($grpc.ServiceCall call, $async.Future<$0.ListPeerCatalogRequest> request) async {
     return listPeerCatalog(call, await request);
   }
@@ -1177,6 +1287,10 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
 
   $async.Future<$0.RemoteServiceControlResponse> remoteRemoveService_Pre($grpc.ServiceCall call, $async.Future<$0.RemoteServiceNameRequest> request) async {
     return remoteRemoveService(call, await request);
+  }
+
+  $async.Future<$0.RemoteServiceControlResponse> forgetDeviceService_Pre($grpc.ServiceCall call, $async.Future<$0.RemoteServiceNameRequest> request) async {
+    return forgetDeviceService(call, await request);
   }
 
   $async.Future<$0.ListServicesResponse> remoteListServices_Pre($grpc.ServiceCall call, $async.Future<$0.RemotePeerRequest> request) async {
@@ -1246,12 +1360,18 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.ServiceInstanceResponse> inspectService($grpc.ServiceCall call, $0.ServiceNameRequest request);
   $async.Future<$0.ServiceLogsResponse> getServiceLogs($grpc.ServiceCall call, $0.GetServiceLogsRequest request);
   $async.Future<$0.ListServicesResponse> listServices($grpc.ServiceCall call, $0.Empty request);
+  $async.Future<$0.ListRecipesResponse> listRecipes($grpc.ServiceCall call, $0.ListRecipesRequest request);
+  $async.Future<$0.GetRecipeResponse> getRecipe($grpc.ServiceCall call, $0.GetRecipeRequest request);
+  $async.Future<$0.ResolveRecipeResponse> resolveRecipe($grpc.ServiceCall call, $0.ResolveRecipeRequest request);
+  $async.Future<$0.ListServicesResponse> listDevicePublishedServices($grpc.ServiceCall call, $0.ListDeviceServicesRequest request);
+  $async.Future<$0.ListServicesResponse> listDeviceManagedServices($grpc.ServiceCall call, $0.ListDeviceServicesRequest request);
   $async.Future<$0.ListPeerCatalogResponse> listPeerCatalog($grpc.ServiceCall call, $0.ListPeerCatalogRequest request);
   $async.Future<$0.GetPeerCapabilitySummaryResponse> getPeerCapabilitySummary($grpc.ServiceCall call, $0.GetPeerCapabilitySummaryRequest request);
   $async.Future<$0.RemoteServiceControlResponse> remotePullService($grpc.ServiceCall call, $0.RemotePullServiceRequest request);
   $async.Future<$0.RemoteServiceControlResponse> remoteStartService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
   $async.Future<$0.RemoteServiceControlResponse> remoteStopService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
   $async.Future<$0.RemoteServiceControlResponse> remoteRemoveService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
+  $async.Future<$0.RemoteServiceControlResponse> forgetDeviceService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
   $async.Future<$0.ListServicesResponse> remoteListServices($grpc.ServiceCall call, $0.RemotePeerRequest request);
   $async.Future<$0.ServiceAccessResponse> attachServiceAccess($grpc.ServiceCall call, $0.AttachServiceAccessRequest request);
   $async.Future<$0.Empty> detachServiceAccess($grpc.ServiceCall call, $0.DetachServiceAccessRequest request);

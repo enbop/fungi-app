@@ -286,7 +286,7 @@ class HomePage extends StatelessWidget {
                         tabs: const <Widget>[
                           Tab(text: "Services", height: 30),
                           Tab(text: "Devices", height: 30),
-                          Tab(text: "Local", height: 30),
+                          Tab(text: "Advanced", height: 30),
                           Tab(text: "Settings", height: 30),
                         ],
                         isScrollable: true,
@@ -302,7 +302,7 @@ class HomePage extends StatelessWidget {
                         children: <Widget>[
                           DashboardPage(),
                           NodeManagementPage(),
-                          LocalServicesPage(),
+                          AdvancedPage(),
                           Settings(),
                         ],
                       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
-import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
+import 'package:fungi_app/ui/widgets/dialogs.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:fungi_app/ui/widgets/node_management_dialogs.dart';
@@ -14,19 +14,6 @@ String _deviceDisplayName(DeviceInfo peer) {
   return peer.name.isNotEmpty
       ? peer.name
       : (peer.hostname.isNotEmpty ? peer.hostname : peer.peerId);
-}
-
-String _remoteServiceReference(DeviceInfo peer, LocalServiceView service) {
-  final serviceName = service.name.trim();
-  if (serviceName.isEmpty) {
-    return _deviceDisplayName(peer);
-  }
-
-  if (serviceName.contains('@')) {
-    return serviceName;
-  }
-
-  return '$serviceName@${_deviceDisplayName(peer)}';
 }
 
 class NodeManagementPage extends StatefulWidget {
@@ -73,7 +60,7 @@ class _NodeManagementPageState extends State<NodeManagementPage>
                     const HelpTooltip(
                       title: 'Devices',
                       message:
-                          'Shows your saved devices and lets you manage the services running on them.',
+                          'Shows saved devices, connection state, trusted devices, and a compact service summary.',
                     ),
                   ],
                 ),
@@ -119,6 +106,8 @@ class _NodeManagementPageState extends State<NodeManagementPage>
                 },
               ),
             ),
+          const SizedBox(height: 12),
+          const _TrustedDevicesSection(),
         ],
       );
     });
@@ -148,18 +137,26 @@ class _PeerCard extends GetView<FungiController> {
       final title = _deviceDisplayName(peer);
 
       return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.only(bottom: 6),
         child: EnhancedCard(
+          margin: EdgeInsets.zero,
           child: ExpansionTile(
             initiallyExpanded: expanded,
             maintainState: true,
             onExpansionChanged: onExpansionChanged,
             title: Text(title),
             trailing: Wrap(
-              spacing: 8,
+              spacing: 2,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 IconButton(
+                  iconSize: 20,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
+                  ),
                   tooltip: 'Device details',
                   onPressed: () => showModalBottomSheet<void>(
                     context: context,
@@ -174,11 +171,25 @@ class _PeerCard extends GetView<FungiController> {
                   icon: const Icon(Icons.info_outline),
                 ),
                 IconButton(
+                  iconSize: 20,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
+                  ),
                   tooltip: 'Edit device',
                   onPressed: () => showNodeEditorDialog(initialPeer: peer),
                   icon: const Icon(Icons.edit_outlined),
                 ),
                 IconButton(
+                  iconSize: 20,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
+                  ),
                   tooltip: 'Refresh device',
                   onPressed: isRefreshing
                       ? null
@@ -226,7 +237,7 @@ class _PeerCard extends GetView<FungiController> {
                 ),
               ],
             ),
-            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             children: [
               if (isRefreshing) ...[
                 const LinearProgressIndicator(),
@@ -245,26 +256,14 @@ class _PeerCard extends GetView<FungiController> {
                 ),
               ),
               const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: InlineAddButton(
-                  onPressed: () =>
-                      showCreateServiceDialog(context, initialPeer: peer),
-                  label: 'Add Service',
-                ),
-              ),
               if (managedServices.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                ...managedServices.map(
-                  (service) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _RemoteServiceCard(peer: peer, service: service),
-                  ),
-                ),
+                _ManagedServicesCompactList(services: managedServices),
               ] else ...[
                 const SizedBox(height: 8),
-                const ManagementEmptyStateCard(
-                  message: 'No managed services on this device yet.',
+                Text(
+                  'No managed services on this device yet.',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ],
@@ -493,7 +492,7 @@ class _NodeEmptyState extends GetView<FungiController> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Add a device manually or discover one with mDNS. Once a device is saved, you can manage the services running on it.',
+              'Add a device manually or discover one with mDNS. Once a device is saved, its services can be managed from Service.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 14),
@@ -520,96 +519,112 @@ class _NodeEmptyState extends GetView<FungiController> {
   }
 }
 
-class _RemoteServiceCard extends GetView<FungiController> {
-  const _RemoteServiceCard({required this.peer, required this.service});
+class _ManagedServicesCompactList extends StatelessWidget {
+  const _ManagedServicesCompactList({required this.services});
 
-  final DeviceInfo peer;
-  final LocalServiceView service;
+  final List<LocalServiceView> services;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: services.asMap().entries.map((entry) {
+        final service = entry.value;
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            border: Border(
+              top: entry.key == 0
+                  ? BorderSide.none
+                  : BorderSide(
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.45),
+                    ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  service.name,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 176,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 86,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ServiceStatusBadge(
+                          label: service.running ? 'Running' : service.state,
+                          active: service.running,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: ServicePillLabel(label: service.runtime),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _TrustedDevicesSection extends GetView<FungiController> {
+  const _TrustedDevicesSection();
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final serviceReference = _remoteServiceReference(peer, service);
-      final actionKey = controller.remoteServiceActionKey(
-        peer.peerId,
-        service.name,
-      );
-      final pendingAction = controller.remoteServicePendingActions[actionKey];
-      final isBusy = pendingAction != null;
-
-      return ServiceManagementCard(
-        accentColor: Theme.of(context).colorScheme.secondary,
-        header: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              serviceReference,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (service.source.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                service.source,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ],
-        ),
-        badges: [
-          const ServicePillLabel(label: 'Remote'),
-          ServiceStatusBadge(label: service.state, active: service.running),
-          ServicePillLabel(label: service.runtime),
-          ServicePillLabel(label: '${service.localEndpoints.length} endpoints'),
-        ],
-        sections: [
-          if (service.localEndpoints.isNotEmpty) ...[
-            Text(
-              'Exposed Endpoints',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: 4),
-            ...service.localEndpoints.map(
-              (endpoint) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: SelectableText(
-                  '${endpoint.protocol} · ${endpoint.localHost}:${endpoint.localPort}',
-                  style: Theme.of(context).textTheme.bodySmall,
+      final trustedDevices = controller.trustedDevices;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(height: 28),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Trusted Devices',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-            ),
-          ],
-        ],
-        actions: [
-          ServiceActionButton(
-            label: 'Start',
-            isBusy: pendingAction == 'start',
-            onPressed: service.running || isBusy
-                ? null
-                : () => controller.startRemoteService(
-                    peerId: peer.peerId,
-                    serviceName: service.name,
-                  ),
+              InlineAddButton(onPressed: showTrustDeviceDialog, label: 'Trust'),
+            ],
           ),
-          ServiceActionButton(
-            label: 'Stop',
-            isBusy: pendingAction == 'stop',
-            onPressed: !service.running || isBusy
-                ? null
-                : () => controller.stopRemoteService(
-                    peerId: peer.peerId,
-                    serviceName: service.name,
-                  ),
-          ),
-          ServiceActionButton(
-            label: 'Remove',
-            isBusy: pendingAction == 'remove',
-            onPressed: service.running || isBusy
-                ? null
-                : () => controller.removeRemoteService(
-                    peerId: peer.peerId,
-                    serviceName: service.name,
-                  ),
-          ),
+          const SizedBox(height: 10),
+          if (trustedDevices.isEmpty)
+            Text(
+              'No trusted devices have been added yet.',
+              style: Theme.of(context).textTheme.bodySmall,
+            )
+          else
+            ...trustedDevices.map((peer) {
+              final displayName = _deviceDisplayName(peer);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ManagementActionItemCard(
+                  title: displayName,
+                  subtitle: peer.peerId,
+                  actionLabel: 'Untrust',
+                  onAction: () => controller.removeTrustedDevice(peer.peerId),
+                ),
+              );
+            }),
         ],
       );
     });

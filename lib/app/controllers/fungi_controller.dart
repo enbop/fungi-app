@@ -17,7 +17,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum ThemeOption { light, dark, system }
@@ -55,14 +54,6 @@ extension DaemonConnectionStateExtension on DaemonConnectionState {
   bool get isFailed => this == DaemonConnectionState.failed;
 }
 
-class FileTransferServerState {
-  bool enabled;
-  String? error;
-  String? rootDir;
-
-  FileTransferServerState({required this.enabled, this.error, this.rootDir});
-}
-
 enum StartupPrivacyNoticeAction { continueLaunch, openRelaySettings }
 
 class ExistingDaemonCheckResult {
@@ -89,6 +80,9 @@ class ExistingDaemonCheckResult {
 class FungiController extends GetxController {
   static const documentationUrl = 'https://fungi.rs/docs/intro';
   static const daemonDisabledStorageKey = 'daemon_disabled';
+  static const _recipeRequestTimeout = Duration(seconds: 20);
+  static const _peerCatalogRequestTimeout = Duration(seconds: 10);
+  static const _remotePeerServicesRequestTimeout = Duration(seconds: 8);
 
   FungiDaemonClient fungiClient;
   late final DaemonServiceManager daemonManager;
@@ -125,11 +119,6 @@ class FungiController extends GetxController {
   final launchAtLoginLoading = false.obs;
   final trustedDevices = <DeviceInfo>[].obs;
   final addressBook = <DeviceInfo>[].obs;
-  final fileTransferServerState = FileTransferServerState(enabled: false).obs;
-  final fileTransferClients = <FileTransferClient>[].obs;
-
-  // TCP Tunneling state
-  final tcpTunnelingConfig = TcpTunnelingConfigResponse().obs;
   final runtimeConfig = RuntimeConfigResponse().obs;
   final localServices = <LocalServiceView>[].obs;
   final peerCatalogServices = <String, List<RemoteServiceListEntryView>>{}.obs;
@@ -150,9 +139,6 @@ class FungiController extends GetxController {
   final relayConfigLoading = false.obs;
   final relayConfigError = ''.obs;
   final relayConfigNotice = ''.obs;
-
-  final ftpProxy = FtpProxyResponse(enabled: false, host: "", port: 0).obs;
-  final webdavProxy = WebdavProxyResponse().obs;
 
   FungiController() : fungiClient = fungiDaemonClientPlaceholder() {
     daemonManager = DaemonServiceManager.create();
@@ -676,104 +662,6 @@ class FungiController extends GetxController {
     return response.devices;
   }
 
-  Future<void> startFileTransferServer(String rootDir) async {
-    try {
-      if (Platform.isAndroid) {
-        final status = await Permission.manageExternalStorage.request();
-        if (!status.isGranted) {
-          Get.snackbar(
-            'Permission required',
-            'Please try again and grant "Manage External Storage" permission to use File Transfer Server.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.withValues(alpha: 0.1),
-            colorText: Colors.red,
-          );
-          return;
-        }
-      }
-
-      await fungiClient.startFileTransferService(
-        StartFileTransferServiceRequest()..rootDir = rootDir,
-      );
-      fileTransferServerState.value.enabled = true;
-      fileTransferServerState.value.error = null;
-      debugPrint('File Transfer Server started');
-    } catch (e) {
-      fileTransferServerState.value.enabled = false;
-      fileTransferServerState.value.error = e.toString();
-      debugPrint('Failed to start File Transfer Server: $e');
-    }
-    fileTransferServerState.value.rootDir = rootDir;
-    fileTransferServerState.refresh();
-  }
-
-  Future<void> stopFileTransferServer() async {
-    try {
-      await fungiClient.stopFileTransferService(Empty());
-      fileTransferServerState.value.enabled = false;
-      fileTransferServerState.value.error = null;
-      debugPrint('File Transfer Server stopped');
-    } catch (e) {
-      fileTransferServerState.value.error = e.toString();
-      debugPrint('Failed to stop File Transfer Server: $e');
-    }
-    fileTransferServerState.refresh();
-  }
-
-  Future<void> addFileTransferClient({
-    required bool enabled,
-    required DeviceInfo peerInfo,
-  }) async {
-    await fungiClient.addFileTransferClient(
-      AddFileTransferClientRequest()
-        ..enabled = enabled
-        ..name = peerInfo.name
-        ..peerId = peerInfo.peerId,
-    );
-    fileTransferClients.add(
-      FileTransferClient(
-        enabled: enabled,
-        peerId: peerInfo.peerId,
-        name: peerInfo.name,
-      ),
-    );
-    // add to address books
-    await updateAddressBookPeer(peerInfo);
-  }
-
-  Future<void> enableFileTransferClient({
-    required FileTransferClient client,
-    required bool enabled,
-  }) async {
-    await fungiClient.enableFileTransferClient(
-      EnableFileTransferClientRequest()
-        ..peerId = client.peerId
-        ..enabled = enabled,
-    );
-
-    final newClient = FileTransferClient(
-      enabled: enabled,
-      peerId: client.peerId,
-      name: client.name,
-    );
-
-    final index = fileTransferClients.indexWhere(
-      (c) => c.peerId == client.peerId,
-    );
-    if (index != -1) {
-      fileTransferClients[index] = newClient;
-    }
-    debugPrint('File Transfer Client ${client.peerId} enabled: $enabled');
-    fileTransferClients.refresh();
-  }
-
-  Future<void> removeFileTransferClient(String peerId) async {
-    await fungiClient.removeFileTransferClient(
-      RemoveFileTransferClientRequest()..peerId = peerId,
-    );
-    fileTransferClients.removeWhere((client) => client.peerId == peerId);
-  }
-
   Future<void> initFungi() async {
     if (!isDaemonEnabled.value) {
       daemonConnectionState.value = DaemonConnectionState.disabled;
@@ -826,51 +714,17 @@ class FungiController extends GetxController {
         Empty(),
       )).configFilePath;
       logDirPath.value = _deriveLogDirPath(configFilePath.value);
-
-      try {
-        fileTransferServerState.value.enabled =
-            (await fungiClient.getFileTransferServiceEnabled(Empty())).enabled;
-        final dir = (await fungiClient.getFileTransferServiceRootDir(
-          Empty(),
-        )).rootDir;
-        if (dir.isNotEmpty) {
-          fileTransferServerState.value.rootDir = dir;
-        } else {
-          fileTransferServerState.value.rootDir = null;
-        }
-      } catch (e) {
-        debugPrint('Failed to get file transfer server state: $e');
-        fileTransferServerState.value.error = e.toString();
-      }
-      fileTransferServerState.refresh();
-
-      try {
-        final clients = (await fungiClient.getAllFileTransferClients(
-          Empty(),
-        )).clients;
-        fileTransferClients.value = clients.toList();
-      } catch (e) {
-        debugPrint('Failed to get file transfer clients: $e');
-        fileTransferClients.value = [];
-      }
-
-      try {
-        ftpProxy.value = await fungiClient.getFtpProxy(Empty());
-        webdavProxy.value = await fungiClient.getWebdavProxy(Empty());
-      } catch (e) {
-        debugPrint('Failed to get proxy infos: $e');
-      }
       await updateTrustedDevices();
       await updateAddressBook();
       await refreshRelayConfig();
-      // Load TCP tunneling config
-      await refreshTcpTunnelingConfig();
       await Future.wait([
         refreshLocalServicesData(),
-        refreshAvailableServicesData(),
-        refreshNodeManagementData(),
+        refreshAvailableServicesData(cached: true),
+        refreshPeerManagedServicesData(cached: true),
+        refreshNodeManagementData(refreshManagedServices: false),
         refreshRuntimeConfig(),
       ]);
+      _refreshPeerManagedServicesInBackground();
     } catch (e) {
       daemonConnectionState.value = DaemonConnectionState.failed;
       daemonError.value = e.toString();
@@ -1304,145 +1158,6 @@ class FungiController extends GetxController {
     await initFungi();
   }
 
-  // TCP Tunneling methods
-  Future<void> refreshTcpTunnelingConfig() async {
-    try {
-      final config = await fungiClient.getTcpTunnelingConfig(Empty());
-      tcpTunnelingConfig.value = config;
-    } catch (e) {
-      debugPrint('Failed to get TCP tunneling config: $e');
-    }
-  }
-
-  Future<void> addTcpForwardingRule({
-    required String localHost,
-    required int localPort,
-    required int remotePort,
-    required DeviceInfo peerInfo,
-  }) async {
-    try {
-      await fungiClient.addTcpForwardingRule(
-        AddTcpForwardingRuleRequest()
-          ..localHost = localHost
-          ..localPort = localPort
-          ..peerId = peerInfo.peerId
-          ..remotePort = remotePort,
-      );
-      await refreshTcpTunnelingConfig();
-
-      // add to address books
-      await updateAddressBookPeer(peerInfo);
-      Get.snackbar(
-        'Success',
-        'Forwarding rule added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withValues(alpha: 0.1),
-        colorText: Colors.green,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to add forwarding rule: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withValues(alpha: 0.1),
-        colorText: Colors.red,
-      );
-    }
-  }
-
-  Future<void> removeTcpForwardingRule({
-    required String localHost,
-    required int localPort,
-    required String peerId,
-    required int remotePort,
-  }) async {
-    try {
-      await fungiClient.removeTcpForwardingRule(
-        RemoveTcpForwardingRuleRequest()
-          ..localHost = localHost
-          ..localPort = localPort
-          ..peerId = peerId
-          ..remotePort = remotePort,
-      );
-      await refreshTcpTunnelingConfig();
-      Get.snackbar(
-        'Success',
-        'Forwarding rule removed successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withValues(alpha: 0.1),
-        colorText: Colors.green,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to remove forwarding rule: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withValues(alpha: 0.1),
-        colorText: Colors.red,
-      );
-    }
-  }
-
-  Future<void> addTcpListeningRule({
-    required String localHost,
-    required int localPort,
-    required List<String> allowedPeers,
-  }) async {
-    try {
-      await fungiClient.addTcpListeningRule(
-        AddTcpListeningRuleRequest()
-          ..localHost = localHost
-          ..localPort = localPort
-          ..allowedPeers.addAll(allowedPeers),
-      );
-      await refreshTcpTunnelingConfig();
-      Get.snackbar(
-        'Success',
-        'Listening rule added successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withValues(alpha: 0.1),
-        colorText: Colors.green,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to add listening rule: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withValues(alpha: 0.1),
-        colorText: Colors.red,
-      );
-    }
-  }
-
-  Future<void> removeTcpListeningRule({
-    required String localHost,
-    required int localPort,
-  }) async {
-    try {
-      await fungiClient.removeTcpListeningRule(
-        RemoveTcpListeningRuleRequest()
-          ..localHost = localHost
-          ..localPort = localPort,
-      );
-      await refreshTcpTunnelingConfig();
-      Get.snackbar(
-        'Success',
-        'Listening rule removed successfully',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withValues(alpha: 0.1),
-        colorText: Colors.green,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to remove listening rule: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withValues(alpha: 0.1),
-        colorText: Colors.red,
-      );
-    }
-  }
-
   Future<void> refreshRuntimeConfig() async {
     try {
       runtimeConfig.value = await fungiClient.getRuntimeConfig(Empty());
@@ -1477,13 +1192,21 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<void> refreshAvailableServicesData() async {
-    availableServicesLoading.value = true;
-    availableServicesError.value = '';
+  Future<void> refreshAvailableServicesData({
+    String? peerId,
+    bool cached = false,
+    bool showLoading = true,
+  }) async {
+    if (showLoading) {
+      availableServicesLoading.value = true;
+    }
+    if (peerId == null) {
+      availableServicesError.value = '';
+    }
 
     try {
       final accessResponse = await fungiClient.listServiceAccesses(
-        ListServiceAccessesRequest(),
+        ListServiceAccessesRequest()..peerId = peerId ?? '',
       );
       final attachedAccesses = decodeJsonStringList(
         accessResponse.serviceAccessesJson,
@@ -1499,17 +1222,31 @@ class FungiController extends GetxController {
         accessByService['$peerId::$serviceName'] = access;
       }
 
-      final next = <String, List<RemoteServiceListEntryView>>{};
-      for (final peer in addressBook) {
+      final next = peerId == null
+          ? <String, List<RemoteServiceListEntryView>>{}
+          : Map<String, List<RemoteServiceListEntryView>>.from(
+              peerCatalogServices,
+            );
+      final peerIds = peerId == null
+          ? addressBook.map((peer) => peer.peerId).toList(growable: false)
+          : <String>[peerId];
+      for (final currentPeerId in peerIds) {
+        if (!addressBook.any((peer) => peer.peerId == currentPeerId)) {
+          next.remove(currentPeerId);
+          continue;
+        }
         try {
-          final catalogResponse = await fungiClient.listPeerCatalog(
-            ListPeerCatalogRequest()..peerId = peer.peerId,
+          final catalogResponse = await fungiClient.listDevicePublishedServices(
+            ListDeviceServicesRequest()
+              ..deviceId = currentPeerId
+              ..cached = cached,
+            options: grpc.CallOptions(timeout: _peerCatalogRequestTimeout),
           );
           final services = decodeJsonStringList(catalogResponse.servicesJson, (
             serviceJson,
           ) {
             final serviceName = serviceJson['service_name'] as String? ?? '';
-            final access = accessByService['${peer.peerId}::$serviceName'];
+            final access = accessByService['$currentPeerId::$serviceName'];
 
             return RemoteServiceListEntryView.fromJson({
               'display_name': serviceName,
@@ -1530,22 +1267,30 @@ class FungiController extends GetxController {
               'local_access_endpoints': access?['endpoints'] ?? const [],
             });
           });
-          next[peer.peerId] = services;
+          next[currentPeerId] = services;
         } catch (e) {
-          debugPrint('Failed to load peer catalog for ${peer.peerId}: $e');
-          next[peer.peerId] = const [];
+          debugPrint('Failed to load peer catalog for $currentPeerId: $e');
+          next.putIfAbsent(currentPeerId, () => const []);
         }
       }
       peerCatalogServices.value = next;
     } catch (e) {
-      availableServicesError.value = 'Failed to load available services: $e';
-      debugPrint(availableServicesError.value);
+      if (peerId == null) {
+        availableServicesError.value = 'Failed to load available services: $e';
+        debugPrint(availableServicesError.value);
+      } else {
+        debugPrint('Failed to load available services for $peerId: $e');
+      }
     } finally {
-      availableServicesLoading.value = false;
+      if (showLoading) {
+        availableServicesLoading.value = false;
+      }
     }
   }
 
-  Future<void> refreshNodeManagementData() async {
+  Future<void> refreshNodeManagementData({
+    bool refreshManagedServices = true,
+  }) async {
     nodeManagementLoading.value = true;
 
     try {
@@ -1558,7 +1303,9 @@ class FungiController extends GetxController {
         grouped.putIfAbsent(connection.peerId, () => []).add(connection);
       }
       peerConnections.value = grouped;
-      await refreshPeerManagedServicesData();
+      if (refreshManagedServices) {
+        await refreshPeerManagedServicesData(cached: false);
+      }
     } catch (e) {
       debugPrint('Failed to refresh node management data: $e');
     } finally {
@@ -1566,21 +1313,38 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<void> refreshPeerManagedServicesData({String? peerId}) async {
+  Future<void> refreshPeerManagedServicesData({
+    String? peerId,
+    bool cached = false,
+  }) async {
     final peers = peerId == null
         ? addressBook.map((peer) => peer.peerId).toList(growable: false)
         : <String>[peerId];
 
-    await Future.wait(peers.map(_refreshPeerManagedServicesForPeer));
+    await Future.wait(
+      peers.map((peerId) {
+        return _refreshPeerManagedServicesForPeer(peerId, cached: cached);
+      }),
+    );
   }
 
-  Future<void> _refreshPeerManagedServicesForPeer(String peerId) async {
+  void _refreshPeerManagedServicesInBackground({String? peerId}) {
+    unawaited(refreshPeerManagedServicesData(peerId: peerId, cached: false));
+  }
+
+  Future<void> _refreshPeerManagedServicesForPeer(
+    String peerId, {
+    required bool cached,
+  }) async {
     _setPeerManagedServicesLoading(peerId, true);
     _setPeerManagedServicesError(peerId, '');
 
     try {
-      final response = await fungiClient.remoteListServices(
-        RemotePeerRequest()..peerId = peerId,
+      final response = await fungiClient.listDeviceManagedServices(
+        ListDeviceServicesRequest()
+          ..deviceId = peerId
+          ..cached = cached,
+        options: grpc.CallOptions(timeout: _remotePeerServicesRequestTimeout),
       );
       final services = decodeJsonStringList(
         response.servicesJson,
@@ -1589,7 +1353,9 @@ class FungiController extends GetxController {
       _setPeerManagedServices(peerId, services);
     } catch (e) {
       debugPrint('Failed to load managed services for $peerId: $e');
-      _setPeerManagedServices(peerId, const []);
+      if (!peerManagedServices.containsKey(peerId)) {
+        _setPeerManagedServices(peerId, const []);
+      }
       _setPeerManagedServicesError(peerId, e.toString());
     } finally {
       _setPeerManagedServicesLoading(peerId, false);
@@ -1718,7 +1484,12 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..serviceName = normalizedServiceName,
       );
-      await refreshAvailableServicesData();
+      await refreshAvailableServicesData(
+        peerId: peerId,
+        cached: true,
+        showLoading: false,
+      );
+      _refreshPeerManagedServicesInBackground(peerId: peerId);
       Get.snackbar('Success', 'Connected locally');
     } catch (e) {
       Get.snackbar('Connect failed', '$e');
@@ -1739,7 +1510,12 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..serviceName = normalizedServiceName,
       );
-      await refreshAvailableServicesData();
+      await refreshAvailableServicesData(
+        peerId: peerId,
+        cached: true,
+        showLoading: false,
+      );
+      _refreshPeerManagedServicesInBackground(peerId: peerId);
       Get.snackbar('Success', 'Disconnected');
     } catch (e) {
       Get.snackbar('Disconnect failed', '$e');
@@ -1769,7 +1545,11 @@ class FungiController extends GetxController {
             ..peerId = peerId
             ..serviceName = normalizedServiceName,
         );
-        await refreshAvailableServicesData();
+        await refreshAvailableServicesData(
+          peerId: peerId,
+          cached: true,
+          showLoading: false,
+        );
         service = catalogServiceForPeer(peerId, normalizedServiceName);
         if (service == null) {
           throw Exception('Failed to refresh local access state');
@@ -1800,7 +1580,7 @@ class FungiController extends GetxController {
     try {
       final file = File(manifestPath);
       if (!await file.exists()) {
-        throw Exception('Manifest file not found: $manifestPath');
+        throw Exception('Service file not found: $manifestPath');
       }
 
       final manifestYaml = await file.readAsString();
@@ -1810,11 +1590,107 @@ class FungiController extends GetxController {
           ..manifestYaml = manifestYaml,
       );
       await refreshPeerManagedServicesData(peerId: peerId);
-      await refreshAvailableServicesData();
-      Get.snackbar('Success', 'Service added to device');
+      await refreshAvailableServicesData(
+        peerId: peerId,
+        cached: false,
+        showLoading: false,
+      );
+      Get.snackbar('Success', 'Service applied to device');
       return true;
     } catch (e) {
-      Get.snackbar('Remote pull failed', '$e');
+      Get.snackbar('Remote apply failed', '$e');
+      return false;
+    }
+  }
+
+  Future<List<RecipeSummary>> listServiceRecipes({bool refresh = false}) async {
+    final response = await fungiClient.listRecipes(
+      ListRecipesRequest()..refresh = refresh,
+      options: grpc.CallOptions(timeout: _recipeRequestTimeout),
+    );
+    return response.recipes;
+  }
+
+  Future<RecipeDetail> getServiceRecipeDetail({
+    required String recipeId,
+    bool refresh = false,
+  }) async {
+    final response = await fungiClient.getRecipe(
+      GetRecipeRequest()
+        ..recipeId = recipeId
+        ..refresh = refresh,
+      options: grpc.CallOptions(timeout: _recipeRequestTimeout),
+    );
+    if (!response.hasDetail()) {
+      throw Exception('Recipe detail was missing from the daemon response');
+    }
+    return response.detail;
+  }
+
+  Future<ResolveRecipeResponse> resolveServiceRecipe({
+    required String recipeId,
+    String? serviceName,
+    String? peerId,
+    bool refresh = false,
+  }) async {
+    final response = await fungiClient.resolveRecipe(
+      ResolveRecipeRequest()
+        ..recipeId = recipeId
+        ..serviceName = serviceName ?? ''
+        ..peerId = peerId ?? ''
+        ..refresh = refresh,
+      options: grpc.CallOptions(timeout: _recipeRequestTimeout),
+    );
+    if (!response.hasDetail()) {
+      throw Exception('Recipe detail was missing from the daemon response');
+    }
+    if (!response.hasManifestYaml()) {
+      throw Exception(
+        'Resolved recipe manifest was missing from the daemon response',
+      );
+    }
+    return response;
+  }
+
+  Future<bool> createLocalServiceFromResolvedRecipe(
+    ResolveRecipeResponse resolved,
+  ) async {
+    try {
+      await fungiClient.pullService(
+        PullServiceRequest()
+          ..manifestYaml = resolved.manifestYaml
+          ..manifestBaseDir = resolved.manifestBaseDir,
+      );
+      await refreshLocalServicesPageData();
+      await refreshNodeManagementData();
+      Get.snackbar('Success', 'Service applied');
+      return true;
+    } catch (e) {
+      Get.snackbar('Recipe apply failed', '$e');
+      return false;
+    }
+  }
+
+  Future<bool> createRemoteServiceFromResolvedRecipe({
+    required String peerId,
+    required ResolveRecipeResponse resolved,
+  }) async {
+    try {
+      await fungiClient.remotePullService(
+        RemotePullServiceRequest()
+          ..peerId = peerId
+          ..manifestYaml = resolved.manifestYaml,
+      );
+      await refreshPeerManagedServicesData(peerId: peerId);
+      await refreshAvailableServicesData(
+        peerId: peerId,
+        cached: false,
+        showLoading: false,
+      );
+      Get.snackbar('Success', 'Service applied to device');
+      return true;
+    } catch (e) {
+      Get.snackbar('Remote recipe apply failed', '$e');
       return false;
     }
   }
@@ -1837,7 +1713,11 @@ class FungiController extends GetxController {
           ..name = serviceName,
       );
       await refreshPeerManagedServicesData(peerId: peerId);
-      await refreshAvailableServicesData();
+      await refreshAvailableServicesData(
+        peerId: peerId,
+        cached: false,
+        showLoading: false,
+      );
       Get.snackbar('Success', 'Remote service started');
     } catch (e) {
       Get.snackbar('Remote start failed', '$e');
@@ -1861,7 +1741,11 @@ class FungiController extends GetxController {
           ..name = serviceName,
       );
       await refreshPeerManagedServicesData(peerId: peerId);
-      await refreshAvailableServicesData();
+      await refreshAvailableServicesData(
+        peerId: peerId,
+        cached: false,
+        showLoading: false,
+      );
       Get.snackbar('Success', 'Remote service stopped');
     } catch (e) {
       Get.snackbar('Remote stop failed', '$e');
@@ -1884,8 +1768,13 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
-      await refreshPeerManagedServicesData(peerId: peerId);
-      await refreshAvailableServicesData();
+      await refreshPeerManagedServicesData(peerId: peerId, cached: true);
+      _refreshPeerManagedServicesInBackground(peerId: peerId);
+      await refreshAvailableServicesData(
+        peerId: peerId,
+        cached: false,
+        showLoading: false,
+      );
       Get.snackbar('Success', 'Remote service removed');
     } catch (e) {
       Get.snackbar('Remote remove failed', '$e');
@@ -1920,6 +1809,57 @@ class FungiController extends GetxController {
       port: endpoint.localPort,
       path: normalizedPath,
     );
+  }
+
+  Uri? localServiceLaunchUri(LocalServiceView service) {
+    if (service.localEndpoints.isEmpty) {
+      return null;
+    }
+
+    LocalServicePortView? webEndpoint;
+    for (final endpoint in service.localEndpoints) {
+      final label = [
+        endpoint.name ?? '',
+        endpoint.protocol,
+      ].join(' ').toLowerCase();
+      if (label.contains('web') || label.contains('http')) {
+        webEndpoint = endpoint;
+        break;
+      }
+    }
+
+    final endpoint = webEndpoint ?? service.localEndpoints.first;
+    if (endpoint.localPort <= 0) {
+      return null;
+    }
+
+    return Uri(
+      scheme: 'http',
+      host: endpoint.localHost,
+      port: endpoint.localPort,
+      path: '/',
+    );
+  }
+
+  Future<void> openLocalService(String serviceName) async {
+    try {
+      final service = localServices.firstWhere(
+        (service) => service.name == serviceName || service.id == serviceName,
+      );
+      final uri = localServiceLaunchUri(service);
+      if (uri == null) {
+        throw Exception('No local endpoint is available');
+      }
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        throw Exception('Open request was rejected');
+      }
+    } catch (e) {
+      Get.snackbar('Open failed', '$e');
+    }
   }
 
   String peerDisplayLabel(String peerId) {
@@ -1958,7 +1898,7 @@ class FungiController extends GetxController {
     try {
       final file = File(manifestPath);
       if (!await file.exists()) {
-        throw Exception('Manifest file not found: $manifestPath');
+        throw Exception('Service file not found: $manifestPath');
       }
 
       final manifestYaml = await file.readAsString();
@@ -1969,10 +1909,10 @@ class FungiController extends GetxController {
       );
       await refreshLocalServicesPageData();
       await refreshNodeManagementData();
-      Get.snackbar('Success', 'Service added');
+      Get.snackbar('Success', 'Service applied');
       return true;
     } catch (e) {
-      Get.snackbar('Pull failed', '$e');
+      Get.snackbar('Apply failed', '$e');
       return false;
     }
   }
@@ -2035,7 +1975,6 @@ class FungiController extends GetxController {
     try {
       await fungiClient.startService(ServiceNameRequest()..name = name);
       await refreshLocalServicesPageData();
-      await refreshTcpTunnelingConfig();
       Get.snackbar('Success', 'Service started');
     } catch (e) {
       Get.snackbar('Start failed', '$e');
@@ -2051,7 +1990,6 @@ class FungiController extends GetxController {
     try {
       await fungiClient.stopService(ServiceNameRequest()..name = name);
       await refreshLocalServicesPageData();
-      await refreshTcpTunnelingConfig();
       Get.snackbar('Success', 'Service stopped');
     } catch (e) {
       Get.snackbar('Stop failed', '$e');
@@ -2067,7 +2005,6 @@ class FungiController extends GetxController {
     try {
       await fungiClient.removeService(ServiceNameRequest()..name = name);
       await refreshLocalServicesPageData();
-      await refreshTcpTunnelingConfig();
       Get.snackbar('Success', 'Service removed');
     } catch (e) {
       Get.snackbar('Remove failed', '$e');

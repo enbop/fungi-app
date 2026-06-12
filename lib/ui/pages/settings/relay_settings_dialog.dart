@@ -82,7 +82,7 @@ class _RelaySettingsDialog extends GetView<FungiController> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    SwitchListTile(
+                    _CompactRelaySwitchTile(
                       value: relayConfig.relayEnabled,
                       title: const Row(
                         mainAxisSize: MainAxisSize.min,
@@ -98,7 +98,7 @@ class _RelaySettingsDialog extends GetView<FungiController> {
                       ),
                       onChanged: controller.setRelayEnabled,
                     ),
-                    SwitchListTile(
+                    _CompactRelaySwitchTile(
                       value: relayConfig.useCommunityRelays,
                       title: const Row(
                         mainAxisSize: MainAxisSize.min,
@@ -196,6 +196,32 @@ class _RelaySettingsDialog extends GetView<FungiController> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CompactRelaySwitchTile extends StatelessWidget {
+  const _CompactRelaySwitchTile({
+    required this.value,
+    required this.title,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final Widget title;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: title,
+      trailing: Transform.scale(
+        scale: 0.82,
+        alignment: Alignment.centerRight,
+        child: Switch(value: value, onChanged: onChanged),
+      ),
+      onTap: () => onChanged(!value),
     );
   }
 }

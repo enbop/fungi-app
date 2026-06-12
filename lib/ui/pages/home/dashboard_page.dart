@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
+import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
@@ -38,10 +39,6 @@ String _remoteServiceTypeLabel(RemoteServiceListEntryView service) {
   return transport.toUpperCase();
 }
 
-String _remoteServiceStatusLabel(RemoteServiceListEntryView service) {
-  return service.accessAttached ? 'Connected' : 'Published';
-}
-
 String _localAccessEndpointLabel(ServiceAccessEndpointView endpoint) {
   final name = endpoint.name.trim();
   if (name.isNotEmpty) {
@@ -58,6 +55,24 @@ String _localAccessEndpointLabel(ServiceAccessEndpointView endpoint) {
 
 String _localAccessEndpointValue(ServiceAccessEndpointView endpoint) {
   return '${endpoint.localHost}:${endpoint.localPort}';
+}
+
+String _localServiceTypeLabel(LocalServiceView service) {
+  for (final endpoint in service.localEndpoints) {
+    final label = [endpoint.name ?? '', endpoint.protocol].join(' ');
+    final normalized = label.toLowerCase();
+    if (normalized.contains('web') || normalized.contains('http')) {
+      return 'Web';
+    }
+  }
+
+  final protocol = service.localEndpoints.isEmpty
+      ? ''
+      : service.localEndpoints.first.protocol.trim();
+  if (protocol.isEmpty) {
+    return 'TCP';
+  }
+  return protocol.toUpperCase();
 }
 
 Future<void> _showLocalAddressDialog(
@@ -119,6 +134,9 @@ class DashboardPage extends GetView<FungiController> {
     return Obx(() {
       final sections = controller.availableServiceSections;
       final remoteEntries = <_DashboardCatalogEntry>[];
+      final catalogByDevice = <String, Map<String, _DashboardCatalogEntry>>{};
+      final managedKeys = <String>{};
+      final remoteManagedEntries = <_DashboardManagedEntry>[];
       final localServices = controller.localServices.toList(growable: false)
         ..sort((left, right) {
           final running = (right.running ? 1 : 0) - (left.running ? 1 : 0);
@@ -143,17 +161,61 @@ class DashboardPage extends GetView<FungiController> {
                 service: service,
               ),
             );
+            catalogByDevice.putIfAbsent(
+              section.peerId,
+              () => <String, _DashboardCatalogEntry>{},
+            )[service.serviceName] = remoteEntries.last;
           }
         }
       }
+
+      for (final peer in controller.addressBook) {
+        final deviceLabel = _dashboardDeviceLabel(
+          peerId: peer.peerId,
+          alias: peer.name,
+          hostname: peer.hostname,
+        );
+        final managedServices =
+            controller
+                .managedServicesForPeer(peer.peerId)
+                .toList(growable: false)
+              ..sort((left, right) {
+                final running =
+                    (right.running ? 1 : 0) - (left.running ? 1 : 0);
+                if (running != 0) {
+                  return running;
+                }
+                return left.name.compareTo(right.name);
+              });
+        for (final service in managedServices) {
+          managedKeys.add('${peer.peerId}::${service.name}');
+          remoteManagedEntries.add(
+            _DashboardManagedEntry(
+              peer: peer,
+              deviceLabel: deviceLabel,
+              service: service,
+              catalogEntry: catalogByDevice[peer.peerId]?[service.name],
+            ),
+          );
+        }
+      }
+
+      final publishedOnlyEntries = remoteEntries.where((entry) {
+        return !managedKeys.contains(
+          '${entry.peerId}::${entry.service.serviceName}',
+        );
+      });
 
       final serviceEntries =
           <_DashboardServiceEntry>[
             ...localServices.map(
               (service) => _DashboardServiceEntry.local(service: service),
             ),
-            ...remoteEntries.map(
-              (entry) => _DashboardServiceEntry.remote(entry: entry),
+            ...remoteManagedEntries.map(
+              (entry) => _DashboardServiceEntry.remoteManaged(entry: entry),
+            ),
+            ...publishedOnlyEntries.map(
+              (entry) => _DashboardServiceEntry.remotePublished(entry: entry),
             ),
           ]..sort((left, right) {
             final activeDelta =
@@ -162,7 +224,7 @@ class DashboardPage extends GetView<FungiController> {
               return activeDelta;
             }
 
-            final kindDelta = (left.isLocal ? 0 : 1) - (right.isLocal ? 0 : 1);
+            final kindDelta = left.kindSort - right.kindSort;
             if (kindDelta != 0) {
               return kindDelta;
             }
@@ -174,7 +236,8 @@ class DashboardPage extends GetView<FungiController> {
 
       final isRefreshingServices =
           controller.localServicesLoading.value ||
-          controller.availableServicesLoading.value;
+          controller.availableServicesLoading.value ||
+          controller.peerManagedServicesLoading.values.any((value) => value);
       final showHeaderCreateAction = serviceEntries.isNotEmpty;
 
       return ListView(
@@ -190,7 +253,7 @@ class DashboardPage extends GetView<FungiController> {
                 if (showHeaderCreateAction) ...[
                   InlineAddButton(
                     onPressed: () => showCreateServiceDialog(context),
-                    label: 'Add',
+                    label: 'Apply',
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -239,6 +302,9 @@ class DashboardPage extends GetView<FungiController> {
               if (entry.isLocal) {
                 return _LocalServiceCard(service: entry.localService!);
               }
+              if (entry.isRemoteManaged) {
+                return _RemoteManagedServiceCard(entry: entry.managedEntry!);
+              }
               return _QuickServiceCard(entry: entry.remoteEntry!);
             }),
         ],
@@ -259,38 +325,88 @@ class _DashboardCatalogEntry {
   final RemoteServiceListEntryView service;
 }
 
+class _DashboardManagedEntry {
+  const _DashboardManagedEntry({
+    required this.peer,
+    required this.deviceLabel,
+    required this.service,
+    required this.catalogEntry,
+  });
+
+  final DeviceInfo peer;
+  final String deviceLabel;
+  final LocalServiceView service;
+  final _DashboardCatalogEntry? catalogEntry;
+
+  String get reference {
+    final baseName = service.name.trim();
+    if (baseName.isEmpty) {
+      return deviceLabel;
+    }
+    if (baseName.contains('@') || deviceLabel.trim().isEmpty) {
+      return baseName;
+    }
+    return '$baseName@$deviceLabel';
+  }
+}
+
 class _DashboardServiceEntry {
   _DashboardServiceEntry.local({required LocalServiceView service})
     : this._(
         localService: service,
         remoteEntry: null,
+        managedEntry: null,
         isLocal: true,
+        isRemoteManaged: false,
         reference: service.name,
         isActive: service.running,
+        kindSort: 0,
       );
 
-  _DashboardServiceEntry.remote({required _DashboardCatalogEntry entry})
+  _DashboardServiceEntry.remoteManaged({required _DashboardManagedEntry entry})
     : this._(
         localService: null,
-        remoteEntry: entry,
+        remoteEntry: null,
+        managedEntry: entry,
         isLocal: false,
-        reference: _DashboardCatalogEntryReference.reference(entry),
-        isActive: entry.service.accessAttached || entry.service.running,
+        isRemoteManaged: true,
+        reference: entry.reference,
+        isActive: entry.service.running,
+        kindSort: 1,
       );
+
+  _DashboardServiceEntry.remotePublished({
+    required _DashboardCatalogEntry entry,
+  }) : this._(
+         localService: null,
+         remoteEntry: entry,
+         managedEntry: null,
+         isLocal: false,
+         isRemoteManaged: false,
+         reference: _DashboardCatalogEntryReference.reference(entry),
+         isActive: entry.service.accessAttached || entry.service.running,
+         kindSort: 2,
+       );
 
   const _DashboardServiceEntry._({
     required this.localService,
     required this.remoteEntry,
+    required this.managedEntry,
     required this.isLocal,
+    required this.isRemoteManaged,
     required this.reference,
     required this.isActive,
+    required this.kindSort,
   });
 
   final LocalServiceView? localService;
   final _DashboardCatalogEntry? remoteEntry;
+  final _DashboardManagedEntry? managedEntry;
   final bool isLocal;
+  final bool isRemoteManaged;
   final String reference;
   final bool isActive;
+  final int kindSort;
 }
 
 class _DashboardCatalogEntryReference {
@@ -363,7 +479,7 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
             Text(
               hasDevices
                   ? 'This device has no local services yet, and your saved devices are not currently publishing any Web or TCP services you can use here.'
-                  : 'Create a service on this device, or save a device that can host one remotely.',
+                  : 'Apply a service on this device, or save a device that can host one remotely.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 14),
@@ -374,7 +490,7 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
                 FilledButton.icon(
                   onPressed: onCreateService,
                   icon: const Icon(Icons.add_circle),
-                  label: const Text('Create Service'),
+                  label: const Text('Apply Service'),
                 ),
                 OutlinedButton.icon(
                   onPressed: () =>
@@ -413,14 +529,14 @@ class _QuickServiceCard extends GetView<FungiController> {
         service.displayName != serviceReference &&
         service.displayName != service.serviceName;
     final typeLabel = _remoteServiceTypeLabel(service);
-    final statusLabel = _remoteServiceStatusLabel(service);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 6),
       child: EnhancedCard(
+        margin: EdgeInsets.zero,
         child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-          childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           leading: ServiceIcon(
             iconUrl: service.iconUrl,
             fallbackLabel: serviceReference,
@@ -439,14 +555,137 @@ class _QuickServiceCard extends GetView<FungiController> {
                 if (shouldShowHumanName)
                   CompactBadge(label: service.displayName),
                 CompactBadge(label: typeLabel),
-                CompactBadge(label: statusLabel),
               ],
             ),
           ),
           trailing: _QuickAccessActions(entry: entry),
-          children: [_QuickServiceDetails(entry: entry)],
+          children: [
+            _QuickServiceDetails(entry: entry),
+            _ServiceDetailRow(
+              label: 'Status',
+              value: service.running ? 'Running' : service.state,
+            ),
+            _ServiceDetailRow(label: 'Runtime', value: service.runtime),
+            const SizedBox(height: 8),
+            if (service.accessAttached && service.serviceName.isNotEmpty)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: () => controller.detachCatalogServiceAccess(
+                    peerId: entry.peerId,
+                    serviceName: service.serviceName,
+                  ),
+                  style: _compactServiceOutlinedButtonStyle(),
+                  icon: const Icon(Icons.link_off),
+                  label: const Text('Disconnect'),
+                ),
+              ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+ButtonStyle _compactServiceButtonStyle() {
+  return FilledButton.styleFrom(
+    visualDensity: VisualDensity.compact,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    minimumSize: const Size(0, 30),
+  );
+}
+
+ButtonStyle _compactServiceOutlinedButtonStyle() {
+  return OutlinedButton.styleFrom(
+    visualDensity: VisualDensity.compact,
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    minimumSize: const Size(0, 30),
+  );
+}
+
+class _CompactCopyRow extends StatelessWidget {
+  const _CompactCopyRow({
+    required this.label,
+    required this.value,
+    required this.successMessage,
+  });
+
+  final String label;
+  final String value;
+  final String successMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ServiceDetailRow(
+      label: label,
+      value: value,
+      tooltip: value,
+      onTap: () => copyTextValue(value, successMessage: successMessage),
+      trailing: CopyIconButton(
+        value: value,
+        successMessage: successMessage,
+        tooltip: 'Copy $label',
+      ),
+    );
+  }
+}
+
+class _ServiceDetailRow extends StatelessWidget {
+  const _ServiceDetailRow({
+    required this.label,
+    required this.value,
+    this.tooltip,
+    this.onTap,
+    this.trailing,
+  });
+
+  final String label;
+  final String value;
+  final String? tooltip;
+  final VoidCallback? onTap;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 92,
+            child: Text(
+              '$label:',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          Expanded(
+            child: Tooltip(
+              message: tooltip ?? value,
+              waitDuration: const Duration(milliseconds: 500),
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+          if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+        ],
+      ),
+    );
+
+    if (onTap == null) {
+      return row;
+    }
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: onTap,
+      child: row,
     );
   }
 }
@@ -474,6 +713,7 @@ class _QuickAccessActions extends GetView<FungiController> {
               peerId: entry.peerId,
               serviceName: service.serviceName,
             ),
+            style: _compactServiceButtonStyle(),
             child: const Text('Open'),
           )
         else if (canControl && !service.accessAttached)
@@ -482,6 +722,7 @@ class _QuickAccessActions extends GetView<FungiController> {
               peerId: entry.peerId,
               serviceName: service.serviceName,
             ),
+            style: _compactServiceButtonStyle(),
             child: const Text('Connect'),
           )
         else if (canControl)
@@ -491,6 +732,7 @@ class _QuickAccessActions extends GetView<FungiController> {
               serviceReference: serviceReference,
               endpoints: service.localAccessEndpoints,
             ),
+            style: _compactServiceButtonStyle(),
             child: const Text('Address'),
           ),
         const SizedBox(width: 8),
@@ -517,12 +759,12 @@ class _QuickServiceDetails extends GetView<FungiController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (launchUri != null) ...[
-          CopyableValueCard(
+          _CompactCopyRow(
             label: 'Local URL',
             value: launchUri.toString(),
-            compact: true,
             successMessage: 'Address copied',
           ),
+          const SizedBox(height: 8),
         ] else if (hasLocalAddresses) ...[
           ...service.localAccessEndpoints.asMap().entries.map((entry) {
             return Padding(
@@ -531,10 +773,9 @@ class _QuickServiceDetails extends GetView<FungiController> {
                     ? 0
                     : 8,
               ),
-              child: CopyableValueCard(
+              child: _CompactCopyRow(
                 label: _localAccessEndpointLabel(entry.value),
                 value: _localAccessEndpointValue(entry.value),
-                compact: true,
                 successMessage: 'Address copied',
               ),
             );
@@ -548,46 +789,209 @@ class _QuickServiceDetails extends GetView<FungiController> {
                 : 'Connect to create a local forwarded address here.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
+          const SizedBox(height: 8),
         ],
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            if (!service.accessAttached && service.serviceName.isNotEmpty)
-              OutlinedButton.icon(
-                onPressed: () => controller.attachCatalogServiceAccess(
-                  peerId: entry.peerId,
-                  serviceName: service.serviceName,
-                ),
-                icon: const Icon(Icons.link),
-                label: const Text('Connect'),
-              ),
-            if (!service.isWeb && hasLocalAddresses)
-              OutlinedButton.icon(
-                onPressed: () => _showLocalAddressDialog(
-                  context,
-                  serviceReference: _dashboardRemoteServiceReference(
-                    service: service,
-                    deviceLabel: entry.deviceLabel,
+      ],
+    );
+  }
+}
+
+class _RemoteManagedQuickActions extends GetView<FungiController> {
+  const _RemoteManagedQuickActions({required this.entry, required this.busy});
+
+  final _DashboardManagedEntry entry;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final catalog = entry.catalogEntry?.service;
+    if (catalog == null) {
+      return const Icon(Icons.expand_more);
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (catalog.isWeb)
+          FilledButton(
+            onPressed: busy
+                ? null
+                : () => controller.openCatalogWebService(
+                    peerId: entry.peer.peerId,
+                    serviceName: entry.service.name,
                   ),
-                  endpoints: service.localAccessEndpoints,
-                ),
-                icon: const Icon(Icons.copy_all),
-                label: const Text('Address'),
+            style: _compactServiceButtonStyle(),
+            child: const Text('Open'),
+          )
+        else if (!catalog.accessAttached)
+          FilledButton(
+            onPressed: busy
+                ? null
+                : () => controller.attachCatalogServiceAccess(
+                    peerId: entry.peer.peerId,
+                    serviceName: entry.service.name,
+                  ),
+            style: _compactServiceButtonStyle(),
+            child: const Text('Connect'),
+          )
+        else if (catalog.localAccessEndpoints.isNotEmpty)
+          FilledButton(
+            onPressed: () => _showLocalAddressDialog(
+              context,
+              serviceReference: entry.reference,
+              endpoints: catalog.localAccessEndpoints,
+            ),
+            style: _compactServiceButtonStyle(),
+            child: const Text('Address'),
+          ),
+        const SizedBox(width: 8),
+        const Icon(Icons.expand_more),
+      ],
+    );
+  }
+}
+
+class _RemoteManagedServiceCard extends GetView<FungiController> {
+  const _RemoteManagedServiceCard({required this.entry});
+
+  final _DashboardManagedEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final service = entry.service;
+    final catalog = entry.catalogEntry?.service;
+    final actionKey = controller.remoteServiceActionKey(
+      entry.peer.peerId,
+      service.name,
+    );
+    final pendingAction = controller.remoteServicePendingActions[actionKey];
+    final isBusy = pendingAction != null;
+    final deviceOnline = controller
+        .connectionsForPeer(entry.peer.peerId)
+        .isNotEmpty;
+    final statusLabel = deviceOnline
+        ? (service.running ? 'Running' : service.state)
+        : 'Unavailable';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: EnhancedCard(
+        margin: EdgeInsets.zero,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          leading: ServiceIcon(
+            iconUrl: catalog?.iconUrl,
+            fallbackLabel: entry.reference,
+          ),
+          title: Text(
+            entry.reference,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                const ServiceOriginBadge.remote(),
+                if (catalog != null)
+                  CompactBadge(label: _remoteServiceTypeLabel(catalog)),
+              ],
+            ),
+          ),
+          trailing: _RemoteManagedQuickActions(entry: entry, busy: isBusy),
+          children: [
+            if (catalog != null) ...[
+              _QuickServiceDetails(entry: entry.catalogEntry!),
+            ] else if (service.localEndpoints.isNotEmpty) ...[
+              ...service.localEndpoints.map((endpoint) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _CompactCopyRow(
+                    label: endpoint.name ?? endpoint.protocol,
+                    value: '${endpoint.localHost}:${endpoint.localPort}',
+                    successMessage: 'Address copied',
+                  ),
+                );
+              }),
+            ],
+            _ServiceDetailRow(label: 'Status', value: statusLabel),
+            _ServiceDetailRow(label: 'Runtime', value: service.runtime),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.start,
+                children: [
+                  if (catalog != null && catalog.accessAttached)
+                    OutlinedButton.icon(
+                      onPressed: isBusy
+                          ? null
+                          : () => controller.detachCatalogServiceAccess(
+                              peerId: entry.peer.peerId,
+                              serviceName: service.name,
+                            ),
+                      style: _compactServiceOutlinedButtonStyle(),
+                      icon: const Icon(Icons.link_off),
+                      label: const Text('Disconnect'),
+                    ),
+                  OutlinedButton.icon(
+                    onPressed: service.running || isBusy || !deviceOnline
+                        ? null
+                        : () => controller.startRemoteService(
+                            peerId: entry.peer.peerId,
+                            serviceName: service.name,
+                          ),
+                    style: _compactServiceOutlinedButtonStyle(),
+                    icon: pendingAction == 'start'
+                        ? const SizedBox.square(
+                            dimension: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.play_arrow),
+                    label: const Text('Start'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: !service.running || isBusy || !deviceOnline
+                        ? null
+                        : () => controller.stopRemoteService(
+                            peerId: entry.peer.peerId,
+                            serviceName: service.name,
+                          ),
+                    style: _compactServiceOutlinedButtonStyle(),
+                    icon: pendingAction == 'stop'
+                        ? const SizedBox.square(
+                            dimension: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.stop),
+                    label: const Text('Stop'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: isBusy
+                        ? null
+                        : () => controller.removeRemoteService(
+                            peerId: entry.peer.peerId,
+                            serviceName: service.name,
+                          ),
+                    style: _compactServiceOutlinedButtonStyle(),
+                    icon: pendingAction == 'remove'
+                        ? const SizedBox.square(
+                            dimension: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.delete_outline),
+                    label: const Text('Remove'),
+                  ),
+                ],
               ),
-            if (service.accessAttached && service.serviceName.isNotEmpty)
-              OutlinedButton.icon(
-                onPressed: () => controller.detachCatalogServiceAccess(
-                  peerId: entry.peerId,
-                  serviceName: service.serviceName,
-                ),
-                icon: const Icon(Icons.link_off),
-                label: const Text('Disconnect'),
-              ),
+            ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -601,91 +1005,155 @@ class _LocalServiceCard extends GetView<FungiController> {
   Widget build(BuildContext context) {
     final pendingAction = controller.localServicePendingActions[service.name];
     final isBusy = pendingAction != null;
-    final metadata = <String>[
-      service.runtime,
-      if (service.source.isNotEmpty) service.source,
-    ].join(' • ');
+    final launchUri = controller.localServiceLaunchUri(service);
+    final typeLabel = _localServiceTypeLabel(service);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 6),
       child: EnhancedCard(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ServiceIcon(iconUrl: null, fallbackLabel: service.name),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          service.name,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        if (metadata.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            metadata,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  CompactBadge(
-                    label: service.running ? 'Running' : service.state,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              const ServiceOriginBadge.local(),
-              const SizedBox(height: 10),
-              if (service.localEndpoints.isNotEmpty) ...[
-                Text(
-                  'Local Endpoints',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                const SizedBox(height: 6),
-                ...service.localEndpoints.map(
-                  (endpoint) => Text(
-                    '${endpoint.name ?? endpoint.protocol} -> ${endpoint.localHost}:${endpoint.localPort}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-                const SizedBox(height: 10),
+        margin: EdgeInsets.zero,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          leading: ServiceIcon(iconUrl: null, fallbackLabel: service.name),
+          title: Text(
+            service.name,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                const ServiceOriginBadge.local(),
+                CompactBadge(label: typeLabel),
               ],
-              Wrap(
+            ),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (launchUri != null)
+                FilledButton(
+                  onPressed: isBusy
+                      ? null
+                      : () => controller.openLocalService(service.name),
+                  style: _compactServiceButtonStyle(),
+                  child: const Text('Open'),
+                )
+              else if (service.localEndpoints.isNotEmpty)
+                FilledButton(
+                  onPressed: () =>
+                      _showLocalServiceAddressDialog(context, service: service),
+                  style: _compactServiceButtonStyle(),
+                  child: const Text('Address'),
+                ),
+              const SizedBox(width: 8),
+              const Icon(Icons.expand_more),
+            ],
+          ),
+          children: [
+            if (launchUri != null) ...[
+              _CompactCopyRow(
+                label: 'Local URL',
+                value: launchUri.toString(),
+                successMessage: 'Address copied',
+              ),
+              const SizedBox(height: 8),
+            ] else if (service.localEndpoints.isNotEmpty) ...[
+              ...service.localEndpoints.map(
+                (endpoint) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _CompactCopyRow(
+                    label: endpoint.name ?? endpoint.protocol,
+                    value: '${endpoint.localHost}:${endpoint.localPort}',
+                    successMessage: 'Address copied',
+                  ),
+                ),
+              ),
+            ],
+            _ServiceDetailRow(
+              label: 'Status',
+              value: service.running ? 'Running' : service.state,
+            ),
+            _ServiceDetailRow(label: 'Runtime', value: service.runtime),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
+                alignment: WrapAlignment.start,
                 children: [
-                  FilledButton.icon(
+                  OutlinedButton.icon(
                     onPressed: isBusy
                         ? null
                         : service.running
                         ? () => controller.stopLocalService(service.name)
                         : () => controller.startLocalService(service.name),
+                    style: _compactServiceOutlinedButtonStyle(),
                     icon: Icon(service.running ? Icons.stop : Icons.play_arrow),
                     label: Text(service.running ? 'Stop' : 'Start'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () =>
-                        DefaultTabController.of(context).animateTo(2),
-                    icon: const Icon(Icons.tune),
-                    label: const Text('Manage'),
+                    onPressed: service.running || isBusy
+                        ? null
+                        : () => controller.removeLocalService(service.name),
+                    style: _compactServiceOutlinedButtonStyle(),
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Remove'),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+Future<void> _showLocalServiceAddressDialog(
+  BuildContext context, {
+  required LocalServiceView service,
+}) async {
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: const Text('Local Address'),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(service.name, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              ...service.localEndpoints.map((endpoint) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: CopyableValueCard(
+                    label: endpoint.name ?? endpoint.protocol,
+                    value: '${endpoint.localHost}:${endpoint.localPort}',
+                    compact: true,
+                    successMessage: 'Address copied',
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class _StatusCard extends StatelessWidget {

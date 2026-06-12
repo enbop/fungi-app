@@ -30,5 +30,24 @@ class ServiceRuntimeKind extends $pb.ProtobufEnum {
   const ServiceRuntimeKind._($core.int v, $core.String n) : super(v, n);
 }
 
+class RecipeRuntimeKind extends $pb.ProtobufEnum {
+  static const RecipeRuntimeKind RECIPE_RUNTIME_KIND_UNSPECIFIED = RecipeRuntimeKind._(0, _omitEnumNames ? '' : 'RECIPE_RUNTIME_KIND_UNSPECIFIED');
+  static const RecipeRuntimeKind RECIPE_RUNTIME_KIND_DOCKER = RecipeRuntimeKind._(1, _omitEnumNames ? '' : 'RECIPE_RUNTIME_KIND_DOCKER');
+  static const RecipeRuntimeKind RECIPE_RUNTIME_KIND_WASMTIME = RecipeRuntimeKind._(2, _omitEnumNames ? '' : 'RECIPE_RUNTIME_KIND_WASMTIME');
+  static const RecipeRuntimeKind RECIPE_RUNTIME_KIND_TCP = RecipeRuntimeKind._(3, _omitEnumNames ? '' : 'RECIPE_RUNTIME_KIND_TCP');
+
+  static const $core.List<RecipeRuntimeKind> values = <RecipeRuntimeKind> [
+    RECIPE_RUNTIME_KIND_UNSPECIFIED,
+    RECIPE_RUNTIME_KIND_DOCKER,
+    RECIPE_RUNTIME_KIND_WASMTIME,
+    RECIPE_RUNTIME_KIND_TCP,
+  ];
+
+  static final $core.Map<$core.int, RecipeRuntimeKind> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static RecipeRuntimeKind? valueOf($core.int value) => _byValue[value];
+
+  const RecipeRuntimeKind._($core.int v, $core.String n) : super(v, n);
+}
+
 
 const _omitEnumNames = $core.bool.fromEnvironment('protobuf.omit_enum_names');
