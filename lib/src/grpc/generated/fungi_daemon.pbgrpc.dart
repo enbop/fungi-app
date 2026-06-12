@@ -85,74 +85,6 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/RemoveRuntimeAllowedHostPath',
       ($0.RuntimeAllowedHostPathRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$getFileTransferServiceEnabled = $grpc.ClientMethod<$0.Empty, $0.FileTransferServiceEnabledResponse>(
-      '/fungi_daemon.FungiDaemon/GetFileTransferServiceEnabled',
-      ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.FileTransferServiceEnabledResponse.fromBuffer(value));
-  static final _$getFileTransferServiceRootDir = $grpc.ClientMethod<$0.Empty, $0.FileTransferServiceRootDirResponse>(
-      '/fungi_daemon.FungiDaemon/GetFileTransferServiceRootDir',
-      ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.FileTransferServiceRootDirResponse.fromBuffer(value));
-  static final _$startFileTransferService = $grpc.ClientMethod<$0.StartFileTransferServiceRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/StartFileTransferService',
-      ($0.StartFileTransferServiceRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$stopFileTransferService = $grpc.ClientMethod<$0.Empty, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/StopFileTransferService',
-      ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$addFileTransferClient = $grpc.ClientMethod<$0.AddFileTransferClientRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/AddFileTransferClient',
-      ($0.AddFileTransferClientRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$removeFileTransferClient = $grpc.ClientMethod<$0.RemoveFileTransferClientRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveFileTransferClient',
-      ($0.RemoveFileTransferClientRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$enableFileTransferClient = $grpc.ClientMethod<$0.EnableFileTransferClientRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/EnableFileTransferClient',
-      ($0.EnableFileTransferClientRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$getAllFileTransferClients = $grpc.ClientMethod<$0.Empty, $0.FileTransferClientsResponse>(
-      '/fungi_daemon.FungiDaemon/GetAllFileTransferClients',
-      ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.FileTransferClientsResponse.fromBuffer(value));
-  static final _$getFtpProxy = $grpc.ClientMethod<$0.Empty, $0.FtpProxyResponse>(
-      '/fungi_daemon.FungiDaemon/GetFtpProxy',
-      ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.FtpProxyResponse.fromBuffer(value));
-  static final _$updateFtpProxy = $grpc.ClientMethod<$0.UpdateFtpProxyRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/UpdateFtpProxy',
-      ($0.UpdateFtpProxyRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$getWebdavProxy = $grpc.ClientMethod<$0.Empty, $0.WebdavProxyResponse>(
-      '/fungi_daemon.FungiDaemon/GetWebdavProxy',
-      ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.WebdavProxyResponse.fromBuffer(value));
-  static final _$updateWebdavProxy = $grpc.ClientMethod<$0.UpdateWebdavProxyRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/UpdateWebdavProxy',
-      ($0.UpdateWebdavProxyRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$getTcpTunnelingConfig = $grpc.ClientMethod<$0.Empty, $0.TcpTunnelingConfigResponse>(
-      '/fungi_daemon.FungiDaemon/GetTcpTunnelingConfig',
-      ($0.Empty value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.TcpTunnelingConfigResponse.fromBuffer(value));
-  static final _$addTcpForwardingRule = $grpc.ClientMethod<$0.AddTcpForwardingRuleRequest, $0.TcpForwardingRuleResponse>(
-      '/fungi_daemon.FungiDaemon/AddTcpForwardingRule',
-      ($0.AddTcpForwardingRuleRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.TcpForwardingRuleResponse.fromBuffer(value));
-  static final _$removeTcpForwardingRule = $grpc.ClientMethod<$0.RemoveTcpForwardingRuleRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveTcpForwardingRule',
-      ($0.RemoveTcpForwardingRuleRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$addTcpListeningRule = $grpc.ClientMethod<$0.AddTcpListeningRuleRequest, $0.TcpListeningRuleResponse>(
-      '/fungi_daemon.FungiDaemon/AddTcpListeningRule',
-      ($0.AddTcpListeningRuleRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.TcpListeningRuleResponse.fromBuffer(value));
-  static final _$removeTcpListeningRule = $grpc.ClientMethod<$0.RemoveTcpListeningRuleRequest, $0.Empty>(
-      '/fungi_daemon.FungiDaemon/RemoveTcpListeningRule',
-      ($0.RemoveTcpListeningRuleRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
   static final _$listMdnsDevices = $grpc.ClientMethod<$0.Empty, $0.DeviceInfoListResponse>(
       '/fungi_daemon.FungiDaemon/ListMdnsDevices',
       ($0.Empty value) => value.writeToBuffer(),
@@ -237,18 +169,10 @@ class FungiDaemonClient extends $grpc.Client {
       '/fungi_daemon.FungiDaemon/ResolveRecipe',
       ($0.ResolveRecipeRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.ResolveRecipeResponse.fromBuffer(value));
-  static final _$listDevicePublishedServices = $grpc.ClientMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
-      '/fungi_daemon.FungiDaemon/ListDevicePublishedServices',
-      ($0.ListDeviceServicesRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
-  static final _$listDeviceManagedServices = $grpc.ClientMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
-      '/fungi_daemon.FungiDaemon/ListDeviceManagedServices',
-      ($0.ListDeviceServicesRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.ListServicesResponse.fromBuffer(value));
-  static final _$listPeerCatalog = $grpc.ClientMethod<$0.ListPeerCatalogRequest, $0.ListPeerCatalogResponse>(
-      '/fungi_daemon.FungiDaemon/ListPeerCatalog',
-      ($0.ListPeerCatalogRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.ListPeerCatalogResponse.fromBuffer(value));
+  static final _$getDeviceServiceSnapshot = $grpc.ClientMethod<$0.DeviceServiceSnapshotRequest, $0.DeviceServiceSnapshotResponse>(
+      '/fungi_daemon.FungiDaemon/GetDeviceServiceSnapshot',
+      ($0.DeviceServiceSnapshotRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.DeviceServiceSnapshotResponse.fromBuffer(value));
   static final _$getPeerCapabilitySummary = $grpc.ClientMethod<$0.GetPeerCapabilitySummaryRequest, $0.GetPeerCapabilitySummaryResponse>(
       '/fungi_daemon.FungiDaemon/GetPeerCapabilitySummary',
       ($0.GetPeerCapabilitySummaryRequest value) => value.writeToBuffer(),
@@ -284,6 +208,10 @@ class FungiDaemonClient extends $grpc.Client {
   static final _$detachServiceAccess = $grpc.ClientMethod<$0.DetachServiceAccessRequest, $0.Empty>(
       '/fungi_daemon.FungiDaemon/DetachServiceAccess',
       ($0.DetachServiceAccessRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
+  static final _$forgetServiceAccess = $grpc.ClientMethod<$0.ForgetServiceAccessRequest, $0.Empty>(
+      '/fungi_daemon.FungiDaemon/ForgetServiceAccess',
+      ($0.ForgetServiceAccessRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
   static final _$listServiceAccesses = $grpc.ClientMethod<$0.ListServiceAccessesRequest, $0.ServiceAccessesResponse>(
       '/fungi_daemon.FungiDaemon/ListServiceAccesses',
@@ -358,74 +286,6 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.Empty> removeRuntimeAllowedHostPath($0.RuntimeAllowedHostPathRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$removeRuntimeAllowedHostPath, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getFileTransferServiceEnabled, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.FileTransferServiceRootDirResponse> getFileTransferServiceRootDir($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getFileTransferServiceRootDir, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> startFileTransferService($0.StartFileTransferServiceRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$startFileTransferService, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> stopFileTransferService($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$stopFileTransferService, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> addFileTransferClient($0.AddFileTransferClientRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$addFileTransferClient, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> removeFileTransferClient($0.RemoveFileTransferClientRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeFileTransferClient, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> enableFileTransferClient($0.EnableFileTransferClientRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$enableFileTransferClient, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.FileTransferClientsResponse> getAllFileTransferClients($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getAllFileTransferClients, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.FtpProxyResponse> getFtpProxy($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getFtpProxy, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> updateFtpProxy($0.UpdateFtpProxyRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$updateFtpProxy, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.WebdavProxyResponse> getWebdavProxy($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getWebdavProxy, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> updateWebdavProxy($0.UpdateWebdavProxyRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$updateWebdavProxy, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.TcpTunnelingConfigResponse> getTcpTunnelingConfig($0.Empty request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$getTcpTunnelingConfig, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.TcpForwardingRuleResponse> addTcpForwardingRule($0.AddTcpForwardingRuleRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$addTcpForwardingRule, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> removeTcpForwardingRule($0.RemoveTcpForwardingRuleRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeTcpForwardingRule, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.TcpListeningRuleResponse> addTcpListeningRule($0.AddTcpListeningRuleRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$addTcpListeningRule, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.Empty> removeTcpListeningRule($0.RemoveTcpListeningRuleRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$removeTcpListeningRule, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.DeviceInfoListResponse> listMdnsDevices($0.Empty request, {$grpc.CallOptions? options}) {
@@ -512,16 +372,8 @@ class FungiDaemonClient extends $grpc.Client {
     return $createUnaryCall(_$resolveRecipe, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.ListServicesResponse> listDevicePublishedServices($0.ListDeviceServicesRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$listDevicePublishedServices, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.ListServicesResponse> listDeviceManagedServices($0.ListDeviceServicesRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$listDeviceManagedServices, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.ListPeerCatalogResponse> listPeerCatalog($0.ListPeerCatalogRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$listPeerCatalog, request, options: options);
+  $grpc.ResponseFuture<$0.DeviceServiceSnapshotResponse> getDeviceServiceSnapshot($0.DeviceServiceSnapshotRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getDeviceServiceSnapshot, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.GetPeerCapabilitySummaryResponse> getPeerCapabilitySummary($0.GetPeerCapabilitySummaryRequest request, {$grpc.CallOptions? options}) {
@@ -558,6 +410,10 @@ class FungiDaemonClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.Empty> detachServiceAccess($0.DetachServiceAccessRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$detachServiceAccess, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.Empty> forgetServiceAccess($0.ForgetServiceAccessRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$forgetServiceAccess, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.ServiceAccessesResponse> listServiceAccesses($0.ListServiceAccessesRequest request, {$grpc.CallOptions? options}) {
@@ -681,125 +537,6 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         false,
         ($core.List<$core.int> value) => $0.RuntimeAllowedHostPathRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.FileTransferServiceEnabledResponse>(
-        'GetFileTransferServiceEnabled',
-        getFileTransferServiceEnabled_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.FileTransferServiceEnabledResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.FileTransferServiceRootDirResponse>(
-        'GetFileTransferServiceRootDir',
-        getFileTransferServiceRootDir_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.FileTransferServiceRootDirResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.StartFileTransferServiceRequest, $0.Empty>(
-        'StartFileTransferService',
-        startFileTransferService_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.StartFileTransferServiceRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.Empty>(
-        'StopFileTransferService',
-        stopFileTransferService_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.AddFileTransferClientRequest, $0.Empty>(
-        'AddFileTransferClient',
-        addFileTransferClient_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.AddFileTransferClientRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RemoveFileTransferClientRequest, $0.Empty>(
-        'RemoveFileTransferClient',
-        removeFileTransferClient_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.RemoveFileTransferClientRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.EnableFileTransferClientRequest, $0.Empty>(
-        'EnableFileTransferClient',
-        enableFileTransferClient_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.EnableFileTransferClientRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.FileTransferClientsResponse>(
-        'GetAllFileTransferClients',
-        getAllFileTransferClients_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.FileTransferClientsResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.FtpProxyResponse>(
-        'GetFtpProxy',
-        getFtpProxy_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.FtpProxyResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.UpdateFtpProxyRequest, $0.Empty>(
-        'UpdateFtpProxy',
-        updateFtpProxy_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.UpdateFtpProxyRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.WebdavProxyResponse>(
-        'GetWebdavProxy',
-        getWebdavProxy_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.WebdavProxyResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.UpdateWebdavProxyRequest, $0.Empty>(
-        'UpdateWebdavProxy',
-        updateWebdavProxy_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.UpdateWebdavProxyRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.TcpTunnelingConfigResponse>(
-        'GetTcpTunnelingConfig',
-        getTcpTunnelingConfig_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
-        ($0.TcpTunnelingConfigResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.AddTcpForwardingRuleRequest, $0.TcpForwardingRuleResponse>(
-        'AddTcpForwardingRule',
-        addTcpForwardingRule_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.AddTcpForwardingRuleRequest.fromBuffer(value),
-        ($0.TcpForwardingRuleResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RemoveTcpForwardingRuleRequest, $0.Empty>(
-        'RemoveTcpForwardingRule',
-        removeTcpForwardingRule_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.RemoveTcpForwardingRuleRequest.fromBuffer(value),
-        ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.AddTcpListeningRuleRequest, $0.TcpListeningRuleResponse>(
-        'AddTcpListeningRule',
-        addTcpListeningRule_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.AddTcpListeningRuleRequest.fromBuffer(value),
-        ($0.TcpListeningRuleResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.RemoveTcpListeningRuleRequest, $0.Empty>(
-        'RemoveTcpListeningRule',
-        removeTcpListeningRule_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.RemoveTcpListeningRuleRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Empty, $0.DeviceInfoListResponse>(
         'ListMdnsDevices',
@@ -948,27 +685,13 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.ResolveRecipeRequest.fromBuffer(value),
         ($0.ResolveRecipeResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
-        'ListDevicePublishedServices',
-        listDevicePublishedServices_Pre,
+    $addMethod($grpc.ServiceMethod<$0.DeviceServiceSnapshotRequest, $0.DeviceServiceSnapshotResponse>(
+        'GetDeviceServiceSnapshot',
+        getDeviceServiceSnapshot_Pre,
         false,
         false,
-        ($core.List<$core.int> value) => $0.ListDeviceServicesRequest.fromBuffer(value),
-        ($0.ListServicesResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.ListDeviceServicesRequest, $0.ListServicesResponse>(
-        'ListDeviceManagedServices',
-        listDeviceManagedServices_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.ListDeviceServicesRequest.fromBuffer(value),
-        ($0.ListServicesResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.ListPeerCatalogRequest, $0.ListPeerCatalogResponse>(
-        'ListPeerCatalog',
-        listPeerCatalog_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.ListPeerCatalogRequest.fromBuffer(value),
-        ($0.ListPeerCatalogResponse value) => value.writeToBuffer()));
+        ($core.List<$core.int> value) => $0.DeviceServiceSnapshotRequest.fromBuffer(value),
+        ($0.DeviceServiceSnapshotResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.GetPeerCapabilitySummaryRequest, $0.GetPeerCapabilitySummaryResponse>(
         'GetPeerCapabilitySummary',
         getPeerCapabilitySummary_Pre,
@@ -1031,6 +754,13 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
         false,
         false,
         ($core.List<$core.int> value) => $0.DetachServiceAccessRequest.fromBuffer(value),
+        ($0.Empty value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ForgetServiceAccessRequest, $0.Empty>(
+        'ForgetServiceAccess',
+        forgetServiceAccess_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ForgetServiceAccessRequest.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.ListServiceAccessesRequest, $0.ServiceAccessesResponse>(
         'ListServiceAccesses',
@@ -1103,74 +833,6 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
 
   $async.Future<$0.Empty> removeRuntimeAllowedHostPath_Pre($grpc.ServiceCall call, $async.Future<$0.RuntimeAllowedHostPathRequest> request) async {
     return removeRuntimeAllowedHostPath(call, await request);
-  }
-
-  $async.Future<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getFileTransferServiceEnabled(call, await request);
-  }
-
-  $async.Future<$0.FileTransferServiceRootDirResponse> getFileTransferServiceRootDir_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getFileTransferServiceRootDir(call, await request);
-  }
-
-  $async.Future<$0.Empty> startFileTransferService_Pre($grpc.ServiceCall call, $async.Future<$0.StartFileTransferServiceRequest> request) async {
-    return startFileTransferService(call, await request);
-  }
-
-  $async.Future<$0.Empty> stopFileTransferService_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return stopFileTransferService(call, await request);
-  }
-
-  $async.Future<$0.Empty> addFileTransferClient_Pre($grpc.ServiceCall call, $async.Future<$0.AddFileTransferClientRequest> request) async {
-    return addFileTransferClient(call, await request);
-  }
-
-  $async.Future<$0.Empty> removeFileTransferClient_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveFileTransferClientRequest> request) async {
-    return removeFileTransferClient(call, await request);
-  }
-
-  $async.Future<$0.Empty> enableFileTransferClient_Pre($grpc.ServiceCall call, $async.Future<$0.EnableFileTransferClientRequest> request) async {
-    return enableFileTransferClient(call, await request);
-  }
-
-  $async.Future<$0.FileTransferClientsResponse> getAllFileTransferClients_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getAllFileTransferClients(call, await request);
-  }
-
-  $async.Future<$0.FtpProxyResponse> getFtpProxy_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getFtpProxy(call, await request);
-  }
-
-  $async.Future<$0.Empty> updateFtpProxy_Pre($grpc.ServiceCall call, $async.Future<$0.UpdateFtpProxyRequest> request) async {
-    return updateFtpProxy(call, await request);
-  }
-
-  $async.Future<$0.WebdavProxyResponse> getWebdavProxy_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getWebdavProxy(call, await request);
-  }
-
-  $async.Future<$0.Empty> updateWebdavProxy_Pre($grpc.ServiceCall call, $async.Future<$0.UpdateWebdavProxyRequest> request) async {
-    return updateWebdavProxy(call, await request);
-  }
-
-  $async.Future<$0.TcpTunnelingConfigResponse> getTcpTunnelingConfig_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
-    return getTcpTunnelingConfig(call, await request);
-  }
-
-  $async.Future<$0.TcpForwardingRuleResponse> addTcpForwardingRule_Pre($grpc.ServiceCall call, $async.Future<$0.AddTcpForwardingRuleRequest> request) async {
-    return addTcpForwardingRule(call, await request);
-  }
-
-  $async.Future<$0.Empty> removeTcpForwardingRule_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveTcpForwardingRuleRequest> request) async {
-    return removeTcpForwardingRule(call, await request);
-  }
-
-  $async.Future<$0.TcpListeningRuleResponse> addTcpListeningRule_Pre($grpc.ServiceCall call, $async.Future<$0.AddTcpListeningRuleRequest> request) async {
-    return addTcpListeningRule(call, await request);
-  }
-
-  $async.Future<$0.Empty> removeTcpListeningRule_Pre($grpc.ServiceCall call, $async.Future<$0.RemoveTcpListeningRuleRequest> request) async {
-    return removeTcpListeningRule(call, await request);
   }
 
   $async.Future<$0.DeviceInfoListResponse> listMdnsDevices_Pre($grpc.ServiceCall call, $async.Future<$0.Empty> request) async {
@@ -1257,16 +919,8 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return resolveRecipe(call, await request);
   }
 
-  $async.Future<$0.ListServicesResponse> listDevicePublishedServices_Pre($grpc.ServiceCall call, $async.Future<$0.ListDeviceServicesRequest> request) async {
-    return listDevicePublishedServices(call, await request);
-  }
-
-  $async.Future<$0.ListServicesResponse> listDeviceManagedServices_Pre($grpc.ServiceCall call, $async.Future<$0.ListDeviceServicesRequest> request) async {
-    return listDeviceManagedServices(call, await request);
-  }
-
-  $async.Future<$0.ListPeerCatalogResponse> listPeerCatalog_Pre($grpc.ServiceCall call, $async.Future<$0.ListPeerCatalogRequest> request) async {
-    return listPeerCatalog(call, await request);
+  $async.Future<$0.DeviceServiceSnapshotResponse> getDeviceServiceSnapshot_Pre($grpc.ServiceCall call, $async.Future<$0.DeviceServiceSnapshotRequest> request) async {
+    return getDeviceServiceSnapshot(call, await request);
   }
 
   $async.Future<$0.GetPeerCapabilitySummaryResponse> getPeerCapabilitySummary_Pre($grpc.ServiceCall call, $async.Future<$0.GetPeerCapabilitySummaryRequest> request) async {
@@ -1305,6 +959,10 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
     return detachServiceAccess(call, await request);
   }
 
+  $async.Future<$0.Empty> forgetServiceAccess_Pre($grpc.ServiceCall call, $async.Future<$0.ForgetServiceAccessRequest> request) async {
+    return forgetServiceAccess(call, await request);
+  }
+
   $async.Future<$0.ServiceAccessesResponse> listServiceAccesses_Pre($grpc.ServiceCall call, $async.Future<$0.ListServiceAccessesRequest> request) async {
     return listServiceAccesses(call, await request);
   }
@@ -1325,23 +983,6 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.LocalRuntimeStatusResponse> getLocalRuntimeStatus($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> addRuntimeAllowedHostPath($grpc.ServiceCall call, $0.RuntimeAllowedHostPathRequest request);
   $async.Future<$0.Empty> removeRuntimeAllowedHostPath($grpc.ServiceCall call, $0.RuntimeAllowedHostPathRequest request);
-  $async.Future<$0.FileTransferServiceEnabledResponse> getFileTransferServiceEnabled($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.FileTransferServiceRootDirResponse> getFileTransferServiceRootDir($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> startFileTransferService($grpc.ServiceCall call, $0.StartFileTransferServiceRequest request);
-  $async.Future<$0.Empty> stopFileTransferService($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> addFileTransferClient($grpc.ServiceCall call, $0.AddFileTransferClientRequest request);
-  $async.Future<$0.Empty> removeFileTransferClient($grpc.ServiceCall call, $0.RemoveFileTransferClientRequest request);
-  $async.Future<$0.Empty> enableFileTransferClient($grpc.ServiceCall call, $0.EnableFileTransferClientRequest request);
-  $async.Future<$0.FileTransferClientsResponse> getAllFileTransferClients($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.FtpProxyResponse> getFtpProxy($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> updateFtpProxy($grpc.ServiceCall call, $0.UpdateFtpProxyRequest request);
-  $async.Future<$0.WebdavProxyResponse> getWebdavProxy($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> updateWebdavProxy($grpc.ServiceCall call, $0.UpdateWebdavProxyRequest request);
-  $async.Future<$0.TcpTunnelingConfigResponse> getTcpTunnelingConfig($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.TcpForwardingRuleResponse> addTcpForwardingRule($grpc.ServiceCall call, $0.AddTcpForwardingRuleRequest request);
-  $async.Future<$0.Empty> removeTcpForwardingRule($grpc.ServiceCall call, $0.RemoveTcpForwardingRuleRequest request);
-  $async.Future<$0.TcpListeningRuleResponse> addTcpListeningRule($grpc.ServiceCall call, $0.AddTcpListeningRuleRequest request);
-  $async.Future<$0.Empty> removeTcpListeningRule($grpc.ServiceCall call, $0.RemoveTcpListeningRuleRequest request);
   $async.Future<$0.DeviceInfoListResponse> listMdnsDevices($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.DeviceInfoListResponse> listDevices($grpc.ServiceCall call, $0.Empty request);
   $async.Future<$0.Empty> updateDevice($grpc.ServiceCall call, $0.UpdateDeviceRequest request);
@@ -1363,9 +1004,7 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.ListRecipesResponse> listRecipes($grpc.ServiceCall call, $0.ListRecipesRequest request);
   $async.Future<$0.GetRecipeResponse> getRecipe($grpc.ServiceCall call, $0.GetRecipeRequest request);
   $async.Future<$0.ResolveRecipeResponse> resolveRecipe($grpc.ServiceCall call, $0.ResolveRecipeRequest request);
-  $async.Future<$0.ListServicesResponse> listDevicePublishedServices($grpc.ServiceCall call, $0.ListDeviceServicesRequest request);
-  $async.Future<$0.ListServicesResponse> listDeviceManagedServices($grpc.ServiceCall call, $0.ListDeviceServicesRequest request);
-  $async.Future<$0.ListPeerCatalogResponse> listPeerCatalog($grpc.ServiceCall call, $0.ListPeerCatalogRequest request);
+  $async.Future<$0.DeviceServiceSnapshotResponse> getDeviceServiceSnapshot($grpc.ServiceCall call, $0.DeviceServiceSnapshotRequest request);
   $async.Future<$0.GetPeerCapabilitySummaryResponse> getPeerCapabilitySummary($grpc.ServiceCall call, $0.GetPeerCapabilitySummaryRequest request);
   $async.Future<$0.RemoteServiceControlResponse> remotePullService($grpc.ServiceCall call, $0.RemotePullServiceRequest request);
   $async.Future<$0.RemoteServiceControlResponse> remoteStartService($grpc.ServiceCall call, $0.RemoteServiceNameRequest request);
@@ -1375,5 +1014,6 @@ abstract class FungiDaemonServiceBase extends $grpc.Service {
   $async.Future<$0.ListServicesResponse> remoteListServices($grpc.ServiceCall call, $0.RemotePeerRequest request);
   $async.Future<$0.ServiceAccessResponse> attachServiceAccess($grpc.ServiceCall call, $0.AttachServiceAccessRequest request);
   $async.Future<$0.Empty> detachServiceAccess($grpc.ServiceCall call, $0.DetachServiceAccessRequest request);
+  $async.Future<$0.Empty> forgetServiceAccess($grpc.ServiceCall call, $0.ForgetServiceAccessRequest request);
   $async.Future<$0.ServiceAccessesResponse> listServiceAccesses($grpc.ServiceCall call, $0.ListServiceAccessesRequest request);
 }
