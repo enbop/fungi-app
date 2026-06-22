@@ -256,7 +256,7 @@ class _PeerServicesSection extends StatelessWidget {
                       ),
                       ...service.remoteEndpoints.map(
                         (endpoint) => Text(
-                          '${endpoint.name} · ${endpoint.protocol} · service:${endpoint.servicePort}',
+                          '${endpoint.name} · ${endpoint.protocol}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),

@@ -604,8 +604,8 @@ class RelayAddressRequest extends $pb.GeneratedMessage {
   static RelayAddressRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RelayAddressRequest>(create);
   static RelayAddressRequest? _defaultInstance;
 
-  /// One relay multiaddr. TCP entries carry relay reservations/circuits; UDP/QUIC
-  /// entries are observer-only for pre-hole-punch UDP address discovery.
+  /// One relay multiaddr. Candidates are grouped by relay peer and tried
+  /// UDP/QUIC first, then TCP.
   @$pb.TagNumber(1)
   $core.String get address => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -753,13 +753,13 @@ class RelayConfigResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearUseCommunityRelays() => clearField(2);
 
-  /// User-facing relay list. The daemon keeps one list in config and separates
-  /// TCP relay carriers from UDP/QUIC observers internally.
+  /// User-facing relay list. The daemon groups candidates by relay peer and
+  /// tries UDP/QUIC before TCP within each group.
   @$pb.TagNumber(3)
   $core.List<$core.String> get customRelayAddresses => $_getList(2);
 
-  /// Community plus custom relay addresses after config resolution, with the
-  /// same TCP-carrier / UDP-observer semantics as custom_relay_addresses.
+  /// Community plus custom relay addresses after config resolution. The daemon
+  /// applies the same peer-grouped UDP-first policy to this effective list.
   @$pb.TagNumber(4)
   $core.List<EffectiveRelayAddress> get effectiveRelayAddresses => $_getList(3);
 }

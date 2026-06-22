@@ -64,6 +64,7 @@ class LocalServiceView {
     final name =
         json['name'] as String? ?? json['service_name'] as String? ?? '';
     final status = json['status'] as Map<String, dynamic>? ?? const {};
+    final phase = status['phase'] as String? ?? 'unknown';
 
     return LocalServiceView(
       id: json['id'] as String? ?? '',
@@ -73,8 +74,8 @@ class LocalServiceView {
       state:
           json['state'] as String? ??
           status['state'] as String? ??
-          status['phase'] as String? ??
-          'unknown',
+          status['detail'] as String? ??
+          phase,
       running:
           json['running'] as bool? ??
           status['running'] as bool? ??
@@ -88,21 +89,15 @@ class LocalServiceView {
 }
 
 class RemoteServiceEndpointView {
-  const RemoteServiceEndpointView({
-    required this.name,
-    required this.protocol,
-    required this.servicePort,
-  });
+  const RemoteServiceEndpointView({required this.name, required this.protocol});
 
   final String name;
   final String protocol;
-  final int servicePort;
 
   factory RemoteServiceEndpointView.fromJson(Map<String, dynamic> json) {
     return RemoteServiceEndpointView(
       name: json['name'] as String? ?? '',
       protocol: json['protocol'] as String? ?? '',
-      servicePort: json['service_port'] as int? ?? 0,
     );
   }
 }
@@ -162,6 +157,13 @@ class RemoteServiceListEntryView {
   final List<ServiceAccessEndpointView> localAccessEndpoints;
 
   factory RemoteServiceListEntryView.fromJson(Map<String, dynamic> json) {
+    final metadata = json['metadata'] as Map<String, dynamic>? ?? const {};
+    final usage =
+        metadata['usage'] as Map<String, dynamic>? ??
+        json['usage'] as Map<String, dynamic>?;
+    final status = json['status'] as Map<String, dynamic>? ?? const {};
+    final phase = status['phase'] as String? ?? 'unknown';
+
     return RemoteServiceListEntryView(
       displayName:
           json['display_name'] as String? ??
@@ -174,23 +176,23 @@ class RemoteServiceListEntryView {
       transportKind:
           (json['transport'] as Map<String, dynamic>?)?['kind'] as String? ??
           'tcp',
-      usageKind: (json['usage'] as Map<String, dynamic>?)?['kind'] as String?,
-      usagePath: (json['usage'] as Map<String, dynamic>?)?['path'] as String?,
+      usageKind: usage?['kind'] as String?,
+      usagePath: usage?['path'] as String?,
       state:
           json['state'] as String? ??
-          (json['status'] as Map<String, dynamic>?)?['state'] as String? ??
-          (json['status'] as Map<String, dynamic>?)?['phase'] as String? ??
-          'unknown',
+          status['state'] as String? ??
+          status['detail'] as String? ??
+          phase,
       running:
           json['running'] as bool? ??
-          (json['status'] as Map<String, dynamic>?)?['running'] as bool? ??
-          (json['status'] as Map<String, dynamic>?)?['phase'] == 'running',
+          status['running'] as bool? ??
+          phase == 'running',
       serviceId:
           json['service_id'] as String? ??
           json['service_name'] as String? ??
           json['name'] as String?,
       accessAttached: json['access_attached'] as bool? ?? false,
-      iconUrl: json['icon_url'] as String?,
+      iconUrl: metadata['icon_url'] as String? ?? json['icon_url'] as String?,
       remoteEndpoints: decodeJsonList(
         json['remote_endpoints'] ?? json['endpoints'],
         RemoteServiceEndpointView.fromJson,

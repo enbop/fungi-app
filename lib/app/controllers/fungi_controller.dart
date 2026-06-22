@@ -78,6 +78,18 @@ class ExistingDaemonCheckResult {
   final String version;
 }
 
+class _DeviceServiceSnapshotResult {
+  const _DeviceServiceSnapshotResult({
+    required this.servicesJson,
+    required this.source,
+    required this.error,
+  });
+
+  final String servicesJson;
+  final String source;
+  final String error;
+}
+
 class FungiController extends GetxController {
   static const documentationUrl = 'https://fungi.rs/docs/intro';
   static const daemonDisabledStorageKey = 'daemon_disabled';
@@ -1231,18 +1243,24 @@ class FungiController extends GetxController {
       final peerIds = peerId == null
           ? addressBook.map((peer) => peer.peerId).toList(growable: false)
           : <String>[peerId];
+      final fallbackErrors = <String>[];
       for (final currentPeerId in peerIds) {
         if (!addressBook.any((peer) => peer.peerId == currentPeerId)) {
           next.remove(currentPeerId);
           continue;
         }
         try {
-          final servicesJson = await _loadDeviceServiceSnapshotServicesJson(
+          final snapshot = await _loadDeviceServiceSnapshot(
             currentPeerId,
             refresh: !cached,
             timeout: _deviceServiceSnapshotRequestTimeout,
           );
-          final services = decodeJsonStringList(servicesJson, (serviceJson) {
+          if (snapshot.error.isNotEmpty) {
+            fallbackErrors.add('$currentPeerId: ${snapshot.error}');
+          }
+          final services = decodeJsonStringList(snapshot.servicesJson, (
+            serviceJson,
+          ) {
             final serviceName =
                 serviceJson['name'] as String? ??
                 serviceJson['service_name'] as String? ??
@@ -1268,6 +1286,10 @@ class FungiController extends GetxController {
         }
       }
       peerRemoteServices.value = next;
+      if (fallbackErrors.isNotEmpty) {
+        availableServicesError.value =
+            'Some devices could not be refreshed. Showing cached service snapshots.';
+      }
     } catch (e) {
       if (peerId == null) {
         availableServicesError.value = 'Failed to load available services: $e';
@@ -1334,16 +1356,22 @@ class FungiController extends GetxController {
     _setPeerDeviceServicesError(peerId, '');
 
     try {
-      final servicesJson = await _loadDeviceServiceSnapshotServicesJson(
+      final snapshot = await _loadDeviceServiceSnapshot(
         peerId,
         refresh: !cached,
         timeout: _remotePeerServicesRequestTimeout,
       );
       final services = decodeJsonStringList(
-        servicesJson,
+        snapshot.servicesJson,
         LocalServiceView.fromJson,
       )..sort((left, right) => left.name.compareTo(right.name));
       _setPeerDeviceServices(peerId, services);
+      if (snapshot.error.isNotEmpty) {
+        _setPeerDeviceServicesError(
+          peerId,
+          'Showing ${snapshot.source} snapshot: ${snapshot.error}',
+        );
+      }
     } catch (e) {
       debugPrint('Failed to load device service snapshot for $peerId: $e');
       if (!peerDeviceServices.containsKey(peerId)) {
@@ -1355,7 +1383,7 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<String> _loadDeviceServiceSnapshotServicesJson(
+  Future<_DeviceServiceSnapshotResult> _loadDeviceServiceSnapshot(
     String peerId, {
     required bool refresh,
     required Duration timeout,
@@ -1371,10 +1399,11 @@ class FungiController extends GetxController {
       (json) => json,
     );
     final services = snapshot?['services'];
-    if (services is! List) {
-      return '[]';
-    }
-    return jsonEncode(services);
+    return _DeviceServiceSnapshotResult(
+      servicesJson: services is List ? jsonEncode(services) : '[]',
+      source: response.source.isEmpty ? 'empty' : response.source,
+      error: response.error,
+    );
   }
 
   void _setPeerDeviceServices(String peerId, List<LocalServiceView> services) {
