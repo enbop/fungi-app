@@ -148,6 +148,7 @@ class FungiController extends GetxController {
 
   final localServicesError = ''.obs;
   final availableServicesError = ''.obs;
+  final _availableServicesFallbackPeers = <String>{};
   final relayConfig = const RelayConfigView.empty().obs;
   final relayConfigLoading = false.obs;
   final relayConfigError = ''.obs;
@@ -1213,10 +1214,6 @@ class FungiController extends GetxController {
     if (showLoading) {
       availableServicesLoading.value = true;
     }
-    if (peerId == null) {
-      availableServicesError.value = '';
-    }
-
     try {
       final accessResponse = await fungiClient.listServiceAccesses(
         ListServiceAccessesRequest()..peerId = peerId ?? '',
@@ -1243,10 +1240,10 @@ class FungiController extends GetxController {
       final peerIds = peerId == null
           ? addressBook.map((peer) => peer.peerId).toList(growable: false)
           : <String>[peerId];
-      final fallbackErrors = <String>[];
       for (final currentPeerId in peerIds) {
         if (!addressBook.any((peer) => peer.peerId == currentPeerId)) {
           next.remove(currentPeerId);
+          _availableServicesFallbackPeers.remove(currentPeerId);
           continue;
         }
         try {
@@ -1256,7 +1253,9 @@ class FungiController extends GetxController {
             timeout: _deviceServiceSnapshotRequestTimeout,
           );
           if (snapshot.error.isNotEmpty) {
-            fallbackErrors.add('$currentPeerId: ${snapshot.error}');
+            _availableServicesFallbackPeers.add(currentPeerId);
+          } else {
+            _availableServicesFallbackPeers.remove(currentPeerId);
           }
           final services = decodeJsonStringList(snapshot.servicesJson, (
             serviceJson,
@@ -1286,10 +1285,10 @@ class FungiController extends GetxController {
         }
       }
       peerRemoteServices.value = next;
-      if (fallbackErrors.isNotEmpty) {
-        availableServicesError.value =
-            'Some devices could not be refreshed. Showing cached service snapshots.';
+      if (peerId == null) {
+        _availableServicesFallbackPeers.retainAll(peerIds);
       }
+      _syncAvailableServicesError();
     } catch (e) {
       if (peerId == null) {
         availableServicesError.value = 'Failed to load available services: $e';
@@ -1302,6 +1301,12 @@ class FungiController extends GetxController {
         availableServicesLoading.value = false;
       }
     }
+  }
+
+  void _syncAvailableServicesError() {
+    availableServicesError.value = _availableServicesFallbackPeers.isEmpty
+        ? ''
+        : 'Some devices could not be refreshed. Showing cached service snapshots.';
   }
 
   Future<void> refreshNodeManagementData({
