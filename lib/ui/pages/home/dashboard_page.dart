@@ -6,6 +6,7 @@ import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
 import 'package:fungi_app/ui/widgets/help_tooltip.dart';
 import 'package:fungi_app/ui/widgets/service_icon.dart';
+import 'package:fungi_app/ui/widgets/service_management_widgets.dart';
 import 'package:fungi_app/ui/widgets/ui_primitives.dart';
 import 'package:get/get.dart';
 
@@ -58,12 +59,8 @@ String _localAccessEndpointValue(ServiceAccessEndpointView endpoint) {
 }
 
 String _localServiceTypeLabel(LocalServiceView service) {
-  for (final endpoint in service.localEndpoints) {
-    final label = [endpoint.name ?? '', endpoint.protocol].join(' ');
-    final normalized = label.toLowerCase();
-    if (normalized.contains('web') || normalized.contains('http')) {
-      return 'Web';
-    }
+  if (service.webEndpoint != null) {
+    return 'Web';
   }
 
   final protocol = service.localEndpoints.isEmpty
@@ -73,6 +70,55 @@ String _localServiceTypeLabel(LocalServiceView service) {
     return 'TCP';
   }
   return protocol.toUpperCase();
+}
+
+String _localServiceStatusLabel(
+  LocalServiceView service,
+  String? pendingAction,
+) {
+  switch (pendingAction) {
+    case 'start':
+      return 'Starting';
+    case 'stop':
+      return 'Stopping';
+    case 'remove':
+      return 'Removing';
+  }
+
+  if (service.running) {
+    return 'Running';
+  }
+
+  final state = service.state.trim();
+  if (state.isEmpty) {
+    return 'Unknown';
+  }
+  return '${state[0].toUpperCase()}${state.substring(1)}';
+}
+
+Widget _localServiceStatusBadge(
+  LocalServiceView service,
+  String? pendingAction,
+) {
+  final label = _localServiceStatusLabel(service, pendingAction);
+  if (pendingAction != null) {
+    return ServiceStatusBadge(label: label, active: false);
+  }
+
+  final normalizedState = service.state.trim().toLowerCase();
+  if (!service.running &&
+      (normalizedState.startsWith('exited') || normalizedState == 'missing')) {
+    return AttentionBadge(label: label);
+  }
+
+  return ServiceStatusBadge(label: label, active: service.running);
+}
+
+Widget _compactPendingIndicator() {
+  return const SizedBox.square(
+    dimension: 14,
+    child: CircularProgressIndicator(strokeWidth: 2),
+  );
 }
 
 Future<void> _showLocalAddressDialog(
@@ -1016,6 +1062,43 @@ class _LocalServiceCard extends GetView<FungiController> {
     final isBusy = pendingAction != null;
     final launchUri = controller.localServiceLaunchUri(service);
     final typeLabel = _localServiceTypeLabel(service);
+    final configuredEndpointLabel = service.running ? null : 'Configured';
+
+    final Widget? primaryAction;
+    if (pendingAction == 'remove') {
+      primaryAction = null;
+    } else if (service.canOpen) {
+      primaryAction = FilledButton.icon(
+        onPressed: isBusy
+            ? null
+            : () => controller.openLocalService(service.name),
+        style: _compactServiceButtonStyle(),
+        icon: const Icon(Icons.open_in_new),
+        label: const Text('Open'),
+      );
+    } else if (service.canShowAddress) {
+      primaryAction = FilledButton.icon(
+        onPressed: isBusy
+            ? null
+            : () => _showLocalServiceAddressDialog(context, service: service),
+        style: _compactServiceButtonStyle(),
+        icon: const Icon(Icons.link),
+        label: const Text('Address'),
+      );
+    } else if (service.canStart) {
+      primaryAction = FilledButton.icon(
+        onPressed: isBusy
+            ? null
+            : () => controller.startLocalService(service.name),
+        style: _compactServiceButtonStyle(),
+        icon: pendingAction == 'start'
+            ? _compactPendingIndicator()
+            : const Icon(Icons.play_arrow),
+        label: const Text('Start'),
+      );
+    } else {
+      primaryAction = null;
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -1037,35 +1120,24 @@ class _LocalServiceCard extends GetView<FungiController> {
               children: [
                 const ServiceOriginBadge.local(),
                 CompactBadge(label: typeLabel),
+                _localServiceStatusBadge(service, pendingAction),
               ],
             ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (launchUri != null)
-                FilledButton(
-                  onPressed: isBusy
-                      ? null
-                      : () => controller.openLocalService(service.name),
-                  style: _compactServiceButtonStyle(),
-                  child: const Text('Open'),
-                )
-              else if (service.localEndpoints.isNotEmpty)
-                FilledButton(
-                  onPressed: () =>
-                      _showLocalServiceAddressDialog(context, service: service),
-                  style: _compactServiceButtonStyle(),
-                  child: const Text('Address'),
-                ),
-              const SizedBox(width: 8),
+              if (primaryAction != null) ...[
+                primaryAction,
+                const SizedBox(width: 8),
+              ],
               const Icon(Icons.expand_more),
             ],
           ),
           children: [
             if (launchUri != null) ...[
               _CompactCopyRow(
-                label: 'Local URL',
+                label: service.running ? 'Local URL' : 'Configured URL',
                 value: launchUri.toString(),
                 successMessage: 'Address copied',
               ),
@@ -1075,7 +1147,9 @@ class _LocalServiceCard extends GetView<FungiController> {
                 (endpoint) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: _CompactCopyRow(
-                    label: endpoint.name ?? endpoint.protocol,
+                    label: configuredEndpointLabel == null
+                        ? endpoint.name ?? endpoint.protocol
+                        : '$configuredEndpointLabel ${endpoint.name ?? endpoint.protocol}',
                     value: '${endpoint.localHost}:${endpoint.localPort}',
                     successMessage: 'Address copied',
                   ),
@@ -1095,24 +1169,28 @@ class _LocalServiceCard extends GetView<FungiController> {
                 runSpacing: 8,
                 alignment: WrapAlignment.start,
                 children: [
-                  OutlinedButton.icon(
-                    onPressed: isBusy
-                        ? null
-                        : service.running
-                        ? () => controller.stopLocalService(service.name)
-                        : () => controller.startLocalService(service.name),
-                    style: _compactServiceOutlinedButtonStyle(),
-                    icon: Icon(service.running ? Icons.stop : Icons.play_arrow),
-                    label: Text(service.running ? 'Stop' : 'Start'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: service.running || isBusy
-                        ? null
-                        : () => controller.removeLocalService(service.name),
-                    style: _compactServiceOutlinedButtonStyle(),
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('Remove'),
-                  ),
+                  if (service.running)
+                    OutlinedButton.icon(
+                      onPressed: isBusy
+                          ? null
+                          : () => controller.stopLocalService(service.name),
+                      style: _compactServiceOutlinedButtonStyle(),
+                      icon: pendingAction == 'stop'
+                          ? _compactPendingIndicator()
+                          : const Icon(Icons.stop),
+                      label: const Text('Stop'),
+                    )
+                  else
+                    OutlinedButton.icon(
+                      onPressed: isBusy
+                          ? null
+                          : () => controller.removeLocalService(service.name),
+                      style: _compactServiceOutlinedButtonStyle(),
+                      icon: pendingAction == 'remove'
+                          ? _compactPendingIndicator()
+                          : const Icon(Icons.delete_outline),
+                      label: const Text('Remove'),
+                    ),
                 ],
               ),
             ),

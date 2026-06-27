@@ -39,6 +39,13 @@ class LocalServicePortView {
       servicePort: json['service_port'] as int? ?? 0,
     );
   }
+
+  bool get isWebEndpoint {
+    final label = [name ?? '', protocol].join(' ').toLowerCase();
+    return label.contains('web') || label.contains('http');
+  }
+
+  bool get hasUsableLocalAddress => localPort > 0;
 }
 
 class LocalServiceView {
@@ -86,6 +93,24 @@ class LocalServiceView {
       ),
     );
   }
+
+  LocalServicePortView? get webEndpoint {
+    for (final endpoint in localEndpoints) {
+      if (endpoint.isWebEndpoint) {
+        return endpoint;
+      }
+    }
+    return null;
+  }
+
+  bool get hasUsableLocalAddress =>
+      localEndpoints.any((endpoint) => endpoint.hasUsableLocalAddress);
+
+  bool get canOpen => running && webEndpoint?.hasUsableLocalAddress == true;
+
+  bool get canShowAddress => running && !canOpen && hasUsableLocalAddress;
+
+  bool get canStart => !running;
 }
 
 class RemoteServiceEndpointView {

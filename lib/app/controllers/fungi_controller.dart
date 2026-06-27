@@ -1861,24 +1861,8 @@ class FungiController extends GetxController {
   }
 
   Uri? localServiceLaunchUri(LocalServiceView service) {
-    if (service.localEndpoints.isEmpty) {
-      return null;
-    }
-
-    LocalServicePortView? webEndpoint;
-    for (final endpoint in service.localEndpoints) {
-      final label = [
-        endpoint.name ?? '',
-        endpoint.protocol,
-      ].join(' ').toLowerCase();
-      if (label.contains('web') || label.contains('http')) {
-        webEndpoint = endpoint;
-        break;
-      }
-    }
-
-    final endpoint = webEndpoint ?? service.localEndpoints.first;
-    if (endpoint.localPort <= 0) {
+    final endpoint = service.webEndpoint;
+    if (endpoint == null || !endpoint.hasUsableLocalAddress) {
       return null;
     }
 
@@ -1895,9 +1879,12 @@ class FungiController extends GetxController {
       final service = localServices.firstWhere(
         (service) => service.name == serviceName || service.id == serviceName,
       );
+      if (!service.running) {
+        throw Exception('Service is not running. Start it first.');
+      }
       final uri = localServiceLaunchUri(service);
       if (uri == null) {
-        throw Exception('No local endpoint is available');
+        throw Exception('No local web endpoint is available');
       }
       final launched = await launchUrl(
         uri,
