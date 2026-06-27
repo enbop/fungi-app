@@ -96,7 +96,7 @@ String _serviceStatusLabel(bool running, String state, String? pendingAction) {
 Widget _serviceStatusBadge(bool running, String state, String? pendingAction) {
   final label = _serviceStatusLabel(running, state, pendingAction);
   if (pendingAction != null) {
-    return ServiceStatusBadge(label: label, active: false);
+    return CompactBadge(label: label);
   }
 
   final normalizedState = state.trim().toLowerCase();
@@ -105,7 +105,7 @@ Widget _serviceStatusBadge(bool running, String state, String? pendingAction) {
     return AttentionBadge(label: label);
   }
 
-  return ServiceStatusBadge(label: label, active: running);
+  return CompactBadge(label: label);
 }
 
 Widget _compactPendingIndicator() {
