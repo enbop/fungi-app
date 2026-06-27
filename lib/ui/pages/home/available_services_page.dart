@@ -29,19 +29,19 @@ class AvailableServicesPage extends GetView<FungiController> {
     return Obx(() {
       return ListView(
         padding: const EdgeInsets.all(16),
-        children: const [PublishedServicesSection()],
+        children: const [RemoteServicesSection()],
       );
     });
   }
 }
 
-class PublishedServicesSection extends GetView<FungiController> {
-  const PublishedServicesSection({
+class RemoteServicesSection extends GetView<FungiController> {
+  const RemoteServicesSection({
     super.key,
     this.showHeader = true,
     this.title = 'Remote Services',
     this.subtitle =
-        'Browse published services from your saved devices and reuse local connections when available.',
+        'Browse services last seen on your saved devices and reuse local connections when available.',
   });
 
   final bool showHeader;
@@ -84,7 +84,7 @@ class PublishedServicesSection extends GetView<FungiController> {
             )
           else if (sections.isEmpty)
             Text(
-              'No published device services found yet.',
+              'No remote device services found yet.',
               style: Theme.of(context).textTheme.bodyMedium,
             )
           else
@@ -190,7 +190,7 @@ class _PeerServicesSection extends StatelessWidget {
                           label: Text(
                             service.accessAttached
                                 ? 'Connected locally'
-                                : 'Published remotely',
+                                : 'Remote service',
                           ),
                         ),
                       ],
@@ -209,12 +209,6 @@ class _PeerServicesSection extends StatelessWidget {
                         serviceReference,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      if (service.catalogId != null &&
-                          service.catalogId!.isNotEmpty)
-                        Text(
-                          'Catalog ID: ${service.catalogId!}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
                     ],
                     if (canControl) ...[
                       const SizedBox(height: 12),
@@ -224,7 +218,7 @@ class _PeerServicesSection extends StatelessWidget {
                         children: [
                           if (service.isWeb)
                             FilledButton.icon(
-                              onPressed: () => controller.openCatalogWebService(
+                              onPressed: () => controller.openRemoteWebService(
                                 peerId: section.peerId,
                                 serviceName: service.serviceName,
                               ),
@@ -234,7 +228,7 @@ class _PeerServicesSection extends StatelessWidget {
                           if (!service.accessAttached)
                             OutlinedButton.icon(
                               onPressed: () =>
-                                  controller.attachCatalogServiceAccess(
+                                  controller.attachRemoteServiceAccess(
                                     peerId: section.peerId,
                                     serviceName: service.serviceName,
                                   ),
@@ -244,7 +238,7 @@ class _PeerServicesSection extends StatelessWidget {
                           else
                             OutlinedButton.icon(
                               onPressed: () =>
-                                  controller.detachCatalogServiceAccess(
+                                  controller.detachRemoteServiceAccess(
                                     peerId: section.peerId,
                                     serviceName: service.serviceName,
                                   ),
@@ -254,15 +248,15 @@ class _PeerServicesSection extends StatelessWidget {
                         ],
                       ),
                     ],
-                    if (service.publishedEndpoints.isNotEmpty) ...[
+                    if (service.remoteEndpoints.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Published Endpoints',
+                        'Remote Endpoints',
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
-                      ...service.publishedEndpoints.map(
+                      ...service.remoteEndpoints.map(
                         (endpoint) => Text(
-                          '${endpoint.name} · ${endpoint.protocol} · service:${endpoint.servicePort}',
+                          '${endpoint.name} · ${endpoint.protocol}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
@@ -281,14 +275,14 @@ class _PeerServicesSection extends StatelessWidget {
                       ),
                     ],
                     if (service.isWeb) ...[
-                      if (controller.catalogWebLaunchUri(service) != null) ...[
+                      if (controller.remoteWebLaunchUri(service) != null) ...[
                         const SizedBox(height: 8),
                         Text(
                           'Open URL',
                           style: Theme.of(context).textTheme.labelLarge,
                         ),
                         SelectableText(
-                          controller.catalogWebLaunchUri(service)!.toString(),
+                          controller.remoteWebLaunchUri(service)!.toString(),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
