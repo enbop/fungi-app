@@ -112,6 +112,86 @@ void main() {
     expect(service.canOpen, isFalse);
     expect(service.canShowAddress, isFalse);
   });
+
+  test('running remote web service can open', () {
+    final service = remoteService(
+      running: true,
+      usageKind: 'web',
+      remoteEndpoints: const [
+        RemoteServiceEndpointView(name: 'web', protocol: '/service/web'),
+      ],
+    );
+
+    expect(service.canOpen, isTrue);
+    expect(service.canConnect, isFalse);
+    expect(service.canShowAddress, isFalse);
+    expect(service.canStart, isFalse);
+  });
+
+  test('running remote TCP service connects before showing its address', () {
+    final disconnected = remoteService(
+      running: true,
+      remoteEndpoints: const [
+        RemoteServiceEndpointView(name: 'main', protocol: '/service/main'),
+      ],
+    );
+    final connected = remoteService(
+      running: true,
+      accessAttached: true,
+      localAccessEndpoints: const [
+        ServiceAccessEndpointView(
+          name: 'main',
+          localHost: '127.0.0.1',
+          localPort: 2200,
+          protocol: '/service/main',
+        ),
+      ],
+    );
+
+    expect(disconnected.canConnect, isTrue);
+    expect(disconnected.canShowAddress, isFalse);
+    expect(connected.canConnect, isFalse);
+    expect(connected.canShowAddress, isTrue);
+  });
+
+  test('stopped remote service suggests start instead of saved address', () {
+    final service = remoteService(
+      running: false,
+      state: 'stopped',
+      accessAttached: true,
+      localAccessEndpoints: const [
+        ServiceAccessEndpointView(
+          name: 'main',
+          localHost: '127.0.0.1',
+          localPort: 2200,
+          protocol: '/service/main',
+        ),
+      ],
+    );
+
+    expect(service.canStart, isTrue);
+    expect(service.canOpen, isFalse);
+    expect(service.canConnect, isFalse);
+    expect(service.canShowAddress, isFalse);
+  });
+
+  test('zero remote local port is not a usable address', () {
+    final service = remoteService(
+      running: true,
+      accessAttached: true,
+      localAccessEndpoints: const [
+        ServiceAccessEndpointView(
+          name: 'main',
+          localHost: '127.0.0.1',
+          localPort: 0,
+          protocol: '/service/main',
+        ),
+      ],
+    );
+
+    expect(service.hasUsableLocalAccessAddress, isFalse);
+    expect(service.canShowAddress, isFalse);
+  });
 }
 
 LocalServiceView localService({
@@ -140,5 +220,30 @@ LocalServicePortView localEndpoint({
     localHost: '127.0.0.1',
     localPort: localPort,
     servicePort: localPort,
+  );
+}
+
+RemoteServiceListEntryView remoteService({
+  required bool running,
+  String state = 'running',
+  String? usageKind,
+  bool accessAttached = false,
+  List<RemoteServiceEndpointView> remoteEndpoints = const [],
+  List<ServiceAccessEndpointView> localAccessEndpoints = const [],
+}) {
+  return RemoteServiceListEntryView(
+    displayName: 'demo',
+    serviceName: 'demo',
+    runtime: 'external',
+    transportKind: 'tcp',
+    usageKind: usageKind,
+    usagePath: null,
+    state: state,
+    running: running,
+    serviceId: 'demo',
+    accessAttached: accessAttached,
+    iconUrl: null,
+    remoteEndpoints: remoteEndpoints,
+    localAccessEndpoints: localAccessEndpoints,
   );
 }

@@ -1587,6 +1587,9 @@ class FungiController extends GetxController {
       if (!service.isWeb) {
         throw Exception('Only web services can be opened in the browser');
       }
+      if (!service.running) {
+        throw Exception('Remote service is not running. Start it first.');
+      }
 
       if (!service.accessAttached) {
         await fungiClient.attachServiceAccess(
@@ -1842,11 +1845,11 @@ class FungiController extends GetxController {
   }
 
   Uri? remoteWebLaunchUri(RemoteServiceListEntryView service) {
-    if (!service.isWeb || service.localAccessEndpoints.isEmpty) {
+    final endpoint = service.usableLocalAccessEndpoint;
+    if (!service.isWeb || endpoint == null) {
       return null;
     }
 
-    final endpoint = service.localAccessEndpoints.first;
     final path = service.usagePath;
     final normalizedPath = path == null || path.isEmpty
         ? '/'

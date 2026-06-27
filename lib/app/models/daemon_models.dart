@@ -148,6 +148,8 @@ class ServiceAccessEndpointView {
       protocol: json['protocol'] as String? ?? '',
     );
   }
+
+  bool get hasUsableLocalAddress => localPort > 0;
 }
 
 class RemoteServiceListEntryView {
@@ -232,6 +234,30 @@ class RemoteServiceListEntryView {
   bool get isWeb => usageKind == 'web';
 
   bool get isTcp => transportKind == 'tcp';
+
+  ServiceAccessEndpointView? get usableLocalAccessEndpoint {
+    for (final endpoint in localAccessEndpoints) {
+      if (endpoint.hasUsableLocalAddress) {
+        return endpoint;
+      }
+    }
+    return null;
+  }
+
+  bool get hasUsableLocalAccessAddress => usableLocalAccessEndpoint != null;
+
+  bool get canOpen =>
+      running &&
+      isWeb &&
+      (remoteEndpoints.isNotEmpty || hasUsableLocalAccessAddress);
+
+  bool get canConnect =>
+      running && !isWeb && !accessAttached && remoteEndpoints.isNotEmpty;
+
+  bool get canShowAddress =>
+      running && !isWeb && accessAttached && hasUsableLocalAccessAddress;
+
+  bool get canStart => !running;
 
   String get canonicalName {
     if (serviceName.trim().isNotEmpty) {
