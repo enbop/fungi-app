@@ -39,6 +39,13 @@ class LocalServicePortView {
       servicePort: json['service_port'] as int? ?? 0,
     );
   }
+
+  bool get isWebEndpoint {
+    final label = [name ?? '', protocol].join(' ').toLowerCase();
+    return label.contains('web') || label.contains('http');
+  }
+
+  bool get hasUsableLocalAddress => localPort > 0;
 }
 
 class LocalServiceView {
@@ -86,6 +93,24 @@ class LocalServiceView {
       ),
     );
   }
+
+  LocalServicePortView? get webEndpoint {
+    for (final endpoint in localEndpoints) {
+      if (endpoint.isWebEndpoint) {
+        return endpoint;
+      }
+    }
+    return null;
+  }
+
+  bool get hasUsableLocalAddress =>
+      localEndpoints.any((endpoint) => endpoint.hasUsableLocalAddress);
+
+  bool get canOpen => running && webEndpoint?.hasUsableLocalAddress == true;
+
+  bool get canShowAddress => running && !canOpen && hasUsableLocalAddress;
+
+  bool get canStart => !running;
 }
 
 class RemoteServiceEndpointView {
@@ -123,6 +148,8 @@ class ServiceAccessEndpointView {
       protocol: json['protocol'] as String? ?? '',
     );
   }
+
+  bool get hasUsableLocalAddress => localPort > 0;
 }
 
 class RemoteServiceListEntryView {
@@ -207,6 +234,30 @@ class RemoteServiceListEntryView {
   bool get isWeb => usageKind == 'web';
 
   bool get isTcp => transportKind == 'tcp';
+
+  ServiceAccessEndpointView? get usableLocalAccessEndpoint {
+    for (final endpoint in localAccessEndpoints) {
+      if (endpoint.hasUsableLocalAddress) {
+        return endpoint;
+      }
+    }
+    return null;
+  }
+
+  bool get hasUsableLocalAccessAddress => usableLocalAccessEndpoint != null;
+
+  bool get canOpen =>
+      running &&
+      isWeb &&
+      (remoteEndpoints.isNotEmpty || hasUsableLocalAccessAddress);
+
+  bool get canConnect =>
+      running && !isWeb && !accessAttached && remoteEndpoints.isNotEmpty;
+
+  bool get canShowAddress =>
+      running && !isWeb && accessAttached && hasUsableLocalAccessAddress;
+
+  bool get canStart => !running;
 
   String get canonicalName {
     if (serviceName.trim().isNotEmpty) {
