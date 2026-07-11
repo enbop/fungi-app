@@ -703,7 +703,7 @@ class FungiController extends GetxController {
 
     try {
       peerId.value = (await fungiClient.peerId(Empty())).peerId;
-      debugPrint('Peer ID: ${peerId.value}');
+      debugPrint('Device ID: ${peerId.value}');
 
       hostname.value = (await fungiClient.hostname(Empty())).hostname;
 
