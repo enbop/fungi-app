@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
+import 'package:fungi_app/app/models/service_list_entry_order.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/enhanced_card.dart';
@@ -177,14 +178,7 @@ class DashboardPage extends GetView<FungiController> {
       final remoteByDevice = <String, Map<String, _DashboardRemoteEntry>>{};
       final deviceServiceKeys = <String>{};
       final remoteDeviceServiceEntries = <_DashboardDeviceServiceEntry>[];
-      final localServices = controller.localServices.toList(growable: false)
-        ..sort((left, right) {
-          final running = (right.running ? 1 : 0) - (left.running ? 1 : 0);
-          if (running != 0) {
-            return running;
-          }
-          return left.name.compareTo(right.name);
-        });
+      final localServices = controller.localServices.toList(growable: false);
 
       for (final section in sections) {
         final deviceLabel = _dashboardDeviceLabel(
@@ -215,18 +209,7 @@ class DashboardPage extends GetView<FungiController> {
           alias: peer.name,
           hostname: peer.hostname,
         );
-        final deviceServices =
-            controller
-                .deviceServicesForPeer(peer.peerId)
-                .toList(growable: false)
-              ..sort((left, right) {
-                final running =
-                    (right.running ? 1 : 0) - (left.running ? 1 : 0);
-                if (running != 0) {
-                  return running;
-                }
-                return left.name.compareTo(right.name);
-              });
+        final deviceServices = controller.deviceServicesForPeer(peer.peerId);
         for (final service in deviceServices) {
           deviceServiceKeys.add('${peer.peerId}::${service.name}');
           remoteDeviceServiceEntries.add(
@@ -246,34 +229,15 @@ class DashboardPage extends GetView<FungiController> {
         );
       });
 
-      final serviceEntries =
-          <_DashboardServiceEntry>[
-            ...localServices.map(
-              (service) => _DashboardServiceEntry.local(service: service),
-            ),
-            ...remoteDeviceServiceEntries.map(
-              (entry) =>
-                  _DashboardServiceEntry.remoteDeviceService(entry: entry),
-            ),
-            ...snapshotOnlyEntries.map(
-              (entry) => _DashboardServiceEntry.remoteSnapshot(entry: entry),
-            ),
-          ]..sort((left, right) {
-            final activeDelta =
-                (right.isActive ? 1 : 0) - (left.isActive ? 1 : 0);
-            if (activeDelta != 0) {
-              return activeDelta;
-            }
-
-            final kindDelta = left.kindSort - right.kindSort;
-            if (kindDelta != 0) {
-              return kindDelta;
-            }
-
-            return left.reference.toLowerCase().compareTo(
-              right.reference.toLowerCase(),
-            );
-          });
+      final serviceEntries = <_DashboardServiceEntry>[
+        ...localServices.map((service) => _LocalDashboardServiceEntry(service)),
+        ...remoteDeviceServiceEntries.map(
+          (entry) => _RemoteDeviceDashboardServiceEntry(entry),
+        ),
+        ...snapshotOnlyEntries.map(
+          (entry) => _RemoteSnapshotDashboardServiceEntry(entry),
+        ),
+      ]..sort((left, right) => left.order.compareTo(right.order));
 
       final isRefreshingServices =
           controller.localServicesLoading.value ||
@@ -340,15 +304,15 @@ class DashboardPage extends GetView<FungiController> {
             )
           else
             ...serviceEntries.map((entry) {
-              if (entry.isLocal) {
-                return _LocalServiceCard(service: entry.localService!);
-              }
-              if (entry.isRemoteDeviceService) {
-                return _RemoteDeviceServiceCard(
-                  entry: entry.deviceServiceEntry!,
-                );
-              }
-              return _QuickServiceCard(entry: entry.remoteEntry!);
+              final key = ValueKey(entry.order.stableId);
+              return switch (entry) {
+                _LocalDashboardServiceEntry(:final service) =>
+                  _LocalServiceCard(key: key, service: service),
+                _RemoteDeviceDashboardServiceEntry(:final deviceService) =>
+                  _RemoteDeviceServiceCard(key: key, entry: deviceService),
+                _RemoteSnapshotDashboardServiceEntry(:final remoteService) =>
+                  _QuickServiceCard(key: key, entry: remoteService),
+              };
             }),
         ],
       );
@@ -393,72 +357,51 @@ class _DashboardDeviceServiceEntry {
   }
 }
 
-class _DashboardServiceEntry {
-  _DashboardServiceEntry.local({required LocalServiceView service})
-    : this._(
-        localService: service,
-        remoteEntry: null,
-        deviceServiceEntry: null,
-        isLocal: true,
-        isRemoteDeviceService: false,
-        reference: service.name,
-        isActive: service.running,
-        kindSort: 0,
-      );
+sealed class _DashboardServiceEntry {
+  const _DashboardServiceEntry(this.order);
 
-  _DashboardServiceEntry.remoteDeviceService({
-    required _DashboardDeviceServiceEntry entry,
-  }) : this._(
-         localService: null,
-         remoteEntry: null,
-         deviceServiceEntry: entry,
-         isLocal: false,
-         isRemoteDeviceService: true,
-         reference: entry.reference,
-         isActive: entry.service.running,
-         kindSort: 1,
-       );
-
-  _DashboardServiceEntry.remoteSnapshot({required _DashboardRemoteEntry entry})
-    : this._(
-        localService: null,
-        remoteEntry: entry,
-        deviceServiceEntry: null,
-        isLocal: false,
-        isRemoteDeviceService: false,
-        reference: _DashboardRemoteEntryReference.reference(entry),
-        isActive: entry.service.accessAttached || entry.service.running,
-        kindSort: 2,
-      );
-
-  const _DashboardServiceEntry._({
-    required this.localService,
-    required this.remoteEntry,
-    required this.deviceServiceEntry,
-    required this.isLocal,
-    required this.isRemoteDeviceService,
-    required this.reference,
-    required this.isActive,
-    required this.kindSort,
-  });
-
-  final LocalServiceView? localService;
-  final _DashboardRemoteEntry? remoteEntry;
-  final _DashboardDeviceServiceEntry? deviceServiceEntry;
-  final bool isLocal;
-  final bool isRemoteDeviceService;
-  final String reference;
-  final bool isActive;
-  final int kindSort;
+  final ServiceListEntryOrder order;
 }
 
-class _DashboardRemoteEntryReference {
-  static String reference(_DashboardRemoteEntry entry) {
-    return _dashboardRemoteServiceReference(
-      service: entry.service,
-      deviceLabel: entry.deviceLabel,
-    );
-  }
+class _LocalDashboardServiceEntry extends _DashboardServiceEntry {
+  _LocalDashboardServiceEntry(this.service)
+    : super(
+        ServiceListEntryOrder(
+          reference: service.name,
+          stableId: 'local::${service.name}',
+        ),
+      );
+
+  final LocalServiceView service;
+}
+
+class _RemoteDeviceDashboardServiceEntry extends _DashboardServiceEntry {
+  _RemoteDeviceDashboardServiceEntry(this.deviceService)
+    : super(
+        ServiceListEntryOrder(
+          reference: deviceService.reference,
+          stableId:
+              'remote::${deviceService.peer.peerId}::${deviceService.service.name}',
+        ),
+      );
+
+  final _DashboardDeviceServiceEntry deviceService;
+}
+
+class _RemoteSnapshotDashboardServiceEntry extends _DashboardServiceEntry {
+  _RemoteSnapshotDashboardServiceEntry(this.remoteService)
+    : super(
+        ServiceListEntryOrder(
+          reference: _dashboardRemoteServiceReference(
+            service: remoteService.service,
+            deviceLabel: remoteService.deviceLabel,
+          ),
+          stableId:
+              'remote::${remoteService.peerId}::${remoteService.service.canonicalName}',
+        ),
+      );
+
+  final _DashboardRemoteEntry remoteService;
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -556,7 +499,7 @@ class _HomeOnboardingPanel extends GetView<FungiController> {
 }
 
 class _QuickServiceCard extends GetView<FungiController> {
-  const _QuickServiceCard({required this.entry});
+  const _QuickServiceCard({super.key, required this.entry});
 
   final _DashboardRemoteEntry entry;
 
@@ -981,7 +924,7 @@ class _RemoteDeviceServiceQuickActions extends GetView<FungiController> {
 }
 
 class _RemoteDeviceServiceCard extends GetView<FungiController> {
-  const _RemoteDeviceServiceCard({required this.entry});
+  const _RemoteDeviceServiceCard({super.key, required this.entry});
 
   final _DashboardDeviceServiceEntry entry;
 
@@ -1118,7 +1061,7 @@ class _RemoteDeviceServiceCard extends GetView<FungiController> {
 }
 
 class _LocalServiceCard extends GetView<FungiController> {
-  const _LocalServiceCard({required this.service});
+  const _LocalServiceCard({super.key, required this.service});
 
   final LocalServiceView service;
 
