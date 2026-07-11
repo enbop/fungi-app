@@ -634,14 +634,8 @@ class FungiController extends GetxController {
     await updateAddressBook();
   }
 
-  Future<void> deletePeer(String peerId) async {
+  Future<void> deleteDevice(String peerId) async {
     try {
-      await refreshPeerDeviceServicesData(peerId: peerId);
-      final deviceServices = deviceServicesForPeer(peerId);
-      if (deviceServices.isNotEmpty) {
-        throw Exception('Peer still has ${deviceServices.length} service(s)');
-      }
-
       await removeAddressBookPeer(peerId);
       final nextDeviceServices = Map<String, List<LocalServiceView>>.from(
         peerDeviceServices,
@@ -664,7 +658,7 @@ class FungiController extends GetxController {
       peerConnections.value = nextConnections;
 
       await refreshAvailableServicesData();
-      Get.snackbar('Success', 'Peer deleted');
+      Get.snackbar('Success', 'Device deleted');
     } catch (e) {
       Get.snackbar('Delete failed', '$e');
       rethrow;
