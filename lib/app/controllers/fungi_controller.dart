@@ -617,7 +617,7 @@ class FungiController extends GetxController {
     try {
       await updateAddressBookPeer(peerInfo);
       await refreshNodeManagementData();
-      Get.snackbar('Success', 'Node saved');
+      Get.snackbar('Success', 'Device saved');
     } catch (e) {
       Get.snackbar('Save failed', '$e');
     }

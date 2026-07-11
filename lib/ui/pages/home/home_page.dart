@@ -141,7 +141,7 @@ class HomeHeader extends GetView<FungiController> {
                         style: TextStyle(fontSize: 12, color: headerTextColor),
                       ),
                       LabeledText(
-                        label: 'Peer ID',
+                        label: 'Device ID',
                         labelStyle: TextStyle(
                           fontSize: 12,
                           color: headerAccentColor,
