@@ -11,7 +11,7 @@ void main() {
         'icon_url': 'https://example.test/files.svg',
       },
       'endpoints': [
-        {'name': 'web', 'protocol': '/fungi/service/files/web/0.2.0'},
+        {'name': 'web', 'protocol': '/fungi/service-port/files/web/0.1.0'},
       ],
       'status': {'phase': 'running'},
     });
@@ -27,7 +27,7 @@ void main() {
     expect(service.remoteEndpoints.single.name, 'web');
     expect(
       service.remoteEndpoints.single.protocol,
-      '/fungi/service/files/web/0.2.0',
+      '/fungi/service-port/files/web/0.1.0',
     );
   });
 

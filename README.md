@@ -1,6 +1,6 @@
 # Fungi App
 
-The official graphical user interface for [Fungi](https://github.com/enbop/fungi), built with Flutter.
+The official graphical interface for managing devices and services on a [Fungi](https://github.com/enbop/fungi) network.
 
 On macOS, we recommend installing Fungi App through our Homebrew tap:
 
@@ -16,11 +16,6 @@ brew tap enbop/fungi
 brew install --cask fungi-app-nightly
 ```
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/enbop/fungi/e21ea16a6cc3eaa57da0c025550d717c6b32a1a6/assets/fungi-data-tunnel.png" alt="File Transfer Interface" width="250" style="margin: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-  <img src="https://raw.githubusercontent.com/enbop/fungi/e21ea16a6cc3eaa57da0c025550d717c6b32a1a6/assets/fungi-data-tunnel.png" alt="Data Tunnel Interface" width="250" style="margin: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-</div>
-
 ## Architecture
 
 Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app can start and stop an app-managed daemon, or connect to a compatible daemon that was already started by the user.
@@ -29,8 +24,8 @@ Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app 
 
 Fungi App currently tracks the `fungi` core release line directly.
 
-- The app version should match the compatible core daemon version, for example `0.6.1`.
-- UI-only repackaging or platform-specific release increments should use build metadata, for example `0.6.1+2`.
+- The app version should match the compatible core daemon version, for example `0.7.0`.
+- UI-only repackaging or platform-specific release increments should use build metadata, for example `0.7.0+4`.
 
 ## Development
 
