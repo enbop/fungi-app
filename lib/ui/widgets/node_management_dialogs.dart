@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
-import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/device_selector_dialog.dart';
 import 'package:get/get.dart';
 
@@ -120,10 +119,6 @@ Future<void> showNodeEditorDialog({DeviceInfo? initialPeer}) async {
       );
     },
   );
-}
-
-Future<void> showRemoteServicePullDialog({required DeviceInfo peer}) async {
-  await showCreateServiceDialog(Get.context!, initialPeer: peer);
 }
 
 Future<void> showDeleteDeviceDialog({required DeviceInfo device}) async {

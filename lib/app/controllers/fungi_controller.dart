@@ -623,12 +623,6 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<DeviceInfo?> getAddressBookPeer(String peerId) async {
-    return (await fungiClient.getDevice(
-      GetDeviceRequest()..peerId = peerId,
-    )).device;
-  }
-
   Future<void> removeAddressBookPeer(String peerId) async {
     await fungiClient.removeDevice(RemoveDeviceRequest()..peerId = peerId);
     await updateAddressBook();
@@ -663,11 +657,6 @@ class FungiController extends GetxController {
       Get.snackbar('Delete failed', '$e');
       rethrow;
     }
-  }
-
-  Future<List<DeviceInfo>> listMdnsPeers() async {
-    final response = await fungiClient.listMdnsDevices(Empty());
-    return response.devices;
   }
 
   Future<void> initFungi() async {
@@ -1972,34 +1961,6 @@ class FungiController extends GetxController {
     } catch (e) {
       Get.snackbar('Update failed', '$e');
     }
-  }
-
-  Future<void> addRuntimeAllowedPort(int port) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed ports are no longer exposed by the current daemon API.',
-    );
-  }
-
-  Future<void> removeRuntimeAllowedPort(int port) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed ports are no longer exposed by the current daemon API.',
-    );
-  }
-
-  Future<void> addRuntimeAllowedPortRange(int start, int end) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed port ranges are no longer exposed by the current daemon API.',
-    );
-  }
-
-  Future<void> removeRuntimeAllowedPortRange(int start, int end) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed port ranges are no longer exposed by the current daemon API.',
-    );
   }
 
   Future<void> startLocalService(String name) async {

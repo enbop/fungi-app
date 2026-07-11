@@ -1,20 +1,5 @@
 import 'dart:convert';
 
-class ServiceStatusView {
-  const ServiceStatusView({required this.state, required this.running});
-
-  final String state;
-  final bool running;
-
-  factory ServiceStatusView.fromJson(Map<String, dynamic> json) {
-    final phase = json['phase'] as String?;
-    return ServiceStatusView(
-      state: json['state'] as String? ?? phase ?? 'unknown',
-      running: json['running'] as bool? ?? phase == 'running',
-    );
-  }
-}
-
 class LocalServicePortView {
   const LocalServicePortView({
     required this.name,
@@ -285,51 +270,6 @@ class RemoteServiceListEntryView {
     }
 
     return '$baseName@$targetDeviceName';
-  }
-}
-
-class NodeCapabilitiesView {
-  const NodeCapabilitiesView({
-    required this.runtimes,
-    required this.allowedPorts,
-    required this.allowedPortRanges,
-    required this.allowedHostPaths,
-  });
-
-  final List<String> runtimes;
-  final List<int> allowedPorts;
-  final List<String> allowedPortRanges;
-  final List<String> allowedHostPaths;
-
-  factory NodeCapabilitiesView.fromJson(Map<String, dynamic> json) {
-    final runtimeCapabilities = json['runtime_capabilities'];
-    final allowedTcpPorts = json['allowed_tcp_ports'];
-
-    return NodeCapabilitiesView(
-      runtimes: runtimeCapabilities is List
-          ? runtimeCapabilities
-                .map(
-                  (entry) =>
-                      (entry as Map<String, dynamic>)['runtime'] as String? ??
-                      'unknown',
-                )
-                .toList()
-          : const [],
-      allowedPorts: allowedTcpPorts is Map<String, dynamic>
-          ? ((allowedTcpPorts['ports'] as List?) ?? const [])
-                .map((entry) => entry as int)
-                .toList()
-          : const [],
-      allowedPortRanges: allowedTcpPorts is Map<String, dynamic>
-          ? ((allowedTcpPorts['ranges'] as List?) ?? const []).map((entry) {
-              final range = entry as Map<String, dynamic>;
-              return '${range['start']}-${range['end']}';
-            }).toList()
-          : const [],
-      allowedHostPaths: ((json['allowed_host_paths'] as List?) ?? const [])
-          .map((entry) => entry.toString())
-          .toList(),
-    );
   }
 }
 
