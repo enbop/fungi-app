@@ -11,6 +11,7 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 - Aligned the app, bundled core, and gRPC API with Fungi daemon 0.7.0.
+- Daemon connections now follow the per-`fungi-dir` endpoint published by Fungi core instead of relying on a fixed RPC port.
 - Reworked the interface around devices, trust, services, and local access.
 - Remote service state now uses the daemon's device service snapshot and refresh flow.
 
