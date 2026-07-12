@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
-import 'package:fungi_app/ui/widgets/create_service_dialog.dart';
 import 'package:fungi_app/ui/widgets/device_selector_dialog.dart';
 import 'package:get/get.dart';
 
@@ -79,7 +78,7 @@ Future<void> showNodeEditorDialog({DeviceInfo? initialPeer}) async {
             TextButton(
               onPressed: () {
                 SmartDialog.dismiss();
-                showDeletePeerDialog(peer: initialPeer);
+                showDeleteDeviceDialog(device: initialPeer);
               },
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
@@ -122,11 +121,7 @@ Future<void> showNodeEditorDialog({DeviceInfo? initialPeer}) async {
   );
 }
 
-Future<void> showRemoteServicePullDialog({required DeviceInfo peer}) async {
-  await showCreateServiceDialog(Get.context!, initialPeer: peer);
-}
-
-Future<void> showDeletePeerDialog({required DeviceInfo peer}) async {
+Future<void> showDeleteDeviceDialog({required DeviceInfo device}) async {
   final controller = Get.find<FungiController>();
 
   await SmartDialog.show(
@@ -134,7 +129,7 @@ Future<void> showDeletePeerDialog({required DeviceInfo peer}) async {
       return AlertDialog(
         title: const Text('Delete Device'),
         content: Text(
-          'Delete ${peer.name.isNotEmpty ? peer.name : peer.peerId} from Devices?',
+          'Delete ${device.name.isNotEmpty ? device.name : device.peerId} from Devices?',
         ),
         actions: [
           TextButton(
@@ -144,7 +139,7 @@ Future<void> showDeletePeerDialog({required DeviceInfo peer}) async {
           FilledButton(
             onPressed: () async {
               try {
-                await controller.deletePeer(peer.peerId);
+                await controller.deleteDevice(device.peerId);
                 SmartDialog.dismiss();
               } catch (_) {
                 SmartDialog.dismiss();

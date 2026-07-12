@@ -152,7 +152,7 @@ class AdvancedPage extends GetView<FungiController> {
           return _AllowedHostPathEntry(
             title: namedOption?.title ?? path,
             subtitle: namedOption == null
-                ? 'Remote services may access this directory.'
+                ? 'Sandboxed services on this device may access this directory.'
                 : '$path\n${namedOption.description}',
           );
         })

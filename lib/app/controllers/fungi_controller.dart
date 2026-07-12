@@ -104,7 +104,7 @@ class FungiController extends GetxController {
   final daemonError = ''.obs;
   final connectedDaemonVersion = ''.obs;
   final connectedDaemonBuildDetails = ''.obs;
-  final appVersion = '0.6.1'.obs;
+  final appVersion = '0.7.0'.obs;
   final appBuildVersion = ''.obs;
   final appBuildDetails = ''.obs;
 
@@ -121,7 +121,7 @@ class FungiController extends GetxController {
   final _launchAtLoginHideToTrayKey = LaunchAtLoginManager.hideToTrayStorageKey;
   final _startupNoticeVersionKey = 'startup_notice_version';
   static const _startupNoticeCurrentVersion = 'relay-privacy-v1';
-  static const _defaultAppVersion = '0.6.1';
+  static const _defaultAppVersion = '0.7.0';
 
   final currentTheme = ThemeOption.system.obs;
   final preventClose = false.obs;
@@ -617,16 +617,10 @@ class FungiController extends GetxController {
     try {
       await updateAddressBookPeer(peerInfo);
       await refreshNodeManagementData();
-      Get.snackbar('Success', 'Node saved');
+      Get.snackbar('Success', 'Device saved');
     } catch (e) {
       Get.snackbar('Save failed', '$e');
     }
-  }
-
-  Future<DeviceInfo?> getAddressBookPeer(String peerId) async {
-    return (await fungiClient.getDevice(
-      GetDeviceRequest()..peerId = peerId,
-    )).device;
   }
 
   Future<void> removeAddressBookPeer(String peerId) async {
@@ -634,14 +628,8 @@ class FungiController extends GetxController {
     await updateAddressBook();
   }
 
-  Future<void> deletePeer(String peerId) async {
+  Future<void> deleteDevice(String peerId) async {
     try {
-      await refreshPeerDeviceServicesData(peerId: peerId);
-      final deviceServices = deviceServicesForPeer(peerId);
-      if (deviceServices.isNotEmpty) {
-        throw Exception('Peer still has ${deviceServices.length} service(s)');
-      }
-
       await removeAddressBookPeer(peerId);
       final nextDeviceServices = Map<String, List<LocalServiceView>>.from(
         peerDeviceServices,
@@ -664,16 +652,11 @@ class FungiController extends GetxController {
       peerConnections.value = nextConnections;
 
       await refreshAvailableServicesData();
-      Get.snackbar('Success', 'Peer deleted');
+      Get.snackbar('Success', 'Device deleted');
     } catch (e) {
       Get.snackbar('Delete failed', '$e');
       rethrow;
     }
-  }
-
-  Future<List<DeviceInfo>> listMdnsPeers() async {
-    final response = await fungiClient.listMdnsDevices(Empty());
-    return response.devices;
   }
 
   Future<void> initFungi() async {
@@ -720,7 +703,7 @@ class FungiController extends GetxController {
 
     try {
       peerId.value = (await fungiClient.peerId(Empty())).peerId;
-      debugPrint('Peer ID: ${peerId.value}');
+      debugPrint('Device ID: ${peerId.value}');
 
       hostname.value = (await fungiClient.hostname(Empty())).hostname;
 
@@ -1978,34 +1961,6 @@ class FungiController extends GetxController {
     } catch (e) {
       Get.snackbar('Update failed', '$e');
     }
-  }
-
-  Future<void> addRuntimeAllowedPort(int port) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed ports are no longer exposed by the current daemon API.',
-    );
-  }
-
-  Future<void> removeRuntimeAllowedPort(int port) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed ports are no longer exposed by the current daemon API.',
-    );
-  }
-
-  Future<void> addRuntimeAllowedPortRange(int start, int end) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed port ranges are no longer exposed by the current daemon API.',
-    );
-  }
-
-  Future<void> removeRuntimeAllowedPortRange(int start, int end) async {
-    Get.snackbar(
-      'Unavailable',
-      'Allowed port ranges are no longer exposed by the current daemon API.',
-    );
   }
 
   Future<void> startLocalService(String name) async {

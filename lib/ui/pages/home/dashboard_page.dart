@@ -130,7 +130,7 @@ Future<void> _showLocalAddressDialog(
           constraints: const BoxConstraints(maxWidth: 520),
           child: endpoints.isEmpty
               ? const Text(
-                  'No local forwarding address is available yet. Try reconnecting once the tunnel finishes attaching.',
+                  'No local address is available yet. Try connecting again in a moment.',
                 )
               : Column(
                   mainAxisSize: MainAxisSize.min,
