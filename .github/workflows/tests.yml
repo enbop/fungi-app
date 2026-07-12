@@ -14,13 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-latest, windows-latest]
+        os: [ubuntu-22.04, macos-15, windows-latest]
         include:
           - os: ubuntu-22.04
             target: linux
             core-platform: linux
             core-arch: x86_64
-          - os: macos-latest
+          - os: macos-15
             target: macos
             core-platform: macos
             core-arch: aarch64
@@ -30,7 +30,7 @@ jobs:
             core-arch: x86_64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download Fungi Artifacts
         shell: bash
@@ -46,6 +46,7 @@ jobs:
       - name: Install macOS Dependencies
         if: matrix.target == 'macos'
         run: |
+          brew untap aws/tap || true
           brew install protobuf
 
       - name: Install Windows Dependencies
