@@ -4,6 +4,9 @@ All notable changes to this project are documented in this file.
 
 ## [0.7.0] - Unreleased
 
+### Fixed
+- Connect to the daemon through its discovered RPC address, including dynamic ports and IPv6 loopback addresses.
+
 ### Added
 - Unified service management for apps running locally and on saved devices.
 - Service recipe support for applying services locally or to another device.

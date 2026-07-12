@@ -18,7 +18,7 @@ brew install --cask fungi-app-nightly
 
 ## Architecture
 
-Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app can start and stop an app-managed daemon, or connect to a compatible daemon that was already started by the user.
+Fungi App communicates with the underlying `fungi` binary via **gRPC**. It discovers the daemon's published RPC address through `fungi info rpc-address`, so each daemon can use its own available local port. The app can start and stop an app-managed daemon, or connect to a compatible daemon that was already started by the user.
 
 ## Versioning
 

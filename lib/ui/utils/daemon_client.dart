@@ -86,22 +86,36 @@ Future<String> readRpcAddress() async {
   return result.stdout.toString().trim();
 }
 
+class DaemonRpcAddress {
+  const DaemonRpcAddress({required this.host, required this.port});
+
+  final String host;
+  final int port;
+
+  factory DaemonRpcAddress.parse(String address) {
+    final value = address.trim();
+    final uri = Uri.tryParse('http://$value');
+    if (uri == null ||
+        uri.host.isEmpty ||
+        !uri.hasPort ||
+        uri.port <= 0 ||
+        uri.port > 65535 ||
+        uri.path.isNotEmpty ||
+        uri.query.isNotEmpty ||
+        uri.fragment.isNotEmpty) {
+      throw FormatException('Invalid RPC address: $address');
+    }
+
+    return DaemonRpcAddress(host: uri.host, port: uri.port);
+  }
+}
+
 FungiDaemonClient _createClient(String address) {
-  final parts = address.split(':');
-  if (parts.length != 2) {
-    throw FormatException('Invalid RPC address format: $address');
-  }
-
-  final host = parts[0];
-  final port = int.tryParse(parts[1]);
-
-  if (port == null) {
-    throw FormatException('Invalid port number in RPC address: $address');
-  }
+  final rpcAddress = DaemonRpcAddress.parse(address);
 
   final channel = ClientChannel(
-    host,
-    port: port,
+    rpcAddress.host,
+    port: rpcAddress.port,
     options: const ChannelOptions(
       credentials: ChannelCredentials.insecure(),
       connectTimeout: Duration(seconds: 3),
