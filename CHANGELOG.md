@@ -5,17 +5,18 @@ All notable changes to this project are documented in this file.
 ## [0.7.0] - Unreleased
 
 ### Added
-- Unified service management for apps running locally and on saved devices.
-- Service recipe support for applying services locally or to another device.
-- Runtime safety and relay configuration views.
+
+- Device and service management aligned with the Fungi 0.7.0 workflow.
+- Service recipes for applying services locally or to a saved device.
 
 ### Changed
-- Aligned the app, bundled core, and gRPC API with Fungi daemon 0.7.0.
-- Reworked the interface around devices, trust, services, and local access.
-- Remote service state now uses the daemon's device service snapshot and refresh flow.
+
+- Updated the bundled core and gRPC integration for Fungi 0.7.0.
+- Simplified navigation around devices, services, and local access.
 
 ### Removed
-- Removed legacy file transfer, data tunnel, and obsolete daemon compatibility UI.
+
+- Removed legacy file transfer, data tunnel, and obsolete compatibility UI.
 
 ## [0.6.1+2] - 2026-04-09
 
