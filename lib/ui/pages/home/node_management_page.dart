@@ -289,7 +289,7 @@ class _DeviceRefreshNotice extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        'Services could not be refreshed. Open Details for diagnostic information.',
+        deviceConnectionFailureMessage,
         style: Theme.of(
           context,
         ).textTheme.bodySmall?.copyWith(color: colorScheme.onErrorContainer),

@@ -289,14 +289,6 @@ class DashboardPage extends GetView<FungiController> {
               onPressed: controller.refreshLocalServicesData,
             ),
           ],
-          if (controller.availableServicesError.value.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            _StatusCard(
-              message: controller.availableServicesError.value,
-              actionLabel: 'Retry remote',
-              onPressed: controller.refreshAvailableServicesData,
-            ),
-          ],
           if (serviceEntries.isEmpty)
             _HomeOnboardingPanel(
               hasDevices: controller.addressBook.isNotEmpty,
