@@ -597,10 +597,37 @@ class FungiController extends GetxController {
       TrustDeviceRequest()..peerId = peerInfo.peerId,
     );
 
-    // Persist and reload local daemon state before returning. Remote refresh is
-    // deliberately left in the background so the dialog is not held open.
-    await persistDeviceMetadata(peerInfo);
-    await Future.wait([updateAddressBook(), updateTrustedDevices()]);
+    try {
+      await persistDeviceMetadata(peerInfo);
+    } catch (e) {
+      debugPrint('Device trust succeeded, but saving its details failed: $e');
+      try {
+        await updateTrustedDevices();
+      } catch (refreshError) {
+        debugPrint(
+          'Failed to refresh trusted devices after partial success: '
+          '$refreshError',
+        );
+      }
+      Get.snackbar(
+        'Trusted with incomplete details',
+        'Device trust succeeded, but saving its details failed: $e',
+      );
+      return;
+    }
+
+    try {
+      await Future.wait([updateAddressBook(), updateTrustedDevices()]);
+    } catch (e) {
+      debugPrint('Failed to refresh local lists after trusting device: $e');
+      Get.snackbar(
+        'Trusted device saved',
+        'Device was trusted and its details were saved, but refreshing the lists failed: $e',
+      );
+    }
+
+    // Remote refresh is deliberately left in the background so the dialog is
+    // not held open by an unavailable or untrusted peer.
     unawaited(refreshNodeManagementData());
   }
 
@@ -1339,6 +1366,17 @@ class FungiController extends GetxController {
     );
   }
 
+  Future<void> _refreshRemoteDeviceFromCache(String peerId) async {
+    await Future.wait([
+      refreshPeerDeviceServicesData(peerId: peerId, cached: true),
+      refreshAvailableServicesData(
+        peerId: peerId,
+        cached: true,
+        showLoading: false,
+      ),
+    ]);
+  }
+
   Future<void> _refreshPeerDeviceServicesForPeer(
     String peerId, {
     required bool cached,
@@ -1742,6 +1780,7 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
+      await _refreshRemoteDeviceFromCache(peerId);
       _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Remote service started');
     } catch (e) {
@@ -1765,6 +1804,7 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
+      await _refreshRemoteDeviceFromCache(peerId);
       _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Remote service stopped');
     } catch (e) {
