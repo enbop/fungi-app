@@ -20,6 +20,29 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 
+const deviceConnectionFailureMessage =
+    'Could not connect to this device. It may be offline or may not trust this device.';
+
+String remoteDeviceErrorMessage(Object error) {
+  final message = error.toString();
+  const connectionFailureMarkers = [
+    deviceConnectionFailureMessage,
+    'failed to refresh remote service before attaching access',
+    'No connections available to peer',
+    'Failed to open service-control stream',
+    'Failed to write service-control request',
+    'Failed to read service-control response',
+    'connection is closed',
+    'Connection reset by peer',
+    'unexpected end of file',
+    'DeadlineExceeded',
+    'deadline exceeded',
+  ];
+  return connectionFailureMarkers.any(message.contains)
+      ? deviceConnectionFailureMessage
+      : message;
+}
+
 enum ThemeOption { light, dark, system }
 
 extension ThemeOptionExtension on ThemeOption {
@@ -147,8 +170,6 @@ class FungiController extends GetxController {
   final remoteServicePendingActions = <String, String>{}.obs;
 
   final localServicesError = ''.obs;
-  final availableServicesError = ''.obs;
-  final _availableServicesFallbackPeers = <String>{};
   final relayConfig = const RelayConfigView.empty().obs;
   final relayConfigLoading = false.obs;
   final relayConfigError = ''.obs;
@@ -577,11 +598,17 @@ class FungiController extends GetxController {
     );
 
     try {
-      // Persist the chosen device metadata before refreshing the trusted list
-      // so the UI snapshots the latest saved name/hostname in one pass.
       await persistDeviceMetadata(peerInfo);
     } catch (e) {
-      await updateTrustedDevices();
+      debugPrint('Device trust succeeded, but saving its details failed: $e');
+      try {
+        await updateTrustedDevices();
+      } catch (refreshError) {
+        debugPrint(
+          'Failed to refresh trusted devices after partial success: '
+          '$refreshError',
+        );
+      }
       Get.snackbar(
         'Trusted with incomplete details',
         'Device trust succeeded, but saving its details failed: $e',
@@ -592,11 +619,16 @@ class FungiController extends GetxController {
     try {
       await Future.wait([updateAddressBook(), updateTrustedDevices()]);
     } catch (e) {
+      debugPrint('Failed to refresh local lists after trusting device: $e');
       Get.snackbar(
         'Trusted device saved',
         'Device was trusted and its details were saved, but refreshing the lists failed: $e',
       );
     }
+
+    // Remote refresh is deliberately left in the background so the dialog is
+    // not held open by an unavailable or untrusted peer.
+    unawaited(refreshNodeManagementData());
   }
 
   Future<void> removeTrustedDevice(String peerId) async {
@@ -616,10 +648,12 @@ class FungiController extends GetxController {
   Future<void> saveAddressBookPeer(DeviceInfo peerInfo) async {
     try {
       await updateAddressBookPeer(peerInfo);
-      await refreshNodeManagementData();
+      await updateTrustedDevices();
       Get.snackbar('Success', 'Device saved');
+      unawaited(refreshNodeManagementData());
     } catch (e) {
       Get.snackbar('Save failed', '$e');
+      rethrow;
     }
   }
 
@@ -651,8 +685,8 @@ class FungiController extends GetxController {
       )..remove(peerId);
       peerConnections.value = nextConnections;
 
-      await refreshAvailableServicesData();
       Get.snackbar('Success', 'Device deleted');
+      unawaited(refreshAvailableServicesData());
     } catch (e) {
       Get.snackbar('Delete failed', '$e');
       rethrow;
@@ -1226,7 +1260,6 @@ class FungiController extends GetxController {
       for (final currentPeerId in peerIds) {
         if (!addressBook.any((peer) => peer.peerId == currentPeerId)) {
           next.remove(currentPeerId);
-          _availableServicesFallbackPeers.remove(currentPeerId);
           continue;
         }
         try {
@@ -1236,9 +1269,10 @@ class FungiController extends GetxController {
             timeout: _deviceServiceSnapshotRequestTimeout,
           );
           if (snapshot.error.isNotEmpty) {
-            _availableServicesFallbackPeers.add(currentPeerId);
-          } else {
-            _availableServicesFallbackPeers.remove(currentPeerId);
+            debugPrint(
+              'Failed to refresh device service snapshot for $currentPeerId: '
+              '${snapshot.error}',
+            );
           }
           final services = decodeJsonStringList(snapshot.servicesJson, (
             serviceJson,
@@ -1268,28 +1302,13 @@ class FungiController extends GetxController {
         }
       }
       peerRemoteServices.value = next;
-      if (peerId == null) {
-        _availableServicesFallbackPeers.retainAll(peerIds);
-      }
-      _syncAvailableServicesError();
     } catch (e) {
-      if (peerId == null) {
-        availableServicesError.value = 'Failed to load available services: $e';
-        debugPrint(availableServicesError.value);
-      } else {
-        debugPrint('Failed to load available services for $peerId: $e');
-      }
+      debugPrint('Failed to load available services: $e');
     } finally {
       if (showLoading) {
         availableServicesLoading.value = false;
       }
     }
-  }
-
-  void _syncAvailableServicesError() {
-    availableServicesError.value = _availableServicesFallbackPeers.isEmpty
-        ? ''
-        : 'Some devices could not be refreshed. Showing cached service snapshots.';
   }
 
   Future<void> refreshNodeManagementData({
@@ -1336,6 +1355,28 @@ class FungiController extends GetxController {
     unawaited(refreshPeerDeviceServicesData(peerId: peerId, cached: false));
   }
 
+  void _refreshRemoteDeviceInBackground(String peerId) {
+    _refreshPeerDeviceServicesInBackground(peerId: peerId);
+    unawaited(
+      refreshAvailableServicesData(
+        peerId: peerId,
+        cached: false,
+        showLoading: false,
+      ),
+    );
+  }
+
+  Future<void> _refreshRemoteDeviceFromCache(String peerId) async {
+    await Future.wait([
+      refreshPeerDeviceServicesData(peerId: peerId, cached: true),
+      refreshAvailableServicesData(
+        peerId: peerId,
+        cached: true,
+        showLoading: false,
+      ),
+    ]);
+  }
+
   Future<void> _refreshPeerDeviceServicesForPeer(
     String peerId, {
     required bool cached,
@@ -1355,17 +1396,18 @@ class FungiController extends GetxController {
       )..sort((left, right) => left.name.compareTo(right.name));
       _setPeerDeviceServices(peerId, services);
       if (snapshot.error.isNotEmpty) {
-        _setPeerDeviceServicesError(
-          peerId,
-          'Showing ${snapshot.source} snapshot: ${snapshot.error}',
+        debugPrint(
+          'Failed to refresh device service snapshot for $peerId: '
+          '${snapshot.error}',
         );
+        _setPeerDeviceServicesError(peerId, deviceConnectionFailureMessage);
       }
     } catch (e) {
       debugPrint('Failed to load device service snapshot for $peerId: $e');
       if (!peerDeviceServices.containsKey(peerId)) {
         _setPeerDeviceServices(peerId, const []);
       }
-      _setPeerDeviceServicesError(peerId, e.toString());
+      _setPeerDeviceServicesError(peerId, deviceConnectionFailureMessage);
     } finally {
       _setPeerDeviceServicesLoading(peerId, false);
     }
@@ -1521,10 +1563,10 @@ class FungiController extends GetxController {
         cached: true,
         showLoading: false,
       );
-      _refreshPeerDeviceServicesInBackground(peerId: peerId);
+      _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Connected locally');
     } catch (e) {
-      Get.snackbar('Connect failed', '$e');
+      Get.snackbar('Connect failed', remoteDeviceErrorMessage(e));
     }
   }
 
@@ -1603,8 +1645,9 @@ class FungiController extends GetxController {
       if (!launched) {
         throw Exception('Browser launch request was rejected');
       }
+      _refreshRemoteDeviceInBackground(peerId);
     } catch (e) {
-      Get.snackbar('Open failed', '$e');
+      Get.snackbar('Open failed', remoteDeviceErrorMessage(e));
     }
   }
 
@@ -1624,16 +1667,11 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..manifestYaml = manifestYaml,
       );
-      await refreshPeerDeviceServicesData(peerId: peerId);
-      await refreshAvailableServicesData(
-        peerId: peerId,
-        cached: false,
-        showLoading: false,
-      );
+      _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Service applied to device');
       return true;
     } catch (e) {
-      Get.snackbar('Remote apply failed', '$e');
+      Get.snackbar('Remote apply failed', remoteDeviceErrorMessage(e));
       return false;
     }
   }
@@ -1716,16 +1754,11 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..manifestYaml = resolved.manifestYaml,
       );
-      await refreshPeerDeviceServicesData(peerId: peerId);
-      await refreshAvailableServicesData(
-        peerId: peerId,
-        cached: false,
-        showLoading: false,
-      );
+      _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Service applied to device');
       return true;
     } catch (e) {
-      Get.snackbar('Remote recipe apply failed', '$e');
+      Get.snackbar('Remote recipe apply failed', remoteDeviceErrorMessage(e));
       return false;
     }
   }
@@ -1747,15 +1780,11 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
-      await refreshPeerDeviceServicesData(peerId: peerId);
-      await refreshAvailableServicesData(
-        peerId: peerId,
-        cached: false,
-        showLoading: false,
-      );
+      await _refreshRemoteDeviceFromCache(peerId);
+      _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Remote service started');
     } catch (e) {
-      Get.snackbar('Remote start failed', '$e');
+      Get.snackbar('Remote start failed', remoteDeviceErrorMessage(e));
     } finally {
       remoteServicePendingActions.remove(actionKey);
       remoteServicePendingActions.refresh();
@@ -1775,15 +1804,11 @@ class FungiController extends GetxController {
           ..peerId = peerId
           ..name = serviceName,
       );
-      await refreshPeerDeviceServicesData(peerId: peerId);
-      await refreshAvailableServicesData(
-        peerId: peerId,
-        cached: false,
-        showLoading: false,
-      );
+      await _refreshRemoteDeviceFromCache(peerId);
+      _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Remote service stopped');
     } catch (e) {
-      Get.snackbar('Remote stop failed', '$e');
+      Get.snackbar('Remote stop failed', remoteDeviceErrorMessage(e));
     } finally {
       remoteServicePendingActions.remove(actionKey);
       remoteServicePendingActions.refresh();
@@ -1804,15 +1829,10 @@ class FungiController extends GetxController {
           ..name = serviceName,
       );
       await refreshPeerDeviceServicesData(peerId: peerId, cached: true);
-      _refreshPeerDeviceServicesInBackground(peerId: peerId);
-      await refreshAvailableServicesData(
-        peerId: peerId,
-        cached: false,
-        showLoading: false,
-      );
+      _refreshRemoteDeviceInBackground(peerId);
       Get.snackbar('Success', 'Remote service removed');
     } catch (e) {
-      Get.snackbar('Remote remove failed', '$e');
+      Get.snackbar('Remote remove failed', remoteDeviceErrorMessage(e));
     } finally {
       remoteServicePendingActions.remove(actionKey);
       remoteServicePendingActions.refresh();
