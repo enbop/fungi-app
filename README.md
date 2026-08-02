@@ -85,3 +85,10 @@ Stable builds must opt in explicitly:
 ```bash
 scripts/build_macos_dist.sh --channel stable
 ```
+
+## AI assistance
+This project has primarily been developed with AI assistance, and its code is reviewed and tested by the maintainer.
+
+## License
+
+Apache License 2.0
