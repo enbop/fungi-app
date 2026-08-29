@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.7.1+4] - 2026-08-29
+
+### Changed
+
+- Updated the bundled daemon and minimum compatible daemon version to Fungi 0.7.1.
+- The bundled daemon now restores and refreshes remote services without delaying startup, retains cached observations after refresh failures, and applies bounded request timeouts.
+- Remote device refreshes now run in the background so unavailable or untrusted devices do not block app actions.
+
+### Fixed
+
+- Remote connection failures now show a concise, consistent message while preserving cached service information.
+
 ## [0.7.0+3] - 2026-07-12
 
 ### Added
