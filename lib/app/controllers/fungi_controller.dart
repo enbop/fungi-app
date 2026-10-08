@@ -8,6 +8,9 @@ import 'package:fungi_app/app/build_info.dart';
 import 'package:fungi_app/app/foreground_task.dart';
 import 'package:fungi_app/app/launch_at_login_manager.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
+import 'package:fungi_app/app/models/daemon_compatibility.dart';
+import 'package:fungi_app/app/models/service_apply_result.dart';
+import 'package:fungi_app/ui/utils/service_apply_client.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pbgrpc.dart';
 import 'package:fungi_app/ui/pages/settings/relay_settings_dialog.dart';
 import 'package:flutter/material.dart';
@@ -117,6 +120,7 @@ class FungiController extends GetxController {
   static const documentationUrl = 'https://fungi.rs/docs/intro';
   static const daemonDisabledStorageKey = 'daemon_disabled';
   static const _recipeRequestTimeout = Duration(seconds: 20);
+  static const _serviceListRequestTimeout = Duration(seconds: 10);
   static const _deviceServiceSnapshotRequestTimeout = Duration(seconds: 10);
   static const _remotePeerServicesRequestTimeout = Duration(seconds: 8);
 
@@ -127,7 +131,7 @@ class FungiController extends GetxController {
   final daemonError = ''.obs;
   final connectedDaemonVersion = ''.obs;
   final connectedDaemonBuildDetails = ''.obs;
-  final appVersion = '0.7.1'.obs;
+  final appVersion = '0.8.0'.obs;
   final appBuildVersion = ''.obs;
   final appBuildDetails = ''.obs;
 
@@ -144,7 +148,7 @@ class FungiController extends GetxController {
   final _launchAtLoginHideToTrayKey = LaunchAtLoginManager.hideToTrayStorageKey;
   final _startupNoticeVersionKey = 'startup_notice_version';
   static const _startupNoticeCurrentVersion = 'relay-privacy-v1';
-  static const _defaultAppVersion = '0.7.1';
+  static const _defaultAppVersion = '0.8.0';
 
   final currentTheme = ThemeOption.system.obs;
   final preventClose = false.obs;
@@ -155,7 +159,6 @@ class FungiController extends GetxController {
   final launchAtLoginLoading = false.obs;
   final trustedDevices = <DeviceInfo>[].obs;
   final addressBook = <DeviceInfo>[].obs;
-  final runtimeConfig = RuntimeConfigResponse().obs;
   final localServices = <LocalServiceView>[].obs;
   final peerRemoteServices = <String, List<RemoteServiceListEntryView>>{}.obs;
   final peerDeviceServices = <String, List<LocalServiceView>>{}.obs;
@@ -447,15 +450,6 @@ class FungiController extends GetxController {
     }
 
     return 'The app starts and stops this daemon session.';
-  }
-
-  String get minimumCompatibleDaemonVersion {
-    final version = appVersion.value.trim();
-    if (version.isEmpty) {
-      return _defaultAppVersion;
-    }
-
-    return version.split('+').first;
   }
 
   bool get canStopDaemon =>
@@ -753,7 +747,6 @@ class FungiController extends GetxController {
         refreshAvailableServicesData(cached: true),
         refreshPeerDeviceServicesData(cached: true),
         refreshNodeManagementData(refreshDeviceServices: false),
-        refreshRuntimeConfig(),
       ]);
       _refreshPeerDeviceServicesInBackground();
     } catch (e) {
@@ -1067,43 +1060,12 @@ class FungiController extends GetxController {
     return trimmed.isEmpty ? 'unknown' : trimmed;
   }
 
-  bool _isCompatibleDaemonVersion(String version) {
-    return _compareSemver(version, minimumCompatibleDaemonVersion) >= 0;
-  }
-
-  int _compareSemver(String left, String right) {
-    final leftParts = _parseSemver(left);
-    final rightParts = _parseSemver(right);
-    if (leftParts == null || rightParts == null) {
-      return left.trim() == right.trim() ? 0 : -1;
-    }
-
-    for (var index = 0; index < 3; index++) {
-      final comparison = leftParts[index].compareTo(rightParts[index]);
-      if (comparison != 0) {
-        return comparison;
-      }
-    }
-
-    return 0;
-  }
-
-  List<int>? _parseSemver(String version) {
-    final match = RegExp(r'(\d+)\.(\d+)\.(\d+)').firstMatch(version);
-    if (match == null) {
-      return null;
-    }
-
-    return [
-      int.parse(match.group(1)!),
-      int.parse(match.group(2)!),
-      int.parse(match.group(3)!),
-    ];
-  }
+  bool _isCompatibleDaemonVersion(String version) =>
+      DaemonCompatibility.supports(version);
 
   String _buildIncompatibleDaemonMessage(String version) {
     final detectedVersion = version.trim().isEmpty ? 'unknown' : version.trim();
-    return 'Detected daemon $detectedVersion, but this app requires daemon $minimumCompatibleDaemonVersion or newer. Stop the old daemon or upgrade it before connecting.';
+    return 'Detected daemon $detectedVersion, but this app supports daemon ${DaemonCompatibility.supportedVersions}. Stop this daemon or install a compatible version before connecting.';
   }
 
   bool _isUnimplementedGrpcError(Object error) {
@@ -1113,7 +1075,7 @@ class FungiController extends GetxController {
 
   String _friendlyRelayFailureMessage(Object error) {
     if (_isUnimplementedGrpcError(error)) {
-      return 'This daemon does not support relay settings yet. Upgrade the daemon to $minimumCompatibleDaemonVersion or newer.';
+      return 'This daemon does not support relay settings. Install a compatible ${DaemonCompatibility.supportedVersions} daemon.';
     }
 
     if (error is ProcessException) {
@@ -1154,9 +1116,9 @@ class FungiController extends GetxController {
     final detectedVersion = version.trim().isEmpty ? 'unknown' : version.trim();
     await Get.dialog<void>(
       AlertDialog(
-        title: const Text('Daemon Upgrade Required'),
+        title: const Text('Incompatible Daemon'),
         content: Text(
-          'An older fungi daemon is already running on this device ($detectedVersion). This app requires daemon $minimumCompatibleDaemonVersion or newer. Stop the old daemon or upgrade it, then try again.',
+          'An incompatible fungi daemon is already running on this device ($detectedVersion). This app supports daemon ${DaemonCompatibility.supportedVersions}. Stop this daemon or install a compatible version, then try again.',
         ),
         actions: [
           FilledButton(
@@ -1189,20 +1151,8 @@ class FungiController extends GetxController {
     await initFungi();
   }
 
-  Future<void> refreshRuntimeConfig() async {
-    try {
-      runtimeConfig.value = await fungiClient.getRuntimeConfig(Empty());
-    } catch (e) {
-      debugPrint('Failed to get runtime config: $e');
-    }
-  }
-
   Future<void> refreshLocalServicesPageData() async {
-    await Future.wait([
-      refreshLocalServicesData(),
-      refreshRuntimeConfig(),
-      updateTrustedDevices(),
-    ]);
+    await Future.wait([refreshLocalServicesData(), updateTrustedDevices()]);
   }
 
   Future<void> refreshLocalServicesData() async {
@@ -1210,7 +1160,10 @@ class FungiController extends GetxController {
     localServicesError.value = '';
 
     try {
-      final response = await fungiClient.listServices(Empty());
+      final response = await fungiClient.listServices(
+        Empty(),
+        options: grpc.CallOptions(timeout: _serviceListRequestTimeout),
+      );
       localServices.value = decodeJsonStringList(
         response.servicesJson,
         LocalServiceView.fromJson,
@@ -1234,6 +1187,7 @@ class FungiController extends GetxController {
     try {
       final accessResponse = await fungiClient.listServiceAccesses(
         ListServiceAccessesRequest()..peerId = peerId ?? '',
+        options: grpc.CallOptions(timeout: _serviceListRequestTimeout),
       );
       final attachedAccesses = decodeJsonStringList(
         accessResponse.serviceAccessesJson,
@@ -1651,28 +1605,20 @@ class FungiController extends GetxController {
     }
   }
 
-  Future<bool> pullRemoteServiceFromPath({
+  Future<ServiceApplyResult> pullRemoteServiceFromPath({
     required String peerId,
     required String manifestPath,
+    bool startAfterApply = false,
   }) async {
     try {
       final file = File(manifestPath);
-      if (!await file.exists()) {
-        throw Exception('Service file not found: $manifestPath');
-      }
-
-      final manifestYaml = await file.readAsString();
-      await fungiClient.remotePullService(
-        RemotePullServiceRequest()
-          ..peerId = peerId
-          ..manifestYaml = manifestYaml,
+      return await _applyManifest(
+        manifestYaml: await file.readAsString(),
+        peerId: peerId,
+        startAfterApply: startAfterApply,
       );
-      _refreshRemoteDeviceInBackground(peerId);
-      Get.snackbar('Success', 'Service applied to device');
-      return true;
-    } catch (e) {
-      Get.snackbar('Remote apply failed', remoteDeviceErrorMessage(e));
-      return false;
+    } catch (error) {
+      return ServiceApplyResult.failed(remoteDeviceErrorMessage(error));
     }
   }
 
@@ -1725,41 +1671,64 @@ class FungiController extends GetxController {
     return response;
   }
 
-  Future<bool> createLocalServiceFromResolvedRecipe(
-    ResolveRecipeResponse resolved,
-  ) async {
+  Future<ServiceApplyResult> createLocalServiceFromResolvedRecipe(
+    ResolveRecipeResponse resolved, {
+    bool startAfterApply = false,
+  }) => _applyManifest(
+    manifestYaml: resolved.manifestYaml,
+    manifestBaseDir: resolved.manifestBaseDir,
+    startAfterApply: startAfterApply,
+  );
+
+  Future<ServiceApplyResult> createRemoteServiceFromResolvedRecipe({
+    required String peerId,
+    required ResolveRecipeResponse resolved,
+    bool startAfterApply = false,
+  }) => _applyManifest(
+    manifestYaml: resolved.manifestYaml,
+    peerId: peerId,
+    startAfterApply: startAfterApply,
+  );
+
+  Future<ServiceApplyResult> _applyManifest({
+    required String manifestYaml,
+    String? manifestBaseDir,
+    String? peerId,
+    bool startAfterApply = false,
+  }) async {
     try {
-      await fungiClient.pullService(
-        PullServiceRequest()
-          ..manifestYaml = resolved.manifestYaml
-          ..manifestBaseDir = resolved.manifestBaseDir,
+      var result = await applyServiceManifest(
+        client: fungiClient,
+        manifestYaml: manifestYaml,
+        manifestBaseDir: manifestBaseDir,
+        peerId: peerId,
+        startAfterApply: startAfterApply,
       );
-      await refreshLocalServicesPageData();
-      await refreshNodeManagementData();
-      Get.snackbar('Success', 'Service applied');
-      return true;
-    } catch (e) {
-      Get.snackbar('Recipe apply failed', '$e');
-      return false;
+      if (peerId != null &&
+          result.disposition == ServiceApplyDisposition.failed) {
+        result = ServiceApplyResult.failed(
+          remoteDeviceErrorMessage(result.message),
+        );
+      }
+      if (result.isComplete) {
+        Get.snackbar('Apply complete', result.message);
+      }
+      return result;
+    } finally {
+      unawaited(_refreshAfterServiceApply(peerId));
     }
   }
 
-  Future<bool> createRemoteServiceFromResolvedRecipe({
-    required String peerId,
-    required ResolveRecipeResponse resolved,
-  }) async {
+  Future<void> _refreshAfterServiceApply(String? peerId) async {
     try {
-      await fungiClient.remotePullService(
-        RemotePullServiceRequest()
-          ..peerId = peerId
-          ..manifestYaml = resolved.manifestYaml,
-      );
-      _refreshRemoteDeviceInBackground(peerId);
-      Get.snackbar('Success', 'Service applied to device');
-      return true;
-    } catch (e) {
-      Get.snackbar('Remote recipe apply failed', remoteDeviceErrorMessage(e));
-      return false;
+      if (peerId == null) {
+        await refreshLocalServicesData();
+      } else {
+        await _refreshRemoteDeviceFromCache(peerId);
+        _refreshRemoteDeviceInBackground(peerId);
+      }
+    } catch (error) {
+      debugPrint('Failed to refresh after service apply: $error');
     }
   }
 
@@ -1936,50 +1905,19 @@ class FungiController extends GetxController {
     return values.first;
   }
 
-  Future<bool> pullLocalServiceFromPath(String manifestPath) async {
+  Future<ServiceApplyResult> pullLocalServiceFromPath(
+    String manifestPath, {
+    bool startAfterApply = false,
+  }) async {
     try {
       final file = File(manifestPath);
-      if (!await file.exists()) {
-        throw Exception('Service file not found: $manifestPath');
-      }
-
-      final manifestYaml = await file.readAsString();
-      await fungiClient.pullService(
-        PullServiceRequest()
-          ..manifestYaml = manifestYaml
-          ..manifestBaseDir = file.parent.path,
+      return await _applyManifest(
+        manifestYaml: await file.readAsString(),
+        manifestBaseDir: file.parent.path,
+        startAfterApply: startAfterApply,
       );
-      await refreshLocalServicesPageData();
-      await refreshNodeManagementData();
-      Get.snackbar('Success', 'Service applied');
-      return true;
-    } catch (e) {
-      Get.snackbar('Apply failed', '$e');
-      return false;
-    }
-  }
-
-  Future<void> addRuntimeAllowedHostPath(String path) async {
-    try {
-      await fungiClient.addRuntimeAllowedHostPath(
-        RuntimeAllowedHostPathRequest()..path = path,
-      );
-      await refreshRuntimeConfig();
-      Get.snackbar('Success', 'Allowed path added');
-    } catch (e) {
-      Get.snackbar('Update failed', '$e');
-    }
-  }
-
-  Future<void> removeRuntimeAllowedHostPath(String path) async {
-    try {
-      await fungiClient.removeRuntimeAllowedHostPath(
-        RuntimeAllowedHostPathRequest()..path = path,
-      );
-      await refreshRuntimeConfig();
-      Get.snackbar('Success', 'Allowed path removed');
-    } catch (e) {
-      Get.snackbar('Update failed', '$e');
+    } catch (error) {
+      return ServiceApplyResult.failed(serviceApplyErrorMessage(error));
     }
   }
 

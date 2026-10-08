@@ -85,12 +85,6 @@ jobs:
           brew untap aws/tap || true
           brew install protobuf
 
-      - name: Install Windows Dependencies
-        if: matrix.target == 'windows'
-        run: |
-          choco install protoc
-        shell: powershell
-
       - name: Setup Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:

@@ -2,6 +2,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fungi_app/app/models/daemon_models.dart';
 
 void main() {
+  test('0.8 Wasmtime endpoints expose their TCP listener and status', () {
+    final service = LocalServiceView.fromJson({
+      'id': 'wasmtime:files',
+      'name': 'files',
+      'runtime': 'wasmtime',
+      'status': {'phase': 'running'},
+      'exposed_endpoints': [
+        {'name': 'web', 'host_port': 9080, 'service_port': 8080},
+      ],
+    });
+    expect(service.phase, 'running');
+    expect(service.localEndpoints.single.localPort, 9080);
+    expect(service.canOpen, isTrue);
+  });
+
+  test('unsupported old definition retains the daemon recovery detail', () {
+    final service = LocalServiceView.fromJson({
+      'name': 'legacy-files',
+      'runtime': 'wasmtime',
+      'status': {'phase': 'unknown', 'detail': 'reapply a current recipe'},
+    });
+    expect(service.state, 'reapply a current recipe');
+    expect(service.running, isFalse);
+  });
+
   test('decodes the current device service snapshot shape', () {
     final service = RemoteServiceListEntryView.fromJson({
       'name': 'files',
@@ -34,11 +59,12 @@ void main() {
   test('prefers service status detail over its phase', () {
     final service = LocalServiceView.fromJson({
       'name': 'worker',
-      'runtime': 'docker',
+      'runtime': 'wasmtime',
       'status': {'phase': 'exited', 'detail': 'exited(137)'},
     });
 
     expect(service.running, isFalse);
+    expect(service.phase, 'exited');
     expect(service.state, 'exited(137)');
   });
 

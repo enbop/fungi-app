@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fungi_app/app/controllers/fungi_controller.dart';
+import 'package:fungi_app/app/models/service_apply_result.dart';
 import 'package:fungi_app/src/grpc/generated/fungi_daemon.pb.dart';
 import 'package:get/get.dart';
 
@@ -23,8 +23,6 @@ String _createServiceDeviceLabel(DeviceInfo peer) {
 
 String _recipeRuntimeLabel(RecipeSummary recipe) {
   switch (recipe.runtime) {
-    case RecipeRuntimeKind.RECIPE_RUNTIME_KIND_DOCKER:
-      return 'Docker';
     case RecipeRuntimeKind.RECIPE_RUNTIME_KIND_WASMTIME:
       return 'Wasmtime';
     case RecipeRuntimeKind.RECIPE_RUNTIME_KIND_TCP:
@@ -55,7 +53,7 @@ Future<bool> _showRecipeWarningsDialog(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'The daemon found warnings while resolving this recipe for the selected target:',
+                'Review these warnings before applying this recipe to the selected target:',
               ),
               const SizedBox(height: 12),
               for (final warning in warnings) ...[
@@ -101,48 +99,41 @@ Widget _buildRecipeDetailCard(BuildContext context, RecipeDetail detail) {
 
   return Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
       color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
       borderRadius: BorderRadius.circular(12),
     ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    child: ExpansionTile(
+      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+      childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      title: Text(
+        summary?.name.isNotEmpty == true
+            ? summary!.name
+            : summary?.id ?? 'Recipe',
+        style: theme.textTheme.titleSmall,
+      ),
       children: [
-        Text(
-          summary?.name.isNotEmpty == true
-              ? summary!.name
-              : summary?.id ?? 'Recipe',
-          style: theme.textTheme.titleSmall,
-        ),
-        if (lines.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          for (final item in lines) ...[
-            Text(item, style: theme.textTheme.bodySmall),
-            const SizedBox(height: 4),
-          ],
+        for (final item in lines) ...[
+          Text(item, style: theme.textTheme.bodySmall),
+          const SizedBox(height: 4),
         ],
       ],
     ),
   );
 }
 
-Future<void> showCreateServiceDialog(
-  BuildContext context, {
-  DeviceInfo? initialPeer,
-}) async {
+Future<void> showCreateServiceDialog(BuildContext context) async {
   final controller = Get.find<FungiController>();
-  final devices = initialPeer == null
-      ? controller.addressBook.toList(growable: false)
-      : <DeviceInfo>[initialPeer];
+  final devices = controller.addressBook.toList(growable: false);
   final manifestPathController = TextEditingController();
   final serviceNameController = TextEditingController();
-  var target = initialPeer == null
-      ? _CreateServiceTarget.local
-      : _CreateServiceTarget.remote;
+  var target = _CreateServiceTarget.local;
   var source = _CreateServiceSource.manifest;
-  String? selectedPeerId =
-      initialPeer?.peerId ?? (devices.isNotEmpty ? devices.first.peerId : null);
+  var startAfterApply = false;
+  String? selectedPeerId = devices.isNotEmpty ? devices.first.peerId : null;
   final recipes = <RecipeSummary>[];
   String? selectedRecipeId;
   RecipeDetail? selectedRecipeDetail;
@@ -246,6 +237,7 @@ Future<void> showCreateServiceDialog(
   try {
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -258,400 +250,373 @@ Future<void> showCreateServiceDialog(
             final isRecipe = source == _CreateServiceSource.recipe;
 
             Future<void> submit() async {
-              if (isRecipe) {
-                if (selectedRecipeId == null || selectedRecipeId!.isEmpty) {
-                  setState(() {
-                    errorMessage = 'Choose a recipe first';
-                  });
-                  return;
-                }
-
-                final instanceName = serviceNameController.text.trim();
-
-                if (isRemote && selectedPeerId == null) {
-                  setState(() {
-                    errorMessage = 'Choose a target device first';
-                  });
-                  return;
-                }
-
-                setState(() {
-                  errorMessage = '';
-                  isSubmitting = true;
-                });
-
-                try {
+              if (isSubmitting) return;
+              if (isRemote && selectedPeerId == null) {
+                setState(() => errorMessage = 'Choose a target device first');
+                return;
+              }
+              if (isRecipe &&
+                  (selectedRecipeId == null || selectedRecipeId!.isEmpty)) {
+                setState(() => errorMessage = 'Choose a recipe first');
+                return;
+              }
+              if (!isRecipe && manifestPathController.text.trim().isEmpty) {
+                setState(() => errorMessage = 'Select a service file first');
+                return;
+              }
+              setState(() {
+                errorMessage = '';
+                isSubmitting = true;
+              });
+              try {
+                final ServiceApplyResult result;
+                if (isRecipe) {
+                  final instanceName = serviceNameController.text.trim();
                   final resolved = await controller.resolveServiceRecipe(
                     recipeId: selectedRecipeId!,
                     serviceName: instanceName.isEmpty ? null : instanceName,
                     peerId: isRemote ? selectedPeerId : null,
                   );
-
-                  if (!dialogContext.mounted) {
-                    return;
-                  }
-
-                  setState(() {
-                    isSubmitting = false;
-                  });
-
-                  // ignore: use_build_context_synchronously
+                  if (!dialogContext.mounted) return;
                   final shouldContinue = await _showRecipeWarningsDialog(
                     dialogContext,
                     resolved.warnings,
                   );
-                  if (!shouldContinue) {
-                    return;
-                  }
-
-                  setState(() {
-                    isSubmitting = true;
-                  });
-
-                  final success = isRemote
+                  if (!shouldContinue || !dialogContext.mounted) return;
+                  result = isRemote
                       ? await controller.createRemoteServiceFromResolvedRecipe(
                           peerId: selectedPeerId!,
                           resolved: resolved,
+                          startAfterApply: startAfterApply,
                         )
                       : await controller.createLocalServiceFromResolvedRecipe(
                           resolved,
+                          startAfterApply: startAfterApply,
                         );
-
-                  if (!dialogContext.mounted) {
-                    return;
-                  }
-
-                  setState(() {
-                    isSubmitting = false;
-                  });
-
-                  if (success) {
-                    // ignore: use_build_context_synchronously
-                    Navigator.of(dialogContext).pop();
-                  }
-                } catch (e) {
-                  if (!dialogContext.mounted) {
-                    return;
-                  }
-                  setState(() {
-                    isSubmitting = false;
-                    errorMessage = 'Failed to apply recipe: $e';
-                  });
+                } else {
+                  final manifestPath = manifestPathController.text.trim();
+                  result = isRemote
+                      ? await controller.pullRemoteServiceFromPath(
+                          peerId: selectedPeerId!,
+                          manifestPath: manifestPath,
+                          startAfterApply: startAfterApply,
+                        )
+                      : await controller.pullLocalServiceFromPath(
+                          manifestPath,
+                          startAfterApply: startAfterApply,
+                        );
                 }
-                return;
-              }
-
-              final manifestPath = manifestPathController.text.trim();
-              if (manifestPath.isEmpty) {
-                setState(() {
-                  errorMessage = 'Select a service file first';
-                });
-                return;
-              }
-
-              final file = File(manifestPath);
-              if (!await file.exists()) {
-                setState(() {
-                  errorMessage = 'Service file not found';
-                });
-                return;
-              }
-
-              if (isRemote && selectedPeerId == null) {
-                setState(() {
-                  errorMessage = 'Choose a target device first';
-                });
-                return;
-              }
-
-              setState(() {
-                errorMessage = '';
-                isSubmitting = true;
-              });
-
-              final success = isRemote
-                  ? await controller.pullRemoteServiceFromPath(
-                      peerId: selectedPeerId!,
-                      manifestPath: manifestPath,
-                    )
-                  : await controller.pullLocalServiceFromPath(manifestPath);
-
-              if (!dialogContext.mounted) {
-                return;
-              }
-
-              setState(() {
-                isSubmitting = false;
-              });
-
-              if (success) {
-                Navigator.of(dialogContext).pop();
+                if (!dialogContext.mounted) return;
+                if (result.isComplete) {
+                  Navigator.of(dialogContext).pop();
+                } else {
+                  setState(() => errorMessage = result.message);
+                }
+              } catch (error) {
+                if (dialogContext.mounted) {
+                  setState(
+                    () => errorMessage = remoteDeviceErrorMessage(error),
+                  );
+                }
+              } finally {
+                if (dialogContext.mounted) setState(() => isSubmitting = false);
               }
             }
 
-            return AlertDialog(
-              title: const Text('Apply Service'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Apply a local service file or start from an official recipe, then choose whether to apply it on this device or a saved device.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        ChoiceChip(
-                          label: const Text('Service File'),
-                          selected: source == _CreateServiceSource.manifest,
-                          onSelected: isSubmitting
-                              ? null
-                              : (_) {
-                                  setState(() {
-                                    source = _CreateServiceSource.manifest;
-                                    errorMessage = '';
-                                  });
-                                },
-                        ),
-                        ChoiceChip(
-                          label: const Text('Recipe'),
-                          selected: source == _CreateServiceSource.recipe,
-                          onSelected: isSubmitting
-                              ? null
-                              : (_) {
-                                  setState(() {
-                                    source = _CreateServiceSource.recipe;
-                                    errorMessage = '';
-                                  });
-                                },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        ChoiceChip(
-                          label: const Text('Local'),
-                          selected: target == _CreateServiceTarget.local,
-                          onSelected: isSubmitting
-                              ? null
-                              : (_) {
-                                  setState(() {
-                                    target = _CreateServiceTarget.local;
-                                    errorMessage = '';
-                                  });
-                                },
-                        ),
-                        ChoiceChip(
-                          label: const Text('Remote'),
-                          selected: target == _CreateServiceTarget.remote,
-                          onSelected: isSubmitting
-                              ? null
-                              : (_) {
-                                  setState(() {
-                                    target = _CreateServiceTarget.remote;
-                                    errorMessage = '';
-                                    selectedPeerId ??= devices.isNotEmpty
-                                        ? devices.first.peerId
-                                        : null;
-                                  });
-                                },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    if (isRemote) ...[
-                      if (devices.isEmpty)
-                        Text(
-                          'Save a device in Devices before applying to another device.',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        )
-                      else
-                        DropdownButtonFormField<String>(
-                          initialValue: selectedPeerId,
-                          decoration: const InputDecoration(
-                            labelText: 'Target device',
-                          ),
-                          items: devices
-                              .map((peer) {
-                                return DropdownMenuItem<String>(
-                                  value: peer.peerId,
-                                  child: Text(_createServiceDeviceLabel(peer)),
-                                );
-                              })
-                              .toList(growable: false),
-                          onChanged: isSubmitting
-                              ? null
-                              : (value) {
-                                  setState(() {
-                                    selectedPeerId = value;
-                                  });
-                                },
-                        ),
-                      const SizedBox(height: 12),
-                    ],
-                    if (isRecipe) ...[
-                      Row(
+            return PopScope(
+              canPop: !isSubmitting,
+              child: AlertDialog(
+                constraints: const BoxConstraints(maxWidth: 640),
+                title: const Text('Apply Service'),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Apply a service file or an official recipe on this device or a saved device.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
-                          Expanded(
-                            child: Text(
-                              'Recipes come from the daemon-backed official catalog and resolve into an effective service file before apply.',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: isSubmitting || loadingRecipes
+                          ChoiceChip(
+                            label: const Text('Service File'),
+                            selected: source == _CreateServiceSource.manifest,
+                            onSelected: isSubmitting
                                 ? null
-                                : () => loadRecipes(setState, refresh: true),
-                            child: const Text('Refresh'),
+                                : (_) {
+                                    setState(() {
+                                      source = _CreateServiceSource.manifest;
+                                      errorMessage = '';
+                                    });
+                                  },
+                          ),
+                          ChoiceChip(
+                            label: const Text('Recipe'),
+                            selected: source == _CreateServiceSource.recipe,
+                            onSelected: isSubmitting
+                                ? null
+                                : (_) {
+                                    setState(() {
+                                      source = _CreateServiceSource.recipe;
+                                      errorMessage = '';
+                                    });
+                                  },
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedRecipeId,
-                        decoration: const InputDecoration(labelText: 'Recipe'),
-                        items: recipes
-                            .map(
-                              (recipe) => DropdownMenuItem<String>(
-                                value: recipe.id,
-                                child: Text(
-                                  '${recipe.name} (${_recipeRuntimeLabel(recipe)})',
-                                ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Local'),
+                            selected: target == _CreateServiceTarget.local,
+                            onSelected: isSubmitting
+                                ? null
+                                : (_) {
+                                    setState(() {
+                                      target = _CreateServiceTarget.local;
+                                      errorMessage = '';
+                                    });
+                                  },
+                          ),
+                          ChoiceChip(
+                            label: const Text('Remote'),
+                            selected: target == _CreateServiceTarget.remote,
+                            onSelected: isSubmitting
+                                ? null
+                                : (_) {
+                                    setState(() {
+                                      target = _CreateServiceTarget.remote;
+                                      errorMessage = '';
+                                      selectedPeerId ??= devices.isNotEmpty
+                                          ? devices.first.peerId
+                                          : null;
+                                    });
+                                  },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (isRemote) ...[
+                        if (devices.isEmpty)
+                          Text(
+                            'Save a device in Devices before applying to another device.',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          )
+                        else
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedPeerId,
+                            decoration: const InputDecoration(
+                              labelText: 'Target device',
+                            ),
+                            items: devices
+                                .map((peer) {
+                                  return DropdownMenuItem<String>(
+                                    value: peer.peerId,
+                                    child: Text(
+                                      _createServiceDeviceLabel(peer),
+                                    ),
+                                  );
+                                })
+                                .toList(growable: false),
+                            onChanged: isSubmitting
+                                ? null
+                                : (value) {
+                                    setState(() {
+                                      selectedPeerId = value;
+                                    });
+                                  },
+                          ),
+                        const SizedBox(height: 12),
+                      ],
+                      if (isRecipe) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Recipes come from the daemon-backed official catalog and resolve into an effective service file before apply.',
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
-                            )
-                            .toList(growable: false),
-                        onChanged: isSubmitting || loadingRecipes
+                            ),
+                            TextButton(
+                              onPressed: isSubmitting || loadingRecipes
+                                  ? null
+                                  : () => loadRecipes(setState, refresh: true),
+                              child: const Text('Refresh'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          initialValue: selectedRecipeId,
+                          decoration: const InputDecoration(
+                            labelText: 'Recipe',
+                          ),
+                          items: recipes
+                              .map(
+                                (recipe) => DropdownMenuItem<String>(
+                                  value: recipe.id,
+                                  child: Text(
+                                    '${recipe.name} (${_recipeRuntimeLabel(recipe)})',
+                                  ),
+                                ),
+                              )
+                              .toList(growable: false),
+                          onChanged: isSubmitting || loadingRecipes
+                              ? null
+                              : (value) {
+                                  if (value == null ||
+                                      value == selectedRecipeId) {
+                                    return;
+                                  }
+                                  setState(() {
+                                    selectedRecipeId = value;
+                                    selectedRecipeDetail = null;
+                                    errorMessage = '';
+                                  });
+                                  updateRecipeInstanceIfNeeded(value);
+                                  Future<void>.microtask(
+                                    () => loadRecipeDetail(setState, value),
+                                  );
+                                },
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: serviceNameController,
+                          enabled: !isSubmitting,
+                          onChanged: (value) {
+                            final trimmedValue = value.trim();
+                            final trimmedSuggestion =
+                                (recipeInstanceSuggestion ?? '').trim();
+                            recipeInstanceDirty =
+                                trimmedValue.isNotEmpty &&
+                                trimmedValue != trimmedSuggestion;
+                          },
+                          decoration: const InputDecoration(
+                            labelText: 'Instance name',
+                            hintText: 'Defaults to the recipe ID',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        if (loadingRecipes || loadingRecipeDetail)
+                          const Center(child: CircularProgressIndicator())
+                        else if (selectedRecipeDetail != null)
+                          _buildRecipeDetailCard(context, selectedRecipeDetail!)
+                        else if (recipesRequested && recipes.isEmpty)
+                          Text(
+                            'No recipes are currently available.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                      ] else ...[
+                        TextField(
+                          controller: manifestPathController,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Service file',
+                            hintText: 'Select a .fungi.md service file',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: isSubmitting
+                              ? null
+                              : () async {
+                                  final result = await FilePicker.platform
+                                      .pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: const [
+                                          'md',
+                                          'markdown',
+                                        ],
+                                        lockParentWindow: true,
+                                      );
+                                  final path = result?.files.single.path;
+                                  if (path == null || path.isEmpty) {
+                                    return;
+                                  }
+                                  setState(() {
+                                    manifestPathController.text = path;
+                                    errorMessage = '';
+                                  });
+                                },
+                          icon: const Icon(Icons.upload_file),
+                          label: const Text('Choose Service File'),
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Start after applying'),
+                        subtitle: const Text(
+                          'Confirm that the service is running before finishing.',
+                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        value: startAfterApply,
+                        onChanged: isSubmitting
                             ? null
                             : (value) {
-                                if (value == null ||
-                                    value == selectedRecipeId) {
-                                  return;
-                                }
-                                setState(() {
-                                  selectedRecipeId = value;
-                                  selectedRecipeDetail = null;
-                                  errorMessage = '';
-                                });
-                                updateRecipeInstanceIfNeeded(value);
-                                Future<void>.microtask(
-                                  () => loadRecipeDetail(setState, value),
+                                setState(
+                                  () => startAfterApply = value ?? false,
                                 );
                               },
                       ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: serviceNameController,
-                        enabled: !isSubmitting,
-                        onChanged: (value) {
-                          final trimmedValue = value.trim();
-                          final trimmedSuggestion =
-                              (recipeInstanceSuggestion ?? '').trim();
-                          recipeInstanceDirty =
-                              trimmedValue.isNotEmpty &&
-                              trimmedValue != trimmedSuggestion;
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Instance name',
-                          hintText: 'Defaults to the recipe ID',
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (loadingRecipes || loadingRecipeDetail)
-                        const Center(child: CircularProgressIndicator())
-                      else if (selectedRecipeDetail != null)
-                        _buildRecipeDetailCard(context, selectedRecipeDetail!)
-                      else if (recipesRequested && recipes.isEmpty)
+                      if (errorMessage.isNotEmpty) ...[
+                        const SizedBox(height: 12),
                         Text(
-                          'No recipes are currently available.',
+                          errorMessage,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
+                      if (remoteUnavailable) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'Remote apply stays available here, but it needs a saved device first.',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
-                    ] else ...[
-                      TextField(
-                        controller: manifestPathController,
-                        readOnly: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Service file',
-                          hintText: 'Select a .fungi.md service file',
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton.icon(
-                        onPressed: isSubmitting
-                            ? null
-                            : () async {
-                                final result = await FilePicker.platform
-                                    .pickFiles(
-                                      type: FileType.custom,
-                                      allowedExtensions: const [
-                                        'md',
-                                        'markdown',
-                                      ],
-                                      lockParentWindow: true,
-                                    );
-                                final path = result?.files.single.path;
-                                if (path == null || path.isEmpty) {
-                                  return;
-                                }
-                                setState(() {
-                                  manifestPathController.text = path;
-                                  errorMessage = '';
-                                });
-                              },
-                        icon: const Icon(Icons.upload_file),
-                        label: const Text('Choose Service File'),
-                      ),
+                      ],
                     ],
-                    if (errorMessage.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        errorMessage,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ],
-                    if (remoteUnavailable) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'Remote apply stays available here, but it needs a saved device first.',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSubmitting
-                      ? null
-                      : () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancel'),
-                ),
-                FilledButton.icon(
-                  onPressed: isSubmitting || remoteUnavailable ? null : submit,
-                  icon: isSubmitting
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(isRecipe ? Icons.auto_awesome : Icons.add_circle),
-                  label: Text(
-                    isRemote
-                        ? 'Apply to Device'
-                        : 'Apply Here',
                   ),
                 ),
-              ],
+                actions: [
+                  TextButton(
+                    onPressed: isSubmitting
+                        ? null
+                        : () => Navigator.of(dialogContext).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  FilledButton.icon(
+                    onPressed: isSubmitting || remoteUnavailable
+                        ? null
+                        : submit,
+                    icon: isSubmitting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(
+                            isRecipe ? Icons.auto_awesome : Icons.add_circle,
+                          ),
+                    label: Text(
+                      startAfterApply
+                          ? 'Apply & Start'
+                          : isRemote
+                          ? 'Apply to Device'
+                          : 'Apply Here',
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );

@@ -42,6 +42,7 @@ class LocalServiceView {
     required this.state,
     required this.running,
     required this.localEndpoints,
+    this.phase = 'unknown',
   });
 
   final String id;
@@ -51,6 +52,7 @@ class LocalServiceView {
   final String state;
   final bool running;
   final List<LocalServicePortView> localEndpoints;
+  final String phase;
 
   factory LocalServiceView.fromJson(Map<String, dynamic> json) {
     final name =
@@ -62,6 +64,7 @@ class LocalServiceView {
       id: json['id'] as String? ?? '',
       name: name,
       runtime: json['runtime'] as String? ?? 'unknown',
+      phase: phase,
       source: _decodeServiceSource(json['source']),
       state:
           json['state'] as String? ??

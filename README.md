@@ -24,19 +24,37 @@ Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app 
 
 Fungi App currently tracks the `fungi` core release line directly.
 
-- The app version should match the compatible core daemon version, for example `0.7.0`.
-- UI-only repackaging or platform-specific release increments should use build metadata, for example `0.7.0+4`.
+- This app supports the Fungi `0.8.x` daemon API line and bundles `0.8.0`.
+- UI-only repackaging or platform-specific release increments use build metadata, for example `0.8.0+5`.
+
+## Upgrading services to 0.8
+
+The Services tab supports Wasmtime applications and existing host TCP services.
+Docker container management is no longer supported. Manage host applications or
+containers separately and expose them through a TCP service.
+
+To upgrade an old File Browser Lite or WebDAV service, use **Apply Service**,
+select the updated recipe, and enter the existing instance name on the same
+target. Core preserves the service ID and app data for a same-name apply. Review
+custom mounts and settings before replacing the service definition. Refreshing
+the recipe catalog alone does not upgrade installed services, and removing
+`run.mode` alone does not upgrade old Wasmtime HTTP components.
+
+**Start after applying** applies the definition, starts the service, and verifies
+its running state. If startup fails, the dialog reports that the definition was
+applied and shows the failure and final state. For TCP services, starting enables
+Fungi access; it does not start the external host application.
 
 ## Development
 
 ### Prerequisites
 
-1.  **Flutter SDK**: Ensure you have the latest Flutter SDK installed.
+1.  **Flutter SDK**: Use Flutter `3.44.6`, matching the CI toolchain and dependency lockfile.
 2.  **Fungi Artifacts**: download the matching core binary and proto:
     ```bash
-    scripts/fetch_core_artifacts.sh
+    scripts/fetch_core_artifacts.sh --channel stable
     ```
-    Use `--platform android` for Android, or `--platform all` to prepare every packaged target. Artifacts are placed under `fungi-artifacts/<channel>/<platform>/<arch>/`.
+    Use `--platform android` for Android, or `--platform all` to prepare every packaged target. Artifacts are placed under `fungi-artifacts/<channel>/<platform>/<arch>/`. For nightly builds, fetch the nightly channel explicitly.
 3.  **macOS**: If you're building on macOS, install CocoaPods (required for macOS Flutter plugins):
     ```bash
     brew install cocoapods
@@ -56,19 +74,20 @@ export PATH="$PATH:$HOME/.pub-cache/bin"
 
 # Regenerate gRPC code
 protoc --dart_out=grpc:lib/src/grpc/generated -Ifungi-artifacts fungi-artifacts/fungi_daemon.proto
+dart format lib/src/grpc/generated
 ```
 
 ### Running the App
 
 ```bash
 flutter pub get
-flutter run
+FUNGI_APP_CHANNEL=stable flutter run --dart-define=FUNGI_APP_CHANNEL=stable
 ```
 
-For Android development builds, select the nightly flavor:
+For Android development builds with the stable artifacts, select the stable flavor:
 
 ```bash
-flutter run --flavor nightly
+flutter run --flavor stable --dart-define=FUNGI_APP_CHANNEL=stable
 ```
 
 ### Distribution Build
