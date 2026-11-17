@@ -49,7 +49,7 @@ Fungi access; it does not start the external host application.
 
 ### Prerequisites
 
-1.  **Flutter SDK**: Use Flutter `3.44.6`, matching the CI toolchain and dependency lockfile.
+1.  **Flutter SDK**: Use Flutter `3.47.9`, matching the CI toolchain and dependency lockfile.
 2.  **Fungi Artifacts**: download the matching core binary and proto:
     ```bash
     scripts/fetch_core_artifacts.sh --channel stable

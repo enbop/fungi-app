@@ -529,15 +529,11 @@ Future<void> showCreateServiceDialog(BuildContext context) async {
                           onPressed: isSubmitting
                               ? null
                               : () async {
-                                  final result = await FilePicker.platform
-                                      .pickFiles(
-                                        type: FileType.custom,
-                                        allowedExtensions: const [
-                                          'md',
-                                          'markdown',
-                                        ],
-                                        lockParentWindow: true,
-                                      );
+                                  final result = await FilePicker.pickFiles(
+                                    type: FileType.custom,
+                                    allowedExtensions: const ['md', 'markdown'],
+                                    lockParentWindow: true,
+                                  );
                                   final path = result?.files.single.path;
                                   if (path == null || path.isEmpty) {
                                     return;
