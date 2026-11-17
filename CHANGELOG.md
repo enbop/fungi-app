@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.8.1+6] - 2026-11-17
+
+### Security
+
+- Bundle [Fungi core 0.8.1](https://github.com/enbop/fungi/releases/tag/v0.8.1) with Wasmtime and Rustls security fixes.
+- Build with Flutter 3.47.9 and Dart 3.13.7 to fix TLS certificate validation on affected platforms.
+- Update the Android file picker to fix file path handling and remove Apache Tika.
+- Update Android build tooling to Gradle 8.14.7 and Kotlin 2.4.21.
+
 ## [0.8.0+5] - 2026-10-08
 
 ### Added
