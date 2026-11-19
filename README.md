@@ -24,8 +24,8 @@ Fungi App communicates with the underlying `fungi` binary via **gRPC**. The app 
 
 Fungi App currently tracks the `fungi` core release line directly.
 
-- This app supports the Fungi `0.8.x` daemon API line and bundles `0.8.0`.
-- UI-only repackaging or platform-specific release increments use build metadata, for example `0.8.0+5`.
+- This app supports the Fungi `0.8.x` daemon API line and bundles `0.8.1`.
+- App releases include a build number, for example `0.8.1+6`.
 
 ## Upgrading services to 0.8
 
@@ -49,7 +49,7 @@ Fungi access; it does not start the external host application.
 
 ### Prerequisites
 
-1.  **Flutter SDK**: Use Flutter `3.44.6`, matching the CI toolchain and dependency lockfile.
+1.  **Flutter SDK**: Use Flutter `3.47.9`, matching the CI toolchain and dependency lockfile.
 2.  **Fungi Artifacts**: download the matching core binary and proto:
     ```bash
     scripts/fetch_core_artifacts.sh --channel stable

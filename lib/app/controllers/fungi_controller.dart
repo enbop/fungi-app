@@ -131,7 +131,7 @@ class FungiController extends GetxController {
   final daemonError = ''.obs;
   final connectedDaemonVersion = ''.obs;
   final connectedDaemonBuildDetails = ''.obs;
-  final appVersion = '0.8.0'.obs;
+  final appVersion = _defaultAppVersion.obs;
   final appBuildVersion = ''.obs;
   final appBuildDetails = ''.obs;
 
@@ -148,7 +148,7 @@ class FungiController extends GetxController {
   final _launchAtLoginHideToTrayKey = LaunchAtLoginManager.hideToTrayStorageKey;
   final _startupNoticeVersionKey = 'startup_notice_version';
   static const _startupNoticeCurrentVersion = 'relay-privacy-v1';
-  static const _defaultAppVersion = '0.8.0';
+  static const _defaultAppVersion = '0.8.1';
 
   final currentTheme = ThemeOption.system.obs;
   final preventClose = false.obs;
